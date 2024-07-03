@@ -22,7 +22,7 @@ namespace QuickServe.Application.Features.Store.Commands.AddEmployee
                 {
                     return new BaseResult<Guid>(new Error(ErrorCode.NotFound, translator.GetString("Không tim thấy tài khoản"), nameof(authenticatedUserService.UserId)));
                 }
-                var result = await mediator.Send(new CreateAccountCommand { Email = request.Email, UserName = request.UserName, Password = request.Password, Role = AccountRole.Staff.ToString() }, cancellationToken);
+                var result = await mediator.Send(new CreateAccountCommand { Email = request.Email, Name = request.Name,UserName = request.UserName, Password = request.Password, Role = AccountRole.Staff.ToString(), StoreId = currentUser.Staff.StoreId }, cancellationToken);
                 return new BaseResult<Guid>(result.Data);
             }
             catch (Exception ex)
