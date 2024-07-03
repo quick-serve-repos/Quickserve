@@ -13,6 +13,8 @@ public class OrderConfiguration :  IEntityTypeConfiguration<Order>
 
         entity.Property(e => e.CustomerId).HasColumnName("Customer_id");
 
+        entity.Property(e => e.Amount).HasColumnName("amount"); 
+
         entity.Property(e => e.Created).HasColumnType("date");
 
         entity.Property(e => e.StoreId).HasColumnName("Store_id");
