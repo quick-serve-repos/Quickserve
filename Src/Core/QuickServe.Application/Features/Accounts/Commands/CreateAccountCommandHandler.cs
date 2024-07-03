@@ -42,7 +42,7 @@ namespace QuickServe.Application.Features.Accounts.Commands
                     {
                         var store = await storeRepository.GetByIdAsync(request.StoreId);
                         
-                        if (store != null)
+                        if (store == null)
                         {
                             throw new Exception(translator
                                 .GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.StoreId)));
