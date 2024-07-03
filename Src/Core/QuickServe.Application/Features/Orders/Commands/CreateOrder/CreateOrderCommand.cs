@@ -6,8 +6,8 @@ namespace QuickServe.Application.Features.Orders.Commands.CreateOrder;
 
 public class CreateOrderCommand
 {
-    public Guid CustomerId { get; set; }
-    public long StoreId { get; set; }
+    public string Name { get; set; }
+    public string PhoneNumber { get; set; }
     public List<ProductCommand> Products { get; set; }
 
     public class ProductCommand

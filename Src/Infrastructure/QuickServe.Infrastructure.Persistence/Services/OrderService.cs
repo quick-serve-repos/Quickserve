@@ -1,4 +1,5 @@
-﻿using QuickServe.Application.Interfaces;
+﻿using System;
+using QuickServe.Application.Interfaces;
 using QuickServe.Application.Wrappers;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System.Collections.Generic;
@@ -14,7 +15,8 @@ using QuickServe.Domain.IngredientProducts.Entities;
 using QuickServe.Domain.Orders.Entities;
 using QuickServe.Domain.OrderProducts.Entities;
 using QuickServe.Application.DTOs.Orders.Response;
-using QuickServe.Application.Features.Orders.Commands.UpdateOrder;
+using QuickServe.Domain.Accounts.Entities;
+using QuickServe.Domain.Customers.Entities;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
@@ -23,26 +25,46 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductTemplateRepository _productTemplateRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public OrderService(ApplicationDbContext context, IUnitOfWork unitOfWork, IProductTemplateRepository productTemplateRepository)
+        public OrderService(
+            ApplicationDbContext context, 
+            IUnitOfWork unitOfWork, 
+            IProductTemplateRepository productTemplateRepository,
+            ICustomerRepository customerRepository)
         {
             _context = context;
             _unitOfWork = unitOfWork;
             _productTemplateRepository = productTemplateRepository;
+            _customerRepository = customerRepository;
         }
         public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
         {
             if (command.Products == null || !command.Products.Any())
                 return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
 
+            var account = await _customerRepository.GetByPhoneAsync(command.PhoneNumber);
+            if (account == null)
+            {
+                string userName = "user-" + EnumExtension.GenerateUniqueId();
+                account = new Customer()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = command.Name,
+                    UserName = userName,
+                    PhoneNumber = command.PhoneNumber
+                };
+                await _context.Customers.AddRangeAsync(account);
+            }
+
             List<Product> products = new List<Product>();
             List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
-            List<OrderProduct> orderProducts = new List<OrderProduct>();
+            List<OrderProduct> orderProducts = new List<OrderProduct>(); 
             var order = new Order()
             {
                 Id = EnumExtension.GenerateUniqueId(),
-                CustomerId = command.CustomerId,
-                StoreId = command.StoreId
+                CustomerId = account.Id,
+                StoreId = 1 //hardcode storeId => 1
             };
 
             foreach (var obj in command.Products)
@@ -95,7 +117,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             await _context.ProDucts.AddRangeAsync(products);
             if (ingredientProducts.Any())
                 await _context.IngredientProducts.AddRangeAsync(ingredientProducts);
-
+            
             await _context.Orders.AddRangeAsync(order);
             await _context.OrderProducts.AddRangeAsync(orderProducts);
 
