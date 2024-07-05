@@ -9,7 +9,6 @@ using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.IngredientNutritions;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.IngredientNutritions.Entities;
-using QuickServe.Domain.Nutritions.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
 using System.Collections.Generic;
@@ -68,6 +67,25 @@ namespace QuickServe.Infrastructure.Persistence.Services
             }
         }
 
+        public async Task<BaseResult> DeleteAllNutritionAsync(long ingredientId)
+        {
+            try
+            {
+                var exists = await _context.IngredientNutritions
+                    .Where(c => c.IngredientId == ingredientId).ToListAsync();
+                if (exists.Any())
+                {
+                    _context.IngredientNutritions.RemoveRange(exists);
+                }
+                await _unitOfWork.SaveChangesAsync();
+                return new BaseResult();
+            }
+            catch (Exception ex)
+            {
+                return new BaseResult($"Đã xảy ra lỗi khi xóa thành phần dinh dưỡng: {ex.Message}");
+            }
+        }
+
         public async Task<BaseResult> DeleteIngredientNutritionAsync(long ingredientId, DeleteNutritionInIngredientRequest request)
         {
             try
@@ -85,7 +103,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             }
             catch (Exception ex)
             {
-                return new BaseResult($"Đã xảy ra lỗi khi xóa thành phần dinh dưỡng: {ex.Message}");
+                return new BaseResult($"Đã xảy ra lỗi khi xóa tất cả thành phần dinh dưỡng: {ex.Message}");
             }
         }
 

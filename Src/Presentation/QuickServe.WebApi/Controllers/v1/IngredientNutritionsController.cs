@@ -35,9 +35,13 @@ namespace QuickServe.WebApi.Controllers.v1
         }
             
 
-        [HttpDelete("{ingredientId}")]
+        [HttpDelete("{ingredientId}/nutrition")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Brand_Manager")]
         public async Task<BaseResult> DeleteIngredientNutrition(long ingredientId, DeleteNutritionInIngredientRequest request)
             => await _service.DeleteIngredientNutritionAsync(ingredientId, request);
+        [HttpDelete("{ingredientId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Brand_Manager")]
+        public async Task<BaseResult> DeleteAllNutritionInIngredient(long ingredientId, DeleteNutritionInIngredientRequest request)
+           => await _service.DeleteAllNutritionAsync(ingredientId);
     }
 }
