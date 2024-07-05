@@ -38,7 +38,7 @@ namespace QuickServe.WebApi.Controllers.v1
 
         [HttpDelete("{sessionId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager")]
-        public async Task<BaseResult> DeleteIngredientSession(long sessionId)
-            => await _service.DeleteIngredientSessionAsync(sessionId);
+        public async Task<BaseResult> DeleteIngredientSession(long sessionId, DeleteIngredientInSessionRequest request)
+            => await _service.DeleteIngredientSessionAsync(sessionId, request);
     }
 }

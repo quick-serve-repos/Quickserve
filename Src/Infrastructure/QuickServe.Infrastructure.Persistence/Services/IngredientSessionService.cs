@@ -6,6 +6,7 @@ using QuickServe.Application.Helpers;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.IngredientSessions;
 using QuickServe.Application.Wrappers;
+using QuickServe.Domain.Ingredients.Entities;
 using QuickServe.Domain.IngredientSessions.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
@@ -66,16 +67,18 @@ namespace QuickServe.Infrastructure.Persistence.Services
             }
         }
 
-        public async Task<BaseResult> DeleteIngredientSessionAsync(long sessionId)
+        public async Task<BaseResult> DeleteIngredientSessionAsync(long sessionId, DeleteIngredientInSessionRequest request)
         {
             try
             {
                 var exists = await _context.IngredientSessions
                     .Where(c => c.SessionId == sessionId).ToListAsync();
-                if (exists.Any())
-                {
-                    _context.IngredientSessions.RemoveRange(exists);
+                var ingre = exists.FirstOrDefault(c=> c.IngredientId == request.IngredientId);
+                if( ingre == null ) {
+                    return new BaseResult(new Error(ErrorCode.NotFound,
+                        _translator.GetString("Không tìm thấy nguyên liệu trong ca"), nameof(request.IngredientId)));
                 }
+                exists.Remove(ingre);
                 await _unitOfWork.SaveChangesAsync();
                 return new BaseResult();
             }

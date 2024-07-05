@@ -9,6 +9,7 @@ using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.IngredientNutritions;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.IngredientNutritions.Entities;
+using QuickServe.Domain.Nutritions.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
 using System.Collections.Generic;
@@ -67,16 +68,18 @@ namespace QuickServe.Infrastructure.Persistence.Services
             }
         }
 
-        public async Task<BaseResult> DeleteIngredientNutritionAsync(long ingredientId)
+        public async Task<BaseResult> DeleteIngredientNutritionAsync(long ingredientId, DeleteNutritionInIngredientRequest request)
         {
             try
             {
                 var exists = await _context.IngredientNutritions
                     .Where(c => c.IngredientId == ingredientId).ToListAsync();
-                if (exists.Any())
+                var nutrition = exists.FirstOrDefault(c=> c.NutritionId == request.NutritionId);
+                if (nutrition == null)
                 {
-                    _context.IngredientNutritions.RemoveRange(exists);
+                    return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString("Không tìm thấy thành phần dinh dưỡng trong nguyên liệu"), nameof(request.NutritionId)));
                 }
+                exists.Remove(nutrition);
                 await _unitOfWork.SaveChangesAsync();
                 return new BaseResult();
             }
