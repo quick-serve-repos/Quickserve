@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using QuickServe.Application.DTOs.Ingredients.Responses;
 using QuickServe.Application.DTOs.IngredientSessions;
 using QuickServe.Application.DTOs.Sessions.Response;
@@ -6,7 +7,6 @@ using QuickServe.Application.Helpers;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.IngredientSessions;
 using QuickServe.Application.Wrappers;
-using QuickServe.Domain.Ingredients.Entities;
 using QuickServe.Domain.IngredientSessions.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
@@ -64,6 +64,25 @@ namespace QuickServe.Infrastructure.Persistence.Services
             catch (Exception ex)
             {
                 return new BaseResult($"Đã xảy ra lỗi khi tạo nguyên liệu trong ca làm việc: {ex.Message}");
+            }
+        }
+
+        public async Task<BaseResult> DeleteAllIngredientAsync(long sessionId)
+        {
+            try
+            {
+                var exists = await _context.IngredientSessions
+                    .Where(c => c.SessionId == sessionId).ToListAsync();
+                if (exists.Any())
+                {
+                    _context.IngredientSessions.RemoveRange(exists);
+                }
+                await _unitOfWork.SaveChangesAsync();
+                return new BaseResult();
+            }
+            catch (Exception ex)
+            {
+                return new BaseResult($"Đã xảy ra lỗi khi xóa hết nguyên liệu trong ca làm việc: {ex.Message}");
             }
         }
 

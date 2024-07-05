@@ -9,7 +9,7 @@ namespace QuickServe.Application.DTOs.IngredientSessions
 {
     public class DeleteIngredientInSessionRequest
     {
-        public int IngredientId { get; set; }
+        public long IngredientId { get; set; }
     }
     public class DeleteIngredientInSessionRequestValidator : AbstractValidator<DeleteIngredientInSessionRequest>
     {
