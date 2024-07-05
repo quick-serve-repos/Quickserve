@@ -13,6 +13,6 @@ namespace QuickServe.Application.Interfaces.IngredientSessions
         Task<BaseResult> CreateIngredientSessionAsync(CreateIngredientSessionRequest request);
         Task<BaseResult> UpdateIngredientSessionAsync(CreateIngredientSessionRequest request);
         Task<BaseResult> GetBySessionIdAsync(long sessionId);
-        Task<BaseResult> DeleteIngredientSessionAsync(long sessionId);
+        Task<BaseResult> DeleteIngredientSessionAsync(long sessionId, DeleteIngredientInSessionRequest request);
     }
 }

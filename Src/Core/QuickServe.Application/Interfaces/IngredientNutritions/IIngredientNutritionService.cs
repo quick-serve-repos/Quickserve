@@ -12,6 +12,6 @@ namespace QuickServe.Application.Interfaces.IngredientNutritions
         Task<BaseResult> CreateIngredientNutritionAsync(CreateIngredientNutritionRequest request);
         Task<BaseResult> UpdateIngredientNutritionAsync(CreateIngredientNutritionRequest request);
         Task<BaseResult> GetByIngredientIdAsync(long ingredientId);
-        Task<BaseResult> DeleteIngredientNutritionAsync(long ingredientId);
+        Task<BaseResult> DeleteIngredientNutritionAsync(long ingredientId, DeleteNutritionInIngredientRequest request);
     }
 }
