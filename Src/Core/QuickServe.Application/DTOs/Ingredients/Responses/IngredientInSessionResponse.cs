@@ -12,5 +12,6 @@ namespace QuickServe.Application.DTOs.Ingredients.Responses
         public string Name { get; set; }
         public string ImageUrl { get; set; }
         public int Quantity { get; set; }
+        public int SoldQuantity { get; set; }
     }
 }
