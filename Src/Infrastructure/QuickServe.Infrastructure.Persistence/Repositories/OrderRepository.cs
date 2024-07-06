@@ -24,13 +24,23 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
     public async Task<Order> GetByIdAsync(long id)
     {
-        return await orders.FirstOrDefaultAsync(o => o.Id == id);
+        return await orders.AsNoTracking()
+            .Include(x => x.OrderProducts)
+            .ThenInclude(e => e.Product)
+            .ThenInclude(a => a.IngredientProducts)
+            .ThenInclude(b => b.Ingredient)
+            .FirstOrDefaultAsync(o => o.Id == id);
     }
-    public async Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize)
+    public async Task<PagenationResponseDto<Order>> GetOrderAsync(int pageNumber, int pageSize)
     {
-        var query = orders.AsNoTracking();
+        var query = orders.AsNoTracking()
+            .Include(x => x.OrderProducts)
+            .ThenInclude(e => e.Product)
+            .ThenInclude(a => a.IngredientProducts)
+            .ThenInclude(b => b.Ingredient);
+            
         return await Paged(
-            query.Select(s => new OrderDto(s)),
+            query,
             pageNumber,
             pageSize);
     }

@@ -19,7 +19,8 @@ namespace QuickServe.Domain.Ingredients.Dtos
             ImageUrl = ingredient.ImageUrl;
             IngredientTypeId = ingredient.IngredientTypeId;
             Status = ingredient.Status;
-            IngredientType = new SimpleIngredietTypeRespone(ingredient.IngredientType);
+            IngredientType = ingredient.IngredientType != null 
+                ? new SimpleIngredietTypeRespone(ingredient.IngredientType) : null;
             Created = ingredient.Created;
             CreatedBy = ingredient.CreatedBy;
             LastModified = ingredient.LastModified ?? null;  // Xử lý giá trị NULL

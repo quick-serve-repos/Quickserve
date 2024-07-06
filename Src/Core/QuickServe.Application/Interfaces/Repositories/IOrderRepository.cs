@@ -1,4 +1,5 @@
-﻿using QuickServe.Application.DTOs;
+﻿using System.Collections.Generic;
+using QuickServe.Application.DTOs;
 using QuickServe.Domain.Categories.Entities;
 using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.Orders.Entities;
@@ -10,5 +11,5 @@ public interface IOrderRepository : IGenericRepository<Order>
 {
     Task<Order> GetByIdAsync(long id);
 
-    Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize);
+    Task<PagenationResponseDto<Order>> GetOrderAsync(int pageNumber, int pageSize);
 }

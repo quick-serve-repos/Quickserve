@@ -30,7 +30,7 @@ namespace QuickServe.WebApi.Controllers.v1
         }
 
         [HttpGet()]
-        public async Task<PagedResponse<OrderDto>> GetOrderById([FromQuery] GetPagedListOrderQuery command)
+        public async Task<PagedResponse<OrderDto>> GetOrders([FromQuery] GetPagedListOrderQuery command)
         {
             return await Mediator.Send(command);
         }

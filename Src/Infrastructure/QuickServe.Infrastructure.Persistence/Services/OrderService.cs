@@ -79,7 +79,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     Id = EnumExtension.GenerateUniqueId(),
                     Name = productTemplate.Name,
-                    Quantity = productTemplate.Quantity,
+                    Quantity = obj.Quantity,
                     ProductTemplateId = productTemplate.Id,
                     //Price = productTemplate.Price hiện tại ko cộng giá của productTemplate
                 };
@@ -104,13 +104,13 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 products.Add(product);
 
                 //Lưu thông tin orderProduct
-                var orderProuct = new OrderProduct()
+                var orderProduct = new OrderProduct()
                 {
                     OrderId = order.Id,
                     ProductId = product.Id,
                     Quantity = obj.Quantity
                 };
-                orderProducts.Add(orderProuct);
+                orderProducts.Add(orderProduct);
 
                 //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
                 order.Amount += (double)product.Price * obj.Quantity;
