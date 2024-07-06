@@ -15,7 +15,6 @@ using QuickServe.Domain.IngredientProducts.Entities;
 using QuickServe.Domain.Orders.Entities;
 using QuickServe.Domain.OrderProducts.Entities;
 using QuickServe.Application.DTOs.Orders.Response;
-using QuickServe.Domain.Accounts.Entities;
 using QuickServe.Domain.Customers.Entities;
 
 namespace QuickServe.Infrastructure.Persistence.Services
@@ -43,18 +42,22 @@ namespace QuickServe.Infrastructure.Persistence.Services
             if (command.Products == null || !command.Products.Any())
                 return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
 
-            var account = await _customerRepository.GetByPhoneAsync(command.PhoneNumber);
-            if (account == null)
+            Customer account = null;
+            if (!string.IsNullOrEmpty(command.PhoneNumber))
             {
-                string userName = "user-" + EnumExtension.GenerateUniqueId();
-                account = new Customer()
+                account = await _customerRepository.GetByPhoneAsync(command.PhoneNumber);
+                if (account == null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = command.Name,
-                    UserName = userName,
-                    PhoneNumber = command.PhoneNumber
-                };
-                await _context.Customers.AddRangeAsync(account);
+                    string userName = "user-" + EnumExtension.GenerateUniqueId();
+                    account = new Customer()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = command.Name,
+                        UserName = userName,
+                        PhoneNumber = command.PhoneNumber
+                    };
+                    await _context.Customers.AddRangeAsync(account);
+                }
             }
 
             List<Product> products = new List<Product>();
@@ -63,7 +66,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             var order = new Order()
             {
                 Id = EnumExtension.GenerateUniqueId(),
-                CustomerId = account.Id,
+                CustomerId = account != null ? account.Id : null,
                 StoreId = 1 //hardcode storeId => 1
             };
 

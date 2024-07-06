@@ -22,7 +22,6 @@ public class CreatePaymentCommandHandler(IPaymentService paymentService, IOrderR
         if (order.Amount != request.TotalPrice)
             return new BaseResult<PaymentResponse>(new Error(ErrorCode.NotFound, "Price not valid"));
 
-        request.VNPayBankCode = "VNBANK";
         var paymentUrl = await paymentService.CreateVNPayPaymentUrlAsync(request, cancellationToken);
         
         return new BaseResult<PaymentResponse>(new PaymentResponse { PaymentUrl = paymentUrl });

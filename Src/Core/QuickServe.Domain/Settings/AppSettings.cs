@@ -40,5 +40,7 @@ namespace QuickServe.Domain.Settings
         /// SecretKey
         /// </summary>
         public string SecretKey { get; set; }
+
+        public string CallBackUrl { get; set; }
     }
 }

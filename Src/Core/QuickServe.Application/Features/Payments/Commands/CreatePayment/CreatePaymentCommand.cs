@@ -12,10 +12,6 @@ public class CreatePaymentCommand : IRequest<BaseResult<PaymentResponse>>
 
     public long? TotalPrice { get; set; }
 
-    public string VNPayBankCode { get; set; }
-
     public string OrderInfo { get; set; }
-
-    public string RedirectUrl { get; set; }
-
+    
 }

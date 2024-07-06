@@ -60,8 +60,6 @@ namespace QuickServe.Infrastructure.Persistence.Services
         public async Task<string> CreateVNPayPaymentUrlAsync(CreatePaymentCommand request, CancellationToken cancellationToken)
         {
             var locale = "vn";
-            var returnUrl = request.RedirectUrl;
-
             var title = $"Deposit for user has phone number {request.OrderInfo}, amount {request.TotalPrice}";
 
             var orderInfo = new VNPayOrderInfoModel()
@@ -70,12 +68,12 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 Title = title,
                 Amount = request.TotalPrice.Value,
                 CreatedDate = DateTime.Now,
-                BankCode = request.VNPayBankCode,
+                BankCode = "VNBANK",
                 CurrencyCode = "VND"
             };
 
             // Call the VNPay's service.
-            var paymentUrl = await _vnPayService.CreatePaymentUrlAsync(_vnPayConfigModel, orderInfo, locale, returnUrl);
+            var paymentUrl = await _vnPayService.CreatePaymentUrlAsync(_vnPayConfigModel, orderInfo, locale, _vnPaySettings.CallBackUrl);
 
             return paymentUrl;
         }
