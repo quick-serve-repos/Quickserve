@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using QuickServe.Domain.TemplateSteps.Entities;
 
 namespace QuickServe.Application.Features.IngredientTypes.Commands.UpdateIngredientTypeStatus
 {
@@ -43,7 +44,8 @@ namespace QuickServe.Application.Features.IngredientTypes.Commands.UpdateIngredi
             {
                 foreach (var t in ingredientType.IngredientTypeTemplateSteps)
                 {
-                   ingredientType.IngredientTypeTemplateSteps.Remove(t);
+                    t.TemplateStep.Status = (int) TemplateStepStatus.Inactive;
+                    t.TemplateStep.ProductTemplate.Status = (int) TemplateStepStatus.Inactive;
                 }
             }
             ingredientType.Update(ingredientType.Status);

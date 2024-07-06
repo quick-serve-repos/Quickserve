@@ -54,7 +54,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         IngredientId = ingredient.Id,
                         SessionId = request.SessionId,
-                        Quantity = ingredient.Quantity
+                        Quantity = ingredient.Quantity,
+                        SoldQuantity = 0
                     };
                     await _context.IngredientSessions.AddAsync(sessionIngre);
                 }
@@ -130,7 +131,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         Id = ingreNu.IngredientId,
                         Name = ingreNu.Ingredient.Name,
                         ImageUrl = ingreNu.Ingredient.ImageUrl,
-                        Quantity = ingreNu.Quantity
+                        Quantity = ingreNu.Quantity,
+                        SoldQuantity = ingreNu.SoldQuantity
                     };
                     ingredients.Add(ingredient);
                 }
@@ -140,6 +142,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Name = session.Name,
                     StartTime = session.StartTime,
                     EndTime = session.EndTime,
+
                     Ingredients = ingredients
                 };
                 return new BaseResult<SessionResponse>(result);
@@ -176,7 +179,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         IngredientId = ingredient.Id,
                         SessionId = request.SessionId,
-                        Quantity = ingredient.Quantity
+                        Quantity = ingredient.Quantity,
+                        SoldQuantity = 0
                     };
                     await _context.IngredientSessions.AddAsync(ingredientSession);
                 }
