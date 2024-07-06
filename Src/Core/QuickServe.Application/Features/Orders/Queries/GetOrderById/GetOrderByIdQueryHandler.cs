@@ -25,7 +25,7 @@ public class GetOrderByIdQueryHandler(IOrderRepository orderRepository) : IReque
             return new BaseResult<OrderDto>(new Error(ErrorCode.NotFound));
         }
 
-        var orderDto = new OrderDto();
+        var orderDto = new OrderDto(order);
         var productList = new List<ProDuctsDto>();
         foreach (var item in order.OrderProducts)
         {

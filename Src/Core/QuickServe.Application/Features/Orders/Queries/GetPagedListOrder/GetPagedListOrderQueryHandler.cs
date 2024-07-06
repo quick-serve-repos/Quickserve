@@ -24,7 +24,7 @@ public class GetPagedListOrderQueryHandler(IOrderRepository orderRepository) : I
         {
             foreach (var order in orderList.Data)
             {
-                var orderDto = new OrderDto();
+                var orderDto = new OrderDto(order);
                 var productList = new List<ProDuctsDto>();
                 foreach (var item in order.OrderProducts)
                 {
