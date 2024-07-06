@@ -54,7 +54,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         IngredientId = ingredient.Id,
                         SessionId = request.SessionId,
-                        Quantity = ingredient.Quantity
+                        Quantity = ingredient.Quantity,
+                        SoldQuantity = 0
                     };
                     await _context.IngredientSessions.AddAsync(sessionIngre);
                 }
@@ -178,7 +179,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         IngredientId = ingredient.Id,
                         SessionId = request.SessionId,
-                        Quantity = ingredient.Quantity
+                        Quantity = ingredient.Quantity,
+                        SoldQuantity = 0
                     };
                     await _context.IngredientSessions.AddAsync(ingredientSession);
                 }
