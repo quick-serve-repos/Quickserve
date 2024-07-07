@@ -98,7 +98,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     return new BaseResult(new Error(ErrorCode.NotFound,
                         _translator.GetString("Không tìm thấy nguyên liệu trong ca"), nameof(request.IngredientId)));
                 }
-                exists.Remove(ingre);
+                _context.IngredientSessions.Remove(ingre);
                 await _unitOfWork.SaveChangesAsync();
                 return new BaseResult();
             }

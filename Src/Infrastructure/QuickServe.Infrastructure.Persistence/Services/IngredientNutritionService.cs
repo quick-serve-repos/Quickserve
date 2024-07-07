@@ -97,7 +97,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString("Không tìm thấy thành phần dinh dưỡng trong nguyên liệu"), nameof(request.NutritionId)));
                 }
-                exists.Remove(nutrition);
+                _context.IngredientNutritions.Remove(nutrition);
                 await _unitOfWork.SaveChangesAsync();
                 return new BaseResult();
             }
