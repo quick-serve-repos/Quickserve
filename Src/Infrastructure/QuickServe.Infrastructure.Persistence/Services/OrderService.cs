@@ -25,17 +25,23 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductTemplateRepository _productTemplateRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly ISessionRepository _sessionRepository;
+        private readonly IIngredientSessionRepository _ingredientSessionRepository;
 
         public OrderService(
             ApplicationDbContext context, 
             IUnitOfWork unitOfWork, 
             IProductTemplateRepository productTemplateRepository,
-            ICustomerRepository customerRepository)
+            ICustomerRepository customerRepository, 
+            ISessionRepository sessionRepository,
+            IIngredientSessionRepository ingredientSessionRepository)
         {
             _context = context;
             _unitOfWork = unitOfWork;
             _productTemplateRepository = productTemplateRepository;
             _customerRepository = customerRepository;
+            _sessionRepository = sessionRepository;
+           _ingredientSessionRepository = ingredientSessionRepository;
         }
         public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
         {
@@ -89,6 +95,29 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     foreach (var ingre in obj.Ingredients)
                     {
+                        var sessions = await _sessionRepository.GetAllAsync();
+                        var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                        
+                        if (currentSession != null)
+                        {
+                            var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
+                            //Nếu không có ingredientSession nào được khai báo => cho đặt thoải mái
+                            //Trường hợp nếu có => cộng dồn ở SoldQuantity => Để check còn tồn có hợp lệ không
+                            if (ingredientSession != null)
+                            {
+                                //check tồn có đủ đk không
+                                var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
+                                if (quantityExist > ingredientSession.Quantity)
+                                {
+                                    return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound, "Nguyên liệu không đủ số lượng tồn " + ingre.Id));
+                                }
+                                else
+                                {
+                                    ingredientSession.SoldQuantity += ingre.Quantity;
+                                }
+                            }
+                        }
+                        
                         var ingredientProduct = new IngredientProduct()
                         {
                             ProductId = product.Id,

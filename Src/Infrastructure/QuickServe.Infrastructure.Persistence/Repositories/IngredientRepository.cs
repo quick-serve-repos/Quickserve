@@ -12,6 +12,7 @@ using QuickServe.Domain.IngredientTypes.Dtos;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using QuickServe.Infrastructure.Resources.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,6 +40,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
             .ThenInclude(i=> i.TemplateStep)
             .ThenInclude(i=> i.ProductTemplateId)
             .Include(i=>i.IngredientSessions)
+            .ThenInclude(s=> s.Session)
             .Include(i=>i.IngredientNutritions)
             .Include(i=>i.IngredientProducts).ThenInclude(ip=> ip.Product)
             .FirstOrDefaultAsync(i=>i.Id == id);
@@ -108,4 +110,5 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
             pageNumber,
             pageSize);
     }
+    
 }
