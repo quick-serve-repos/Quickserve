@@ -13,14 +13,14 @@ namespace QuickServe.Domain.Orders.Dtos
         }
         public OrderDto(Order order)
         {
-            Id = order.Id;
+            Id = order.Id.ToString();
             CustomerId = order.CustomerId;
             TotalPrice = order.Amount;
             Status = order.Status;
             StoreId = order.StoreId;
         }
         
-        public long Id { get; set; }
+        public string Id { get; set; }
         public Guid? CustomerId { get; set; }
         public double TotalPrice { get; set; }
         public int Status { get; set; }

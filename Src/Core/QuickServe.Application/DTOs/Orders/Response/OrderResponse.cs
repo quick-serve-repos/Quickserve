@@ -8,7 +8,7 @@ namespace QuickServe.Application.DTOs.Orders.Response
 {
     public class OrderResponse
     {
-        public long? OrderId { get; set; }
+        public string OrderId { get; set; }
         public int Status { get; set; }
     }
 }

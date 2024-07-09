@@ -103,7 +103,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             var result = new PaymentCallBackResult()
             {
-                Id = payment.Id,
+                Id = payment.Id.ToString(),
                 Name = vnPayPayment?.TransactionNo,
                 RefOrderId = order.Id,
                 Status = order.Status

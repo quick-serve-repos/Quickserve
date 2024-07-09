@@ -157,7 +157,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             OrderResponse response = new OrderResponse()
             {
-                OrderId = result ? order.Id : 0,
+                OrderId = result ? order.Id.ToString() : null,
                 Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
             };
 
