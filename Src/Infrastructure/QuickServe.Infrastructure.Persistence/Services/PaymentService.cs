@@ -86,6 +86,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 Id = EnumExtension.GenerateUniqueId(),
                 Name = vnPayPayment.TransactionNo,
                 RefOrderId = long.Parse(vnPayPayment.OrderId),
+                PaymentType = 2
             };
 
             var order = await _orderRepository.GetByIdAsync(payment.RefOrderId);
@@ -106,10 +107,16 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 Id = payment.Id.ToString(),
                 Name = vnPayPayment?.TransactionNo,
                 RefOrderId = order.Id,
-                Status = order.Status
+                Status = order.Status,
+                PaymentType = 2
             };
             
             return result;
+        }
+
+        public Task<PaymentCallBackResult> SubmitOrder(long orderId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Application.Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(GetVNPayPayment request, CancellationToken cancellationToken)
@@ -132,6 +139,36 @@ namespace QuickServe.Infrastructure.Persistence.Services
             );
 
             return resultFromVnPay;
+        }
+        
+        public async Task<PaymentCallBackResult> SubmitOrder(long orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                return null;
+
+            var payment = new Payment()
+            {
+                Id = EnumExtension.GenerateUniqueId(),
+                Name = "COD",
+                RefOrderId = orderId,
+                PaymentType = 1
+            };
+            order.Status = (int)OrderStatus.Success;
+
+            await _context.Payments.AddRangeAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PaymentCallBackResult()
+            {
+                Id = payment.Id.ToString(),
+                Name = "COD",
+                RefOrderId = order.Id,
+                Status = order.Status,
+                PaymentType = 1
+            };
+            
+            return result;
         }
     }
 }

@@ -45,5 +45,12 @@ namespace QuickServe.WebApi.Controllers.v1
 
             return new BaseResult<PaymentCallBackResult>(result);
         }
+        
+        [HttpPost("submit-order/{orderId}")]
+        public async Task<BaseResult<PaymentCallBackResult>> SubmitOrder(long orderId)
+        {
+            var result = await _paymentService.SubmitOrder(orderId);
+            return new BaseResult<PaymentCallBackResult>(result);
+        }
     }
 }

@@ -28,5 +28,6 @@ namespace QuickServe.Application.Interfaces
         /// <returns></returns>
         Task<Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(GetVNPayPayment request, CancellationToken cancellationToken);
         Task<PaymentCallBackResult> VNPayCallBackResultAsync(GetVNPayPayment request, CancellationToken cancellationToken);
+        Task<PaymentCallBackResult> SubmitOrder(long orderId);
     }
 }
