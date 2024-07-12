@@ -48,7 +48,7 @@ namespace QuickServe.WebApi.Controllers.v1
         }
 
         [HttpPut("UpdateOrderStatus")]
-        public async Task<BaseResult> UpdateOrderStatus(UpdateOrderCommand command)
+        public async Task<BaseResult<OrderResponse>> UpdateOrderStatus(UpdateOrderCommand command)
         {
             return await Mediator.Send(command);
         }

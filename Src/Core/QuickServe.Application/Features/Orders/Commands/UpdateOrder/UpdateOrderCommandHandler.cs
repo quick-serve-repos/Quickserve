@@ -10,9 +10,9 @@ using static QuickServe.Application.Helpers.TranslatorMessages;
 
 namespace QuickServe.Application.Features.Orders.Commands.UpdateOrder;
 
-public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unitOfWork, IOrderRepository orderRepository) : IRequestHandler<UpdateOrderCommand, BaseResult>
+public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unitOfWork, IOrderRepository orderRepository) : IRequestHandler<UpdateOrderCommand, BaseResult<OrderResponse>>
 {
-    public async Task<BaseResult> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
+    public async Task<BaseResult<OrderResponse>> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
     {
         if (request.OrderId <= 0)
         {
@@ -28,9 +28,16 @@ public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unit
         if(order.Status != request.Status)
         {
             order.Status = request.Status;
+            orderRepository.Update(order);
             await unitOfWork.SaveChangesAsync();
         }
 
-        return new BaseResult();
+        var result = new OrderResponse()
+        {
+            OrderId = order.Id.ToString(),
+            Status = order.Status
+        };
+
+        return new BaseResult<OrderResponse>(result);
     }
 }
