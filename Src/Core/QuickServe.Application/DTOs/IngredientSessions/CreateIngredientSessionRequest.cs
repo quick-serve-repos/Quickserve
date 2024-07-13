@@ -22,7 +22,7 @@ namespace QuickServe.Application.DTOs.IngredientSessions
         public CreateIngredientSessionRequestValidator(ITranslator translator)
         {
             RuleFor(x => x.SessionId)
-                .GreaterThan(0).WithMessage(translator["ID của phiên phải lớn hơn 0"])
+                .GreaterThan(0).WithMessage(translator["Ca làm việc là bắt buộc"])
                 .WithName(p => translator[nameof(p.SessionId)]);
 
             RuleFor(x => x.Ingredients)

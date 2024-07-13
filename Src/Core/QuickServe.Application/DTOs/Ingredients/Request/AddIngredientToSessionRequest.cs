@@ -20,8 +20,8 @@ namespace QuickServe.Application.DTOs.Ingredients.Request
         public AddIngredientToSessionRequestValidator(ITranslator translator)
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(translator["ID là bắt buộc"])
-                .NotNull().WithMessage(translator["ID là bắt buộc"]);
+                .NotEmpty().WithMessage(translator["Nguyên liệu là bắt buộc"])
+                .NotNull().WithMessage(translator["Nguyên liệu là bắt buộc"]);
 
             RuleFor(x => x.Quantity)
                 .GreaterThan(0).WithMessage(translator["Số lượng phải lớn hơn 0"]);

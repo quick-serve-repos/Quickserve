@@ -46,7 +46,7 @@ namespace QuickServe.Application.DTOs.Ingredients.Request
                 .Must(BeAValidSize).WithMessage(translator["Kích thước ảnh phải nhỏ hơn 2MB."]);
 
             RuleFor(x => x.IngredientTypeId)
-                .GreaterThan(0).WithMessage(translator["Id Loại nguyên liệu phải lớn hơn 0."]);
+                .GreaterThan(0).WithMessage(translator["Loại nguyên liệu phải lớn hơn 0."]);
         }
 
         private bool BeAValidImage(IFormFile file)

@@ -16,7 +16,7 @@ namespace QuickServe.Application.DTOs.IngredientNutrions.Request
         public DeleteNutritionInIngredientRequestValidator()
         {
             RuleFor(x => x.NutritionId)
-                .GreaterThan(0).WithMessage("Id dinh dưỡng phải lớn hơn 0.");
+                .GreaterThan(0).WithMessage("Thành phần dinh dưỡng phải lớn hơn 0.");
         }
     }
 }

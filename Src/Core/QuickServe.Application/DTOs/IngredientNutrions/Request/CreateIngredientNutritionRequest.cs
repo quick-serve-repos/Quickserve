@@ -18,12 +18,12 @@ namespace QuickServe.Application.DTOs.IngredientNutrions.Request
         public CreateIngredientNutritionRequestValidator()
         {
             RuleFor(x => x.NutritionIds)
-                .NotEmpty().WithMessage("Danh sách Id dinh dưỡng là bắt buộc.")
+                .NotEmpty().WithMessage("Danh sách thành phần dinh dưỡng là bắt buộc.")
                 .Must(nutritionIds => nutritionIds.Distinct().Count() == nutritionIds.Count)
-                .WithMessage("Mỗi Id dinh dưỡng chỉ được xuất hiện một lần.");
+                .WithMessage("Mỗi thành phần dinh dưỡng chỉ được xuất hiện một lần.");
 
             RuleForEach(x => x.NutritionIds)
-                .GreaterThan(0).WithMessage("Id dinh dưỡng phải lớn hơn 0.");
+                .GreaterThan(0).WithMessage("Thành phần dinh dưỡng phải lớn hơn 0.");
         }
     }
 }
