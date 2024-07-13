@@ -73,7 +73,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             {
                 Id = EnumExtension.GenerateUniqueId(),
                 CustomerId = account != null ? account.Id : null,
-                StoreId = 1 //hardcode storeId => 1
+                StoreId = 1, //hardcode storeId => 1
+                BillCode = "Bill-" + EnumExtension.GenerateUniqueId()
             };
 
             foreach (var obj in command.Products)
@@ -159,6 +160,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             {
                 OrderId = result ? order.Id.ToString() : null,
                 Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
+                BillCode = order.BillCode
             };
 
             return new BaseResult<OrderResponse>(response);

@@ -9,7 +9,8 @@ namespace QuickServe.Application.Utils.Enums
     public enum OrderStatus
     {
         Pending = 1,
-        Failed = 2,
+        Paided = 2,
         Success = 3,
+        Failed = 4,
     }
 }

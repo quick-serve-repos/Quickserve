@@ -18,6 +18,7 @@ namespace QuickServe.Domain.Orders.Dtos
             TotalPrice = order.Amount;
             Status = order.Status;
             StoreId = order.StoreId;
+            BillCode = order.BillCode;
         }
         
         public string Id { get; set; }
@@ -25,6 +26,8 @@ namespace QuickServe.Domain.Orders.Dtos
         public double TotalPrice { get; set; }
         public int Status { get; set; }
         public long StoreId { get; set; }
+
+        public string BillCode { get; set; }
 
         public virtual ICollection<ProDuctsDto> Products { get; set; }
     }
