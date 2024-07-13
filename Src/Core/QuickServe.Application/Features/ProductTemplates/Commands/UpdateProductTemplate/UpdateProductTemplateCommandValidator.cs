@@ -21,7 +21,7 @@ public class UpdateProductTemplateCommandValidator : AbstractValidator<UpdatePro
             .MaximumLength(200).WithMessage(translator["Mô tả không được vượt quá 200 ký tự"]);
 
         RuleFor(x => x.CategoryId)
-            .GreaterThan(0).WithMessage(translator["CategoryId phải lớn hơn 0"]);
+            .GreaterThan(0).WithMessage(translator["Category là bắt buộc"]);
 
         RuleFor(x => x.Size)
             .NotEmpty()

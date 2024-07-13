@@ -16,7 +16,7 @@ namespace QuickServe.Application.DTOs.IngredientSessions
         public DeleteIngredientInSessionRequestValidator()
         {
             RuleFor(x => x.IngredientId)
-                .GreaterThan(0).WithMessage("Id nguyên liệu phải lớn hơn 0.");
+                .GreaterThan(0).WithMessage("Nguyên liệu là bắt buộc.");
         }
     }
 }
