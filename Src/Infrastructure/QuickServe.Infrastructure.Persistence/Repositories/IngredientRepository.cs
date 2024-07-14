@@ -38,7 +38,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
         return await ingredients.Include(i=> i.IngredientType)
             .ThenInclude(i=> i.IngredientTypeTemplateSteps)
             .ThenInclude(i=> i.TemplateStep)
-            .ThenInclude(i=> i.ProductTemplateId)
+            .ThenInclude(i=> i.ProductTemplate)
             .Include(i=>i.IngredientSessions)
             .ThenInclude(s=> s.Session)
             .Include(i=>i.IngredientNutritions)
