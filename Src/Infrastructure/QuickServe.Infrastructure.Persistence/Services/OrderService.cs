@@ -138,7 +138,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     OrderId = order.Id,
                     ProductId = product.Id,
-                    Quantity = obj.Quantity
+                    Quantity = obj.Quantity, 
+                    Price = product.Price
                 };
                 orderProducts.Add(orderProduct);
 
