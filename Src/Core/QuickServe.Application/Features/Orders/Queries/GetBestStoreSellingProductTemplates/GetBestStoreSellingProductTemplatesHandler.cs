@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProductTemplates
 {
-    public class GetBestStoreSellingProductTemplatesHandler(IOrderRepository _orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetBestSellingProductTemplatesQuery, BaseResult<List<BestSellingReportDto>>>
+    public class GetBestStoreSellingProductTemplatesHandler(IOrderRepository _orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetBestStoreSellingProductTemplatesQuery, BaseResult<List<BestSellingReportDto>>>
     {
-        public async Task<BaseResult<List<BestSellingReportDto>>> Handle(GetBestSellingProductTemplatesQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<List<BestSellingReportDto>>> Handle(GetBestStoreSellingProductTemplatesQuery request, CancellationToken cancellationToken)
         {
             var currentUser = await accountRepository.FindByIdAsync(Guid.Parse(authenticatedUserService.UserId));
             if (currentUser == null)

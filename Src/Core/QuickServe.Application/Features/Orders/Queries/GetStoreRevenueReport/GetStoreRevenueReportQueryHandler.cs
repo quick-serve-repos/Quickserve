@@ -14,9 +14,9 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport
 {
-    public class GetStoreRevenueReportQueryHandler(IOrderRepository orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetRevenueReportQuery, BaseResult<RevenueReportDto>>
+    public class GetStoreRevenueReportQueryHandler(IOrderRepository orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetStoreRevenueReportQuery, BaseResult<RevenueReportDto>>
     {
-        public async Task<BaseResult<RevenueReportDto>> Handle(GetRevenueReportQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<RevenueReportDto>> Handle(GetStoreRevenueReportQuery request, CancellationToken cancellationToken)
         {
             var currentUser = await accountRepository.FindByIdAsync(Guid.Parse(authenticatedUserService.UserId));
             if (currentUser == null)
