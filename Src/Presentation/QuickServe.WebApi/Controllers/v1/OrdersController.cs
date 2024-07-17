@@ -6,9 +6,11 @@ using QuickServe.Application.DTOs.Orders.Response;
 using QuickServe.Application.Features.Orders.Commands.CreateOrder;
 using QuickServe.Application.Features.Orders.Commands.UpdateOrder;
 using QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTemplates;
+using QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProductTemplates;
 using QuickServe.Application.Features.Orders.Queries.GetOrderById;
 using QuickServe.Application.Features.Orders.Queries.GetPagedListOrder;
 using QuickServe.Application.Features.Orders.Queries.GetRevenueReport;
+using QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport;
 using QuickServe.Application.Features.ProductTemplates.Queries.GetPagedListProductTemplate;
 using QuickServe.Application.Features.ProductTemplates.Queries.GetProductTemplateById;
 using QuickServe.Application.Features.Store.Commands.CreateStore;
@@ -64,7 +66,7 @@ namespace QuickServe.WebApi.Controllers.v1
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager")]
         [HttpGet("RevenueReport/Store")]
-        public async Task<BaseResult<RevenueReportDto>> GetStoreRevenueReport([FromQuery] GetRevenueReportQuery query)
+        public async Task<BaseResult<RevenueReportDto>> GetStoreRevenueReport([FromQuery] GetStoreRevenueReportQuery query)
         {
             return await Mediator.Send(query);
         }
@@ -79,7 +81,7 @@ namespace QuickServe.WebApi.Controllers.v1
 
         [HttpGet("BestSellingProductTemplates/Store")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager")]
-        public async Task<ActionResult<BaseResult<List<BestSellingReportDto>>>> GetBestStoreSellingProductTemplates([FromQuery] GetBestSellingProductTemplatesQuery query)
+        public async Task<ActionResult<BaseResult<List<BestSellingReportDto>>>> GetBestStoreSellingProductTemplates([FromQuery] GetBestStoreSellingProductTemplatesQuery query)
         {
             var result = await Mediator.Send(query);
             return Ok(result);
