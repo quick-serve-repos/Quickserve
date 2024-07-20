@@ -1,9 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using QuickServe.Application.DTOs;
 using QuickServe.Application.DTOs.Orders.Response;
 using QuickServe.Application.Interfaces.Repositories;
 using QuickServe.Application.Utils.Enums;
+using QuickServe.Application.Wrappers;
+using QuickServe.Domain.Ingredients.Dtos;
+using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.Orders.Entities;
+using QuickServe.Domain.Products.Dtos;
 using QuickServe.Domain.Stores.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
@@ -33,18 +38,48 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .ThenInclude(b => b.Ingredient)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
-    public async Task<PagenationResponseDto<Order>> GetOrderAsync(int pageNumber, int pageSize)
+    public async Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize)
     {
         var query = orders.AsNoTracking()
-            .Include(x => x.OrderProducts)
-            .ThenInclude(e => e.Product)
-            .ThenInclude(a => a.IngredientProducts)
-            .ThenInclude(b => b.Ingredient);
-            
-        return await Paged(
-            query,
-            pageNumber,
-            pageSize);
+                .Include(x => x.OrderProducts)
+                .ThenInclude(e => e.Product)
+                .ThenInclude(a => a.IngredientProducts)
+                .ThenInclude(b => b.Ingredient);
+
+        var totalCount = await query.CountAsync();
+        var pagedOrders = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var orderDtos = new List<OrderDto>();
+        foreach (var order in pagedOrders)
+        {
+            var orderDto = new OrderDto(order);
+            var productList = new List<ProDuctsDto>();
+            foreach (var item in order.OrderProducts)
+            {
+                if (item.Product == null)
+                    continue;
+
+                var productDto = new ProDuctsDto(item.Product);
+                var ingredientList = new List<IngredientDTO>();
+                foreach (var obj in item.Product.IngredientProducts)
+                {
+                    if (obj == null) continue;
+                    ingredientList.Add(new IngredientDTO(obj.Ingredient));
+                }
+
+                productDto.Ingredients = ingredientList;
+                productList.Add(productDto);
+            }
+
+            orderDto.Products = productList;
+            orderDtos.Add(orderDto);
+        }
+
+        return new PagenationResponseDto<OrderDto>(orderDtos, totalCount);
+
     }
 
     public async Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, long? storeId)
