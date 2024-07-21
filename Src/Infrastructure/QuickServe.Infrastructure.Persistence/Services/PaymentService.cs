@@ -95,7 +95,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             else
             {
-                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
+                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
             }
 
             await _context.Payments.AddRangeAsync(payment);
@@ -114,11 +114,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             return result;
         }
 
-        public Task<PaymentCallBackResult> SubmitOrder(long orderId, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public async Task<Application.Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(GetVNPayPayment request, CancellationToken cancellationToken)
         {
             IQueryCollection queryList = _httpContextAccessor.HttpContext.Request.Query;
@@ -154,7 +150,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 RefOrderId = orderId,
                 PaymentType = 1
             };
-            order.Status = (int)OrderStatus.Success;
+            order.Status = (int)OrderStatus.Paided;
 
             await _context.Payments.AddRangeAsync(payment);
             await _unitOfWork.SaveChangesAsync();
