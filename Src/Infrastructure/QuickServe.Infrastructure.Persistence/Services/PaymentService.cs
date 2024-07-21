@@ -95,7 +95,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             else
             {
-                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
+                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
             }
 
             await _context.Payments.AddRangeAsync(payment);
