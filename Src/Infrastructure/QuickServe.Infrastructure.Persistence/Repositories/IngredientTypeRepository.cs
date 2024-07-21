@@ -38,7 +38,7 @@ public class IngredientTypeRepository : GenericRepository<IngredientType>, IIngr
 
     public async Task<PagenationResponseDto<IngredientTypeDTO>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = ingredientTypes.OrderBy(c => c.Created).AsQueryable();
+        var query = ingredientTypes.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));
@@ -64,7 +64,7 @@ public class IngredientTypeRepository : GenericRepository<IngredientType>, IIngr
 
     public async Task<PagenationResponseDto<IngredientTypeDTO>> GetPagedListByAcitveStatusAsync(int pageNumber, int pageSize, string name)
     {
-        var query = ingredientTypes.Where(c => c.Status == (int)IngredientTypeStatus.Active).OrderBy(c => c.Created).AsQueryable();
+        var query = ingredientTypes.Where(c => c.Status == (int)IngredientTypeStatus.Active).OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));

@@ -35,7 +35,7 @@ public class NutritionRepository : GenericRepository<Nutrition>, INutritionRepos
 
     public async Task<PagenationResponseDto<NutritionDTO>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = nutritions.OrderBy(c => c.Created).AsQueryable();
+        var query = nutritions.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));

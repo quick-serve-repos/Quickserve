@@ -33,7 +33,7 @@ public class ProductTemplateRepository : GenericRepository<ProductTemplate>, IPr
     public async Task<PagenationResponseDto<ProductTemplateDto>> GetPagedListAsync(int pageNumber, int pageSize,
         string name)
     {
-        var query = _productTemplates.OrderBy(p => p.Created).AsQueryable();
+        var query = _productTemplates.OrderByDescending(p => p.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(s => s.Name.Contains(name));
@@ -64,7 +64,7 @@ public class ProductTemplateRepository : GenericRepository<ProductTemplate>, IPr
 
     public async Task<PagenationResponseDto<ProductTemplateDto>> GetPagedListByAcitveStatusAsync(int pageNumber, int pageSize, string name)
     {
-        var query = _productTemplates.Where(c => c.Status == (int)ProductTemplateStatus.Active).OrderBy(p => p.Created).AsQueryable();
+        var query = _productTemplates.Where(c => c.Status == (int)ProductTemplateStatus.Active).OrderByDescending(p => p.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(s => s.Name.Contains(name));

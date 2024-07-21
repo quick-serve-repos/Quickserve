@@ -44,7 +44,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                 .Include(x => x.OrderProducts)
                 .ThenInclude(e => e.Product)
                 .ThenInclude(a => a.IngredientProducts)
-                .ThenInclude(b => b.Ingredient);
+                .ThenInclude(b => b.Ingredient)
+                .OrderByDescending(x=> x.Created);
 
         var totalCount = await query.CountAsync();
         var pagedOrders = await query
@@ -249,5 +250,22 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return bestSellingProducts;
     }
 
-   
+    public async Task<List<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId)
+    {
+        if (await stores.AnyAsync(c => c.Id == storeId) == false)
+        {
+            throw new Exception("Không tìm thấy cửa hàng.");
+        }
+        return await orders.AsNoTracking()
+        .Where(o=> (o.Status == (int) OrderStatus.Preparing || o.Status == (int)OrderStatus.Success)
+        && o.StoreId == storeId)
+        .OrderByDescending(x => x.Created)
+        .Take(20)
+        .Select(c=> new OderStatusResponse
+        {
+            Id = c.Id,
+            Status = c.Status
+        }).ToListAsync();
+
+    }
 }

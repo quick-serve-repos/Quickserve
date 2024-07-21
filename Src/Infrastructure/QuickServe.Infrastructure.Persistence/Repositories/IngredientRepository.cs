@@ -49,7 +49,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
 
     public async Task<PagenationResponseDto<IngredientDTO>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = ingredients.OrderBy(c => c.Created).AsQueryable();
+        var query = ingredients.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));
