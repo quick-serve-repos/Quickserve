@@ -11,7 +11,7 @@ namespace QuickServe.Application.DTOs.Payment
         public string Id { get; set; }
         public string Name { get; set; } = null!;
         public int PaymentType { get; set; }
-        public long RefOrderId { get; set; }
+        public string RefOrderId { get; set; }
         public int Status { get; set;}
     }
 }

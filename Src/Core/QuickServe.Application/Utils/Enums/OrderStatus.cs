@@ -10,7 +10,8 @@ namespace QuickServe.Application.Utils.Enums
     {
         Pending = 1,
         Paided = 2,
-        Success = 3,
-        Failed = 4,
+        Preparing = 3,
+        Success = 4,
+        Failed = 5,
     }
 }

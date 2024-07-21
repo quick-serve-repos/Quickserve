@@ -95,7 +95,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             else
             {
-                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
+                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
             }
 
             await _context.Payments.AddRangeAsync(payment);
@@ -106,7 +106,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             {
                 Id = payment.Id.ToString(),
                 Name = vnPayPayment?.TransactionNo,
-                RefOrderId = order.Id,
+                RefOrderId = order.Id.ToString(),
                 Status = order.Status,
                 PaymentType = 2
             };
@@ -163,7 +163,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             {
                 Id = payment.Id.ToString(),
                 Name = "COD",
-                RefOrderId = order.Id,
+                RefOrderId = order.Id.ToString(),
                 Status = order.Status,
                 PaymentType = 1
             };
