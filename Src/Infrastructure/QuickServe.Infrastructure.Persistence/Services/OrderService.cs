@@ -185,7 +185,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(_authenticatedUserService.UserId));
             if (currentUser == null)
             {
-                return new BaseResult<RevenueReportDto>(new Error(ErrorCode.NotFound, _translator.GetString("Không tim thấy tài khoản"), nameof(authenticatedUserService.UserId)));
+                return new BaseResult<List<OderStatusResponse>>(new Error(ErrorCode.NotFound, _translator.GetString("Không tim thấy tài khoản"), nameof(_authenticatedUserService.UserId)));
             }
             var orders = await _orderRepository.GetOrdersToWaitingScreen(currentUser.Staff.StoreId);
             return new BaseResult<List<OderStatusResponse>>(orders);
