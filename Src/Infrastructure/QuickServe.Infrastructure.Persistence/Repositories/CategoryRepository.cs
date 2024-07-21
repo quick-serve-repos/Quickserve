@@ -36,7 +36,7 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
 
     public async Task<PagenationResponseDto<CategoryDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = categories.OrderBy(c => c.Created).AsQueryable();
+        var query = categories.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));
@@ -62,7 +62,7 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
 
     public async Task<PagenationResponseDto<CategoryDto>> GetPagedListByAcitveStatusAsync(int pageNumber, int pageSize, string name)
     {
-        var query = categories.Where(c => c.Status ==(int)CategoryStatus.Active).OrderBy(c => c.Created).AsQueryable();
+        var query = categories.Where(c => c.Status ==(int)CategoryStatus.Active).OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));

@@ -27,7 +27,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
 
         public async Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken)
         {
-            var staffs = context.Staffs.Where(s => s.StoreId == storeId).OrderBy(s => s.Account.Created).AsQueryable();
+            var staffs = context.Staffs.Where(s => s.StoreId == storeId).OrderByDescending(s => s.Account.Created).AsQueryable();
 
             if (!string.IsNullOrEmpty(name))
             {

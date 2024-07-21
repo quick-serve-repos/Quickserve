@@ -24,7 +24,7 @@ public class StoreRepository : GenericRepository<Store>, IStoreRepository
 
     public async Task<PagenationResponseDto<StoreDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = stores.OrderBy(s => s.Created).AsQueryable();
+        var query = stores.OrderByDescending(s => s.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(s => s.Name.Contains(name));

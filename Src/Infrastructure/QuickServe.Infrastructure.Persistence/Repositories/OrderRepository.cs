@@ -44,7 +44,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                 .Include(x => x.OrderProducts)
                 .ThenInclude(e => e.Product)
                 .ThenInclude(a => a.IngredientProducts)
-                .ThenInclude(b => b.Ingredient);
+                .ThenInclude(b => b.Ingredient)
+                .OrderByDescending(x=> x.Created);
 
         var totalCount = await query.CountAsync();
         var pagedOrders = await query
