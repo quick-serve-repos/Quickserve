@@ -86,5 +86,12 @@ namespace QuickServe.WebApi.Controllers.v1
             var result = await Mediator.Send(query);
             return Ok(result);
         }
+        [HttpGet("Store/OrderStatus")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff")]
+        public async Task<ActionResult<BaseResult<List<OderStatusResponse>>>> GetOrdersToWaitingScreen()
+        {
+            
+            return await _orderService.GetOrdersToWaitingScreen();
+        }
     }
 }

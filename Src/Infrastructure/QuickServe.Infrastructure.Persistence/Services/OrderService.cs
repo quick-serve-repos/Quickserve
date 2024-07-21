@@ -16,6 +16,8 @@ using QuickServe.Domain.Orders.Entities;
 using QuickServe.Domain.OrderProducts.Entities;
 using QuickServe.Application.DTOs.Orders.Response;
 using QuickServe.Domain.Customers.Entities;
+using QuickServe.Infrastructure.Persistence.Repositories;
+using QuickServe.Infrastructure.Resources.Services;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
@@ -27,6 +29,10 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly ICustomerRepository _customerRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly IIngredientSessionRepository _ingredientSessionRepository;
+        private readonly IAccountRepository _accountRepository;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IOrderRepository _orderRepository;
+        private readonly ITranslator _translator;
 
         public OrderService(
             ApplicationDbContext context, 
@@ -34,7 +40,11 @@ namespace QuickServe.Infrastructure.Persistence.Services
             IProductTemplateRepository productTemplateRepository,
             ICustomerRepository customerRepository, 
             ISessionRepository sessionRepository,
-            IIngredientSessionRepository ingredientSessionRepository)
+            IIngredientSessionRepository ingredientSessionRepository,
+            IAuthenticatedUserService authenticatedUserService,
+            IAccountRepository accountRepository,
+            IOrderRepository orderRepository,
+            ITranslator translator)
         {
             _context = context;
             _unitOfWork = unitOfWork;
@@ -42,6 +52,10 @@ namespace QuickServe.Infrastructure.Persistence.Services
             _customerRepository = customerRepository;
             _sessionRepository = sessionRepository;
            _ingredientSessionRepository = ingredientSessionRepository;
+            _accountRepository = accountRepository;
+            _authenticatedUserService = authenticatedUserService;
+            _orderRepository = orderRepository;
+            _translator = translator;
         }
         public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
         {
@@ -165,6 +179,16 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
 
             return new BaseResult<OrderResponse>(response);
+        }
+        public async Task<BaseResult<List<OderStatusResponse>>> GetOrdersToWaitingScreen()
+        {
+            var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(_authenticatedUserService.UserId));
+            if (currentUser == null)
+            {
+                return new BaseResult<RevenueReportDto>(new Error(ErrorCode.NotFound, _translator.GetString("Không tim thấy tài khoản"), nameof(authenticatedUserService.UserId)));
+            }
+            var orders = await _orderRepository.GetOrdersToWaitingScreen(currentUser.Staff.StoreId);
+            return new BaseResult<List<OderStatusResponse>>(orders);
         }
     }
 }
