@@ -250,22 +250,27 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return bestSellingProducts;
     }
 
-    public async Task<List<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId)
+    public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber, int pageSize, int status)
     {
         if (await stores.AnyAsync(c => c.Id == storeId) == false)
         {
             throw new Exception("Không tìm thấy cửa hàng.");
         }
-        return await orders.AsNoTracking()
-        .Where(o=> (o.Status == (int) OrderStatus.Preparing || o.Status == (int)OrderStatus.Success)
-        && o.StoreId == storeId)
-        .OrderByDescending(x => x.Created)
-        .Take(20)
-        .Select(c=> new OderStatusResponse
+        var query = orders.AsNoTracking()
+       .Where(o => (o.Status == (int)OrderStatus.Preparing || o.Status == (int)OrderStatus.Success)
+                   && o.StoreId == storeId
+                   && (status == 0 || o.Status == status))
+       .Take(20)
+       .OrderByDescending(x => x.Created)
+       .AsQueryable();
+
+
+        return await Paged(query.Select(c=> new OderStatusResponse
         {
             Id = c.Id.ToString(),
             Status = c.Status
-        }).ToListAsync();
-
+        }),
+            pageNumber,
+            pageSize);
     }
 }

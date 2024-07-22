@@ -11,7 +11,7 @@ namespace QuickServe.Application.Interfaces.Repositories;
 public interface IOrderRepository : IGenericRepository<Order>
 {
     Task<Order> GetByIdAsync(long id);
-    Task<List<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId);
+    Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber, int pageSize, int status);
     Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize);
     Task<double> GetRevenueReportAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<double> GetTotalRevenueAsync(long? storeId);
