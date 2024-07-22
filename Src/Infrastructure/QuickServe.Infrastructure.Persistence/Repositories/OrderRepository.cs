@@ -263,7 +263,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         .Take(20)
         .Select(c=> new OderStatusResponse
         {
-            Id = c.Id,
+            Id = c.Id.ToString(),
             Status = c.Status
         }).ToListAsync();
 
