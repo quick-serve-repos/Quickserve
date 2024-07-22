@@ -89,7 +89,7 @@ namespace QuickServe.WebApi.Controllers.v1
             return Ok(result);
         }
         [HttpGet("Store/OrderStatus")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff, Store_Manager")]
         public async Task<ActionResult<BaseResult<List<OderStatusResponse>>>> GetOrdersToWaitingScreen([FromQuery] GetPagedListOrderToWaitingScreenQuery query)
         {
 
