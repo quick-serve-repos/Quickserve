@@ -9,6 +9,7 @@ using QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTempla
 using QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProductTemplates;
 using QuickServe.Application.Features.Orders.Queries.GetOrderById;
 using QuickServe.Application.Features.Orders.Queries.GetPagedListOrder;
+using QuickServe.Application.Features.Orders.Queries.GetPagedListOrderToWaitingScreen;
 using QuickServe.Application.Features.Orders.Queries.GetRevenueReport;
 using QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport;
 using QuickServe.Application.Features.ProductTemplates.Queries.GetPagedListProductTemplate;
@@ -20,6 +21,7 @@ using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.ProductTemplates.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickServe.WebApi.Controllers.v1
 {
@@ -88,10 +90,11 @@ namespace QuickServe.WebApi.Controllers.v1
         }
         [HttpGet("Store/OrderStatus")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff")]
-        public async Task<ActionResult<BaseResult<List<OderStatusResponse>>>> GetOrdersToWaitingScreen()
+        public async Task<ActionResult<BaseResult<List<OderStatusResponse>>>> GetOrdersToWaitingScreen([FromQuery] GetPagedListOrderToWaitingScreenQuery query)
         {
-            
-            return await _orderService.GetOrdersToWaitingScreen();
+
+            var result = await Mediator.Send(query);
+            return Ok(result);
         }
     }
 }
