@@ -44,6 +44,7 @@ namespace QuickServe.Infrastructure.Identity
             //    b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
             services.AddDbContext<AppIdentityContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("PostgresIdentity"), b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
+            //options.UseNpgsql(configuration.GetConnectionString("PostgresIdentityTest"), b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
 
             //services.AddTransient<IGetUserServices, GetUserServices>();
             //services.AddTransient<IUpdateUserServices, UpdateUserServices>();

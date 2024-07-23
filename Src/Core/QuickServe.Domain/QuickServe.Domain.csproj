@@ -11,6 +11,8 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.0" />
+		<ProjectReference Include="..\..\Core\QuickServe.Domain\QuickServe.Domain.csproj" />
+		<ProjectReference Include="..\..\Infrasture\QuickServe.Infrastructure.Identity.csproj" />
 	</ItemGroup>
 </Project>
   

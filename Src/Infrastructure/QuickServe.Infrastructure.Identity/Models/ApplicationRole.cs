@@ -8,5 +8,6 @@ namespace QuickServe.Infrastructure.Identity.Models
         public ApplicationRole(string name) : base(name)
         {
         }
+        public virtual ApplicationUser User { get; set; }
     }
 }

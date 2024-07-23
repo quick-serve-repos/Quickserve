@@ -11,7 +11,7 @@ namespace QuickServe.Infrastructure.Identity.Contexts
         public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
         {
         }
-        protected override void OnModelCreating(ModelBuilder builder)
+        /*protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             builder.HasDefaultSchema("Identity");
@@ -50,6 +50,49 @@ namespace QuickServe.Infrastructure.Identity.Contexts
                 entity.ToTable("UserTokens");
             });
 
+        }*/
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.HasDefaultSchema("Identity");
+
+            builder.Entity<ApplicationUser>(entity =>
+            {
+                entity.ToTable(name: "User");
+                entity.HasOne(u => u.Role)
+                    .WithOne(r => r.User)
+                    .HasForeignKey<ApplicationUser>(u => u.RoleId);
+            });
+
+            builder.Entity<ApplicationRole>(entity =>
+            {
+                entity.ToTable(name: "Role");
+            });
+
+            builder.Entity<IdentityUserRole<Guid>>(entity =>
+            {
+                entity.ToTable("UserRoles");
+            });
+
+            builder.Entity<IdentityUserClaim<Guid>>(entity =>
+            {
+                entity.ToTable("UserClaims");
+            });
+
+            builder.Entity<IdentityUserLogin<Guid>>(entity =>
+            {
+                entity.ToTable("UserLogins");
+            });
+
+            builder.Entity<IdentityRoleClaim<Guid>>(entity =>
+            {
+                entity.ToTable("RoleClaims");
+            });
+
+            builder.Entity<IdentityUserToken<Guid>>(entity =>
+            {
+                entity.ToTable("UserTokens");
+            });
         }
     }
 }

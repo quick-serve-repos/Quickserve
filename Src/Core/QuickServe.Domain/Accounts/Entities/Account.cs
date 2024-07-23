@@ -5,6 +5,7 @@ using QuickServe.Domain.Orders.Entities;
 using QuickServe.Domain.Staffs.Entities;
 
 
+
 namespace QuickServe.Domain.Accounts.Entities
 {
     public class Account :  IdentityUser<Guid>

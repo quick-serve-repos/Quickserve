@@ -107,8 +107,12 @@ using (var scope = app.Services.CreateScope())
     await services.GetRequiredService<AppIdentityContext>().Database.MigrateAsync();
 
     //Seed Data
-    await DefaultRoles.SeedAsync(services.GetRequiredService<RoleManager<ApplicationRole>>());
-    await DefaultBasicUser.SeedAsync(services.GetRequiredService<UserManager<ApplicationUser>>());
+    /*await DefaultRoles.SeedAsync(services.GetRequiredService<RoleManager<ApplicationRole>>());
+    await DefaultBasicUser.SeedAsync(services.GetRequiredService<UserManager<ApplicationUser>>());*/
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+    await DefaultRoles.SeedAsync(roleManager);
+    await DefaultBasicUser.SeedAsync(userManager, roleManager);
 }
 
 app.UseCustomLocalization();
