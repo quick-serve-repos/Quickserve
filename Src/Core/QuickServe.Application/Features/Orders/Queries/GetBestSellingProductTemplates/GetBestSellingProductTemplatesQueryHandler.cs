@@ -43,7 +43,7 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTe
                 return new BaseResult<List<BestSellingReportDto>>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
 
-            var reportDto = await _orderRepository.GetBestSellingProductTemplatesAsync(startDate, endDate, null);
+            var reportDto = await _orderRepository.GetBestSellingProductTemplatesAsync(startDate, endDate, request.StoreId);
 
 
             return new BaseResult<List<BestSellingReportDto>>(reportDto);
