@@ -18,7 +18,6 @@ namespace QuickServe.Application.DTOs.Orders.Response
         public long Id { get; set; }
         public string Name { get; set; }
         public string UrlImage { get; set; }
-        public decimal Price { get; set; }
         public int SellingQuantity { get; set; }
         public int TotalOrders { get; set; }
         public double TotalRevenue { get; set; }

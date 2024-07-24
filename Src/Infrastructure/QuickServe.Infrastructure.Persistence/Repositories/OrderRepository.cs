@@ -210,7 +210,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                    Id = gp.Key,
                    Name = gp.First().Product.ProductTemplate.Name,
                    UrlImage = gp.First().Product.ProductTemplate.ImageUrl,
-                   Price = gp.First().Product.ProductTemplate.Price,
                    SellingQuantity = gp.Sum(x => x.Quantity ?? 0),
                    TotalOrders = gp.Count(),
                    TotalRevenue = (double)gp.Sum(x => x.Quantity * x.Price)
@@ -238,7 +237,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
                    Id = gp.Key,
                    Name = gp.First().Product.ProductTemplate.Name,
                    UrlImage = gp.First().Product.ProductTemplate.ImageUrl,
-                   Price = gp.First().Product.ProductTemplate.Price,
                    SellingQuantity = gp.Sum(x => x.Quantity ?? 0),
                    TotalOrders = gp.Count(),
                    TotalRevenue = (double)gp.Sum(x => x.Quantity * x.Price)
