@@ -17,5 +17,5 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<double> GetTotalRevenueAsync(long? storeId);
     Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<int> GetTotalOrderCountAsync(long? storeId);
-    Task<List<BestSellingReportDto>> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId);
+    Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId);
 }

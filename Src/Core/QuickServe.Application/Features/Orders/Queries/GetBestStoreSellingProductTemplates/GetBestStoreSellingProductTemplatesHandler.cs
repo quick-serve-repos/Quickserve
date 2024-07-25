@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProductTemplates
 {
-    public class GetBestStoreSellingProductTemplatesHandler(IOrderRepository _orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetBestStoreSellingProductTemplatesQuery, BaseResult<List<BestSellingReportDto>>>
+    public class GetBestStoreSellingProductTemplatesHandler(IOrderRepository _orderRepository, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<GetBestStoreSellingProductTemplatesQuery, BaseResult<BestSellingReportDto>>
     {
-        public async Task<BaseResult<List<BestSellingReportDto>>> Handle(GetBestStoreSellingProductTemplatesQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<BestSellingReportDto>> Handle(GetBestStoreSellingProductTemplatesQuery request, CancellationToken cancellationToken)
         {
             var currentUser = await accountRepository.FindByIdAsync(Guid.Parse(authenticatedUserService.UserId));
             if (currentUser == null)
             {
-                return new BaseResult<List<BestSellingReportDto>> (new Error(ErrorCode.NotFound, translator.GetString("Không tim thấy tài khoản"), nameof(authenticatedUserService.UserId)));
+                return new BaseResult<BestSellingReportDto> (new Error(ErrorCode.NotFound, translator.GetString("Không tim thấy tài khoản"), nameof(authenticatedUserService.UserId)));
             }
             DateTime startDate;
             DateTime endDate;
@@ -47,13 +47,13 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProd
             }
             else
             {
-                return new BaseResult<List<BestSellingReportDto>>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
+                return new BaseResult<BestSellingReportDto>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
 
             var reportDto = await _orderRepository.GetBestSellingProductTemplatesAsync(startDate.ToUniversalTime(), endDate.ToUniversalTime(), currentUser.Staff.StoreId);
 
 
-            return new BaseResult<List<BestSellingReportDto>>(reportDto);
+            return new BaseResult<BestSellingReportDto>(reportDto);
         }
     }
 }
