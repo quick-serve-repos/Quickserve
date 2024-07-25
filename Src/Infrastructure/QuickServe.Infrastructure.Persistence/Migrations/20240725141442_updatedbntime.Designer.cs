@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuickServe.Infrastructure.Persistence.Contexts;
@@ -11,9 +12,11 @@ using QuickServe.Infrastructure.Persistence.Contexts;
 namespace QuickServe.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240725141442_updatedbntime")]
+    partial class updatedbntime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,7 +305,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -310,7 +313,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(40)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -341,7 +344,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -367,7 +370,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("IngredientType_id");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -400,7 +403,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -420,7 +423,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -503,7 +506,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -594,7 +597,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("Category_Id");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -610,7 +613,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("Image_url");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -652,7 +655,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -663,7 +666,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -700,7 +703,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -711,7 +714,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("End_Time");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
@@ -769,7 +772,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -777,7 +780,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -805,7 +808,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -813,7 +816,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
