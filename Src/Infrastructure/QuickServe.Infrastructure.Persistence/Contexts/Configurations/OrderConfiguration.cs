@@ -15,7 +15,7 @@ public class OrderConfiguration :  IEntityTypeConfiguration<Order>
 
         entity.Property(e => e.Amount).HasColumnName("amount"); 
 
-        entity.Property(e => e.Created).HasColumnType("date");
+        entity.Property(e => e.Created).HasColumnType("timestamp with time zone");
 
         entity.Property(e => e.StoreId).HasColumnName("Store_id");
 

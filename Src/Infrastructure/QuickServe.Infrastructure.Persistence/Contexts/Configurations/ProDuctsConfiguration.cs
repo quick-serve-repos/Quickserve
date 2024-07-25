@@ -15,11 +15,11 @@ namespace QuickServe.Infrastructure.Persistence.Contexts.Configurations;
 
         entity.Property(e => e.CreatedBy).HasMaxLength(255);
 
-        entity.Property(e => e.Created).HasColumnType("date");
+        entity.Property(e => e.Created).HasColumnType("timestamp with time zone");
 
         entity.Property(e => e.LastModifiedBy).HasMaxLength(255);
 
-        entity.Property(e => e.LastModified).HasColumnType("date");
+        entity.Property(e => e.LastModified).HasColumnType("timestamp with time zone");
 
         entity.Property(e => e.Name).HasMaxLength(255);
 
