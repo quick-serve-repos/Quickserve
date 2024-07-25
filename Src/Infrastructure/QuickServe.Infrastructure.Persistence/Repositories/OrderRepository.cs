@@ -9,6 +9,7 @@ using QuickServe.Domain.Ingredients.Dtos;
 using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.Orders.Entities;
 using QuickServe.Domain.Products.Dtos;
+using QuickServe.Domain.ProductTemplates.Entities;
 using QuickServe.Domain.Stores.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
@@ -183,69 +184,50 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
       
         return totalRevenue;
     }
-    public async Task<List<BestSellingReportDto>> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId)
+    public async Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId)
     {
-        var bestSellingProducts = new List<BestSellingReportDto>();
-        if(storeId!=null)
+
+        var bestSellingReport = new BestSellingReportDto
+        {
+            StartDate = startDate,
+            EndDate = endDate,
+            BestSellingProductTemplates = new List<ProductTemplateDTO>()
+        };
+
+        var query = orders.AsNoTracking()
+            .Include(o => o.OrderProducts)
+            .ThenInclude(op => op.Product)
+            .ThenInclude(p => p.ProductTemplate)
+            .Where(o => o.Created >= startDate && o.Created <= endDate && o.Status == (int)OrderStatus.Success);
+
+        if (storeId != null)
         {
             if (await stores.AnyAsync(c => c.Id == storeId) == false)
             {
                 throw new Exception("Không tìm thấy cửa hàng.");
             }
-            bestSellingProducts = await orders.AsNoTracking()
-           .Include(o => o.OrderProducts)
-           .ThenInclude(op => op.Product)
-           .ThenInclude(p => p.ProductTemplate)
-           .Where(o => o.Created >= startDate && o.Created <= endDate && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
-           .SelectMany(o => o.OrderProducts)
-           .GroupBy(op => op.Product.ProductTemplate)
-           .OrderByDescending(g => g.Sum(op => op.Quantity ?? 0))
-           .Take(10)
-           .Select(g => new BestSellingReportDto
-           {
-               StartDate = startDate,
-               EndDate = endDate,
-               BestSellingProductTemplates = g.GroupBy(x => x.Product.ProductTemplate.Id).Select(gp => new ProductTemplateDTO
-               {
-                   Id = gp.Key,
-                   Name = gp.First().Product.ProductTemplate.Name,
-                   UrlImage = gp.First().Product.ProductTemplate.ImageUrl,
-                   SellingQuantity = gp.Sum(x => x.Quantity ?? 0),
-                   TotalOrders = gp.Count(),
-                   TotalRevenue = (double)gp.Sum(x => x.Quantity * x.Price)
-               }).ToList()
-           })
-           .ToListAsync();
-        }
-        else
-        {
-            bestSellingProducts = await orders.AsNoTracking()
-           .Include(o => o.OrderProducts)
-           .ThenInclude(op => op.Product)
-           .ThenInclude(p => p.ProductTemplate)
-           .Where(o => o.Created >= startDate && o.Created <= endDate && o.Status == (int)OrderStatus.Success)
-           .SelectMany(o => o.OrderProducts)
-           .GroupBy(op => op.Product.ProductTemplate)
-           .OrderByDescending(g => g.Sum(op => op.Quantity ?? 0))
-           .Take(10)
-           .Select(g => new BestSellingReportDto
-           {
-               StartDate = startDate,
-               EndDate = endDate,
-               BestSellingProductTemplates = g.GroupBy(x => x.Product.ProductTemplate.Id).Select(gp => new ProductTemplateDTO
-               {
-                   Id = gp.Key,
-                   Name = gp.First().Product.ProductTemplate.Name,
-                   UrlImage = gp.First().Product.ProductTemplate.ImageUrl,
-                   SellingQuantity = gp.Sum(x => x.Quantity ?? 0),
-                   TotalOrders = gp.Count(),
-                   TotalRevenue = (double)gp.Sum(x => x.Quantity * x.Price)
-               }).ToList()
-           })
-           .ToListAsync();
+            query = query.Where(o => o.StoreId == storeId);
         }
 
-        return bestSellingProducts;
+        var productTemplates = await query
+            .SelectMany(o => o.OrderProducts)
+            .GroupBy(op => op.Product.ProductTemplate)
+            .OrderByDescending(g => g.Sum(op => op.Quantity ?? 0))
+            .Take(10)
+            .Select(g => new ProductTemplateDTO
+            {
+                Id = g.Key.Id,
+                Name = g.Key.Name,
+                UrlImage = g.Key.ImageUrl,
+                SellingQuantity = g.Sum(x => x.Quantity ?? 0),
+                TotalOrders = g.Count(),
+                TotalRevenue = (double)g.Sum(x => x.Quantity * x.Price)
+            })
+            .ToListAsync();
+
+        bestSellingReport.BestSellingProductTemplates = productTemplates;
+
+        return bestSellingReport;
     }
 
     public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber, int pageSize, int status)

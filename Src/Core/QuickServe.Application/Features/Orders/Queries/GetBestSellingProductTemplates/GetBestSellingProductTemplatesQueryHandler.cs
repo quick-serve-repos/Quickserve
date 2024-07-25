@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTemplates
 {
-    public class GetBestSellingProductTemplatesQueryHandler(IOrderRepository _orderRepository) : IRequestHandler<GetBestSellingProductTemplatesQuery, BaseResult<List<BestSellingReportDto>>>
+    public class GetBestSellingProductTemplatesQueryHandler(IOrderRepository _orderRepository) : IRequestHandler<GetBestSellingProductTemplatesQuery, BaseResult<BestSellingReportDto>>
     {
-        public async Task<BaseResult<List<BestSellingReportDto>>> Handle(GetBestSellingProductTemplatesQuery request, CancellationToken cancellationToken)
+        public async Task<BaseResult<BestSellingReportDto>> Handle(GetBestSellingProductTemplatesQuery request, CancellationToken cancellationToken)
         {
             DateTime startDate;
             DateTime endDate;
@@ -40,13 +40,13 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTe
             }
             else
             {
-                return new BaseResult<List<BestSellingReportDto>>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
+                return new BaseResult<BestSellingReportDto>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
 
             var reportDto = await _orderRepository.GetBestSellingProductTemplatesAsync(startDate.ToUniversalTime(), endDate.ToUniversalTime(), request.StoreId);
 
 
-            return new BaseResult<List<BestSellingReportDto>>(reportDto);
+            return new BaseResult<BestSellingReportDto>(reportDto);
         }
     }
 }

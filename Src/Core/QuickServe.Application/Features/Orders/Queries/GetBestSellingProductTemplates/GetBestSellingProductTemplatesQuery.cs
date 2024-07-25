@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTemplates
 {
-    public class GetBestSellingProductTemplatesQuery : IRequest<BaseResult<List<BestSellingReportDto>>>
+    public class GetBestSellingProductTemplatesQuery : IRequest<BaseResult<BestSellingReportDto>>
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
