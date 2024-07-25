@@ -98,7 +98,15 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
                 if(!obj.Ingredients.Any())
                 {
-                    foreach(var step in productTemplate.TemplateSteps)
+                    product = new Product()
+                    {
+                        Id = EnumExtension.GenerateUniqueId(),
+                        Name = productTemplate.Name,
+                        Quantity = obj.Quantity,
+                        ProductTemplateId = productTemplate.Id,
+                        //Price = productTemplate.Price hiện tại ko cộng giá của productTemplate
+                    };
+                    foreach (var step in productTemplate.TemplateSteps)
                     {
                         var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
                         foreach(var ingreStep in temStep.IngredientTypeTemplateSteps)
@@ -115,7 +123,28 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                     ProductTemplateId = productTemplate.Id,
                                 };
 
-                                CheckIngredientInSession(igre.Id, igre.DefaultQuantity);
+                                var sessions = await _sessionRepository.GetAllAsync();
+                                var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                                if (currentSession != null)
+                                {
+                                    var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+                                    //Nếu không có ingredientSession nào được khai báo => cho đặt thoải mái
+                                    //Trường hợp nếu có => cộng dồn ở SoldQuantity => Để check còn tồn có hợp lệ không
+                                    if (ingredientSession != null)
+                                    {
+                                        //check tồn có đủ đk không
+                                        var quantityExist = ingredientSession.SoldQuantity + igre.DefaultQuantity;
+                                        if (quantityExist > ingredientSession.Quantity)
+                                        {
+                                            throw new Exception("Nguyên liệu không đủ số lượng tồn");
+                                        }
+                                        else
+                                        {
+                                            ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                                        }
+                                    }
+                                }
 
                                 var ingredientProduct = new IngredientProduct()
                                 {
@@ -126,8 +155,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                 ingredientProducts.Add(ingredientProduct);
 
                                 product.Price += igre.Price * igre.DefaultQuantity;
+                                products.Add(product);
                                 //Lưu thông tin orderProduct
-                                 orderProduct = new OrderProduct()
+                                orderProduct = new OrderProduct()
                                 {
                                     OrderId = order.Id,
                                     ProductId = product.Id,
@@ -135,6 +165,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                     Price = product.Price
                                 };
                                 orderProducts.Add(orderProduct);
+
                                 //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
                                 order.Amount += (double)product.Price * obj.Quantity;
                                 order.Status = (int)OrderStatus.Pending;
@@ -142,6 +173,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             }
                         }
                     }
+                   
                 }
                 else
                 {
@@ -156,7 +188,28 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
                     foreach (var ingre in obj.Ingredients)
                     {
-                        CheckIngredientInSession(ingre.Id, ingre.Quantity);
+                        var sessions = await _sessionRepository.GetAllAsync();
+                        var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                        if (currentSession != null)
+                        {
+                            var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
+                            //Nếu không có ingredientSession nào được khai báo => cho đặt thoải mái
+                            //Trường hợp nếu có => cộng dồn ở SoldQuantity => Để check còn tồn có hợp lệ không
+                            if (ingredientSession != null)
+                            {
+                                //check tồn có đủ đk không
+                                var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
+                                if (quantityExist > ingredientSession.Quantity)
+                                {
+                                    throw new Exception("Nguyên liệu không đủ số lượng tồn");
+                                }
+                                else
+                                {
+                                    ingredientSession.SoldQuantity += ingre.Quantity;
+                                }
+                            }
+                        }
 
                         var ingredientProduct = new IngredientProduct()
                         {
@@ -167,7 +220,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         ingredientProducts.Add(ingredientProduct);
 
                         product.Price += ingre.Price * ingre.Quantity;
+
                         products.Add(product);
+
                         //Lưu thông tin orderProduct
                         orderProduct = new OrderProduct()
                         {
@@ -177,13 +232,18 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             Price = product.Price
                         };
                         orderProducts.Add(orderProduct);
+
                         //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
                         order.Amount += (double)product.Price * obj.Quantity;
                         order.Status = (int)OrderStatus.Pending;
-                    }
 
+                    }
+                   
                 }
             }
+
+
+
 
             await _context.ProDucts.AddRangeAsync(products);
             if (ingredientProducts.Any())
@@ -204,31 +264,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             return new BaseResult<OrderResponse>(response);
         }
 
-        private async void CheckIngredientInSession(long id,int quantity)
-        {
-            var sessions = await _sessionRepository.GetAllAsync();
-            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
-
-            if (currentSession != null)
-            {
-                var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(id, currentSession.Id);
-                //Nếu không có ingredientSession nào được khai báo => cho đặt thoải mái
-                //Trường hợp nếu có => cộng dồn ở SoldQuantity => Để check còn tồn có hợp lệ không
-                if (ingredientSession != null)
-                {
-                    //check tồn có đủ đk không
-                    var quantityExist = ingredientSession.SoldQuantity + quantity;
-                    if (quantityExist > ingredientSession.Quantity)
-                    {
-                        throw new Exception("Nguyên liệu không đủ số lượng tồn");
-                    }
-                    else
-                    {
-                        ingredientSession.SoldQuantity += quantity;
-                    }
-                }
-            }
-        }
+        
         
     }
 }
