@@ -35,6 +35,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
         {
             return await templateSteps.Include(ts=> ts.ProductTemplate)
                 .Include(ts=> ts.IngredientTypeTemplateSteps)
+                .ThenInclude(it=> it.IngredientType)
                 .FirstOrDefaultAsync(ts=> ts.Id == id);
         }
 
