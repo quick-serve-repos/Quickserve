@@ -67,11 +67,16 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 await _unitOfWork.SaveChangesAsync();
                 foreach (var newIngredientType in request.IngredientTypes)
                 {
-                    var ingredientType = await _context.IngredientTypes
+                    var ingredientType = await _context.IngredientTypes.Include(i=> i.Ingredients)
                         .FirstOrDefaultAsync(i => i.Id == newIngredientType.IngredientTypeId);
                     if (ingredientType == null)
                     {
                         return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.IngredientTypeMessages.Không_tìm_thấy_loại_nguyên_liệu(newIngredientType.IngredientTypeId)), nameof(newIngredientType.IngredientTypeId)));
+                    }
+                    if (!ingredientType.Ingredients.Any())
+                    {
+                        return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(ingredientType.Name +" chưa có nguyên liệu. Hãy thêm nguyên liệu.")));
+
                     }
                     var ingredientStep = new IngredientTypeTemplateStep
                     {

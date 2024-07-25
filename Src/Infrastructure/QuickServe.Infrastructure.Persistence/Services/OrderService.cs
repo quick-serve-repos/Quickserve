@@ -29,7 +29,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly ICustomerRepository _customerRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly IIngredientSessionRepository _ingredientSessionRepository;
-       
+        private readonly ITemplateStepRepository _templateStepRepository;
+        private readonly IIngredientTypeRepository _ingredientTypeRepository;
+
 
         public OrderService(
             ApplicationDbContext context, 
@@ -37,7 +39,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
             IProductTemplateRepository productTemplateRepository,
             ICustomerRepository customerRepository, 
             ISessionRepository sessionRepository,
-            IIngredientSessionRepository ingredientSessionRepository
+            IIngredientSessionRepository ingredientSessionRepository,
+            ITemplateStepRepository templateStepRepository,
+            IIngredientTypeRepository ingredientTypeRepository
            )
         {
             _context = context;
@@ -46,6 +50,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             _customerRepository = customerRepository;
             _sessionRepository = sessionRepository;
            _ingredientSessionRepository = ingredientSessionRepository;
+            _templateStepRepository = templateStepRepository;
+            _ingredientTypeRepository = ingredientTypeRepository;
         }
         public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
         {
@@ -84,25 +90,107 @@ namespace QuickServe.Infrastructure.Persistence.Services
             foreach (var obj in command.Products)
             {
                 if (obj == null || obj.ProductTemplateId <= 0) continue;
-
                 var productTemplate = await _productTemplateRepository.GetProductTemplateByIdAsync(obj.ProductTemplateId);
-                var product = new Product()
-                {
-                    Id = EnumExtension.GenerateUniqueId(),
-                    Name = productTemplate.Name,
-                    Quantity = obj.Quantity,
-                    ProductTemplateId = productTemplate.Id,
-                    //Price = productTemplate.Price hiện tại ko cộng giá của productTemplate
-                };
 
-                //Tính toán nếu có nguyên liệu được thêm vào
-                if (obj.Ingredients != null && obj.Ingredients.Any())
+
+                var product = new Product();
+                var orderProduct = new OrderProduct();
+
+                if(!obj.Ingredients.Any())
                 {
+                    product = new Product()
+                    {
+                        Id = EnumExtension.GenerateUniqueId(),
+                        Name = productTemplate.Name,
+                        Quantity = obj.Quantity,
+                        ProductTemplateId = productTemplate.Id,
+                        //Price = productTemplate.Price hiện tại ko cộng giá của productTemplate
+                    };
+                    foreach (var step in productTemplate.TemplateSteps)
+                    {
+                        var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
+                        foreach(var ingreStep in temStep.IngredientTypeTemplateSteps)
+                        {
+                            var ingreType = await _ingredientTypeRepository.GetIngredientTypeByIdAsync(ingreStep.IngredientTypeId);
+                            foreach(var igre in ingreType.Ingredients)
+                            {
+                                if(igre.DefaultQuantity == 0) continue;
+                                product = new Product()
+                                {
+                                    Id = EnumExtension.GenerateUniqueId(),
+                                    Name = productTemplate.Name,
+                                    Quantity = igre.DefaultQuantity,
+                                    ProductTemplateId = productTemplate.Id,
+                                };
+
+                                var sessions = await _sessionRepository.GetAllAsync();
+                                var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                                if (currentSession != null)
+                                {
+                                    var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+                                    //Nếu không có ingredientSession nào được khai báo => cho đặt thoải mái
+                                    //Trường hợp nếu có => cộng dồn ở SoldQuantity => Để check còn tồn có hợp lệ không
+                                    if (ingredientSession != null)
+                                    {
+                                        //check tồn có đủ đk không
+                                        var quantityExist = ingredientSession.SoldQuantity + igre.DefaultQuantity;
+                                        if (quantityExist > ingredientSession.Quantity)
+                                        {
+                                            throw new Exception("Nguyên liệu không đủ số lượng tồn");
+                                        }
+                                        else
+                                        {
+                                            ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                                        }
+                                    }
+                                }
+
+                                var ingredientProduct = new IngredientProduct()
+                                {
+                                    ProductId = product.Id,
+                                    IngredientId = igre.Id,
+                                    Quantity = igre.DefaultQuantity
+                                };
+                                ingredientProducts.Add(ingredientProduct);
+
+                                product.Price += igre.Price * igre.DefaultQuantity;
+                                products.Add(product);
+                                //Lưu thông tin orderProduct
+                                orderProduct = new OrderProduct()
+                                {
+                                    OrderId = order.Id,
+                                    ProductId = product.Id,
+                                    Quantity = obj.Quantity,
+                                    Price = product.Price
+                                };
+                                orderProducts.Add(orderProduct);
+
+                                //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
+                                order.Amount += (double)product.Price * obj.Quantity;
+                                order.Status = (int)OrderStatus.Pending;
+
+                            }
+                        }
+                    }
+                   
+                }
+                else
+                {
+                     product = new Product()
+                    {
+                        Id = EnumExtension.GenerateUniqueId(),
+                        Name = productTemplate.Name,
+                        Quantity = obj.Quantity,
+                        ProductTemplateId = productTemplate.Id,
+                        //Price = productTemplate.Price hiện tại ko cộng giá của productTemplate
+                    };
+
                     foreach (var ingre in obj.Ingredients)
                     {
                         var sessions = await _sessionRepository.GetAllAsync();
                         var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
-                        
+
                         if (currentSession != null)
                         {
                             var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
@@ -114,7 +202,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                 var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
                                 if (quantityExist > ingredientSession.Quantity)
                                 {
-                                    return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound, "Nguyên liệu không đủ số lượng tồn " + ingre.Id));
+                                    throw new Exception("Nguyên liệu không đủ số lượng tồn");
                                 }
                                 else
                                 {
@@ -122,7 +210,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                 }
                             }
                         }
-                        
+
                         var ingredientProduct = new IngredientProduct()
                         {
                             ProductId = product.Id,
@@ -132,25 +220,30 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         ingredientProducts.Add(ingredientProduct);
 
                         product.Price += ingre.Price * ingre.Quantity;
+
+                        products.Add(product);
+
+                        //Lưu thông tin orderProduct
+                        orderProduct = new OrderProduct()
+                        {
+                            OrderId = order.Id,
+                            ProductId = product.Id,
+                            Quantity = obj.Quantity,
+                            Price = product.Price
+                        };
+                        orderProducts.Add(orderProduct);
+
+                        //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
+                        order.Amount += (double)product.Price * obj.Quantity;
+                        order.Status = (int)OrderStatus.Pending;
+
                     }
+                   
                 }
-
-                products.Add(product);
-
-                //Lưu thông tin orderProduct
-                var orderProduct = new OrderProduct()
-                {
-                    OrderId = order.Id,
-                    ProductId = product.Id,
-                    Quantity = obj.Quantity, 
-                    Price = product.Price
-                };
-                orderProducts.Add(orderProduct);
-
-                //Tính cộng dồn thông tin order (giá sp sau khi thêm thành phần * số lượng)
-                order.Amount += (double)product.Price * obj.Quantity;
-                order.Status = (int)OrderStatus.Pending;
             }
+
+
+
 
             await _context.ProDucts.AddRangeAsync(products);
             if (ingredientProducts.Any())
@@ -170,6 +263,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return new BaseResult<OrderResponse>(response);
         }
+
+        
         
     }
 }
