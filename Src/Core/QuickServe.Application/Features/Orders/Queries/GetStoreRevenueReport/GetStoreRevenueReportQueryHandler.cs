@@ -90,8 +90,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport
             {
                 var monthStart = new DateTime(date.Year, date.Month, 1);
                 var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-                var revenue = await orderRepository.GetRevenueReportAsync(monthStart, monthEnd, storeId);
-                var orderCount = await orderRepository.GetOrderCountAsync(monthStart, monthEnd, storeId);
+                var revenue = await orderRepository.GetRevenueReportAsync(monthStart.ToUniversalTime(), monthEnd.ToUniversalTime(), storeId);
+                var orderCount = await orderRepository.GetOrderCountAsync(monthStart.ToUniversalTime(), monthEnd.ToUniversalTime(), storeId);
                 monthlyRevenues.Add(new MonthlyRevenueDto { Month = date.Month, Revenue = revenue, OrderCount = orderCount });
             }
             return monthlyRevenues;
