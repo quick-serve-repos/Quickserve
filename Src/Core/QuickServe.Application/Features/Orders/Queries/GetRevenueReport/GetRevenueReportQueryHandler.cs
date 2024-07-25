@@ -44,7 +44,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetRevenueReport
             {
                 return new BaseResult<RevenueReportDto>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
-            
+            startDate = startDate.ToUniversalTime();
+            endDate = endDate.ToUniversalTime();
 
 
             var specificRevenue = await orderRepository.GetRevenueReportAsync(startDate, endDate, request.StoreId);
@@ -98,8 +99,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetRevenueReport
             {
                 var yearStart = new DateTime(year, 1, 1);
                 var yearEnd = yearStart.AddYears(1).AddDays(-1);
-                var revenue = await orderRepository.GetRevenueReportAsync(yearStart, yearEnd, storeId);
-                var orderCount = await orderRepository.GetOrderCountAsync(yearStart, yearEnd, storeId);
+                var revenue = await orderRepository.GetRevenueReportAsync(yearStart.ToUniversalTime(), yearEnd.ToUniversalTime(), storeId);
+                var orderCount = await orderRepository.GetOrderCountAsync(yearStart.ToUniversalTime(), yearEnd.ToUniversalTime(), storeId);
                 yearlyRevenues.Add(new YearlyRevenueDto { Year = year, Revenue = revenue, OrderCount = orderCount });
             }
             return yearlyRevenues;
