@@ -23,6 +23,7 @@ namespace QuickServe.Domain.Orders.Entities
         public int Number {  get; set; }
         public string BillCode { get; set; }
         public int Status { get; set; }
+        public int Platform {  get; set; }
         public long StoreId { get; set; }
 
         public virtual Account? Customer { get; set; } 

@@ -5,5 +5,6 @@ namespace QuickServe.Domain.Customers.Entities
     public class Customer : Account
     {
         public Customer() { }
+        public long Point { get; set; }
     }
 }
