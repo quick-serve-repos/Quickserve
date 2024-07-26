@@ -10,10 +10,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 {
     public void Configure(EntityTypeBuilder<Account> builder)
     {
-
-
-      
-
         builder.Property(a => a.Name)
             .HasMaxLength(40)
             .IsUnicode(false)
@@ -23,7 +19,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .HasColumnType("timestamp without time zone")
             .IsRequired();
 
-    
 
         // Bạn cũng có thể cấu hình các thuộc tính từ IdentityUser<Guid> nếu cần thiết
         builder.Property(a => a.UserName)
@@ -33,9 +28,6 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Email)
             .HasMaxLength(256)
             .IsRequired(false); // Nếu bạn cho phép email không bắt buộc
-
-
-
 
     }
 }

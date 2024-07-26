@@ -14,12 +14,12 @@ namespace QuickServe.WebApi.Controllers.v1
 {
     public class SessionsController : BaseApiController
     {
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager, Staff")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager, Employee")]
         [HttpGet("paged")]
         public async Task<PagedResponse<SessionDto>> GetPagedListSessionByStore([FromQuery] GetPagedListSessionQuery model)
             => await Mediator.Send(model);
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager, Staff")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager, Employee")]
         [HttpGet("{id}")]
         public async Task<BaseResult<SessionDto>> GetSessionById(long id)
             => await Mediator.Send(new GetSessionByIdQuery { Id = id });

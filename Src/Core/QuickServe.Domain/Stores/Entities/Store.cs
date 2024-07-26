@@ -11,14 +11,14 @@ namespace QuickServe.Domain.Stores.Entities
         public Store()
         {
             Orders = new HashSet<Order>();
-            Staffs = new HashSet<Staff>();
+            Staffs = new HashSet<Employee>();
             Sessions = new HashSet<Session>();
         }
 
         public Store(string name, string address)
         {
             Orders = new HashSet<Order>();
-            Staffs = new HashSet<Staff>();
+            Staffs = new HashSet<Employee>();
             Sessions = new HashSet<Session>();
             Name = name;
             Address = address;
@@ -35,7 +35,7 @@ namespace QuickServe.Domain.Stores.Entities
         }
 
         public virtual ICollection<Order> Orders { get; set; }
-        public virtual ICollection<Staff> Staffs { get; set; }
+        public virtual ICollection<Employee> Staffs { get; set; }
         public virtual ICollection<Session> Sessions { get; set; }
     }
 }

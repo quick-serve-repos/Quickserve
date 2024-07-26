@@ -62,7 +62,7 @@ namespace QuickServe.Infrastructure.Persistence.Contexts
     public virtual DbSet<Session> Sessions { get; set; }
     public virtual DbSet<Store> Stores { get; set; } 
     public virtual DbSet<TemplateStep> TemplateSteps { get; set; }
-    public virtual DbSet<Staff> Staffs { get; set; }
+    public virtual DbSet<Employee> Staffs { get; set; }
     public virtual DbSet<Customer> Customers { get; set; }
 
 

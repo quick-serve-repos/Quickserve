@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Infrastructure.Persistence.Repositories
 {
-    public class StaffRepository : GenericRepository<Staff>, IStaffRepository
+    public class StaffRepository : GenericRepository<Employee>, IStaffRepository
     {
         private readonly ApplicationDbContext context;
 
@@ -21,7 +21,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
 
         public void AddStaffToStore(long storeId, Guid employeeId)
         {
-            context.Add(new Staff { StoreId = storeId, EmployeeId = employeeId });
+            context.Add(new Employee { StoreId = storeId, EmployeeId = employeeId });
             context.SaveChanges();
         }
 
