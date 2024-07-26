@@ -26,7 +26,8 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("Customer_id");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -36,11 +37,6 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -91,9 +87,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Account");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Account");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("QuickServe.Domain.Categories.Entities.Category", b =>
@@ -743,7 +737,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.ToTable("Session", (string)null);
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uuid");
@@ -755,7 +749,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Staff", (string)null);
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("QuickServe.Domain.Stores.Entities.Store", b =>
@@ -848,7 +842,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<long>("Point")
                         .HasColumnType("bigint");
 
-                    b.HasDiscriminator().HasValue("Customer");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("QuickServe.Domain.IngredientNutritions.Entities.IngredientNutrition", b =>
@@ -959,9 +953,11 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("QuickServe.Domain.Orders.Entities.Order", b =>
                 {
-                    b.HasOne("QuickServe.Domain.Accounts.Entities.Account", "Customer")
+                    b.HasOne("QuickServe.Domain.Customers.Entities.Customer", "Customer")
                         .WithMany("Orders")
-                        .HasForeignKey("CustomerId");
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("order_customer_id_foreign");
 
                     b.HasOne("QuickServe.Domain.Stores.Entities.Store", "Store")
                         .WithMany("Orders")
@@ -1018,11 +1014,11 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.HasOne("QuickServe.Domain.Accounts.Entities.Account", "Account")
                         .WithOne("Staff")
-                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Staff", "EmployeeId")
+                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Employee", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Staff_Account");
@@ -1049,10 +1045,17 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Navigation("ProductTemplate");
                 });
 
+            modelBuilder.Entity("QuickServe.Domain.Customers.Entities.Customer", b =>
+                {
+                    b.HasOne("QuickServe.Domain.Accounts.Entities.Account", null)
+                        .WithOne()
+                        .HasForeignKey("QuickServe.Domain.Customers.Entities.Customer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("QuickServe.Domain.Accounts.Entities.Account", b =>
                 {
-                    b.Navigation("Orders");
-
                     b.Navigation("Staff")
                         .IsRequired();
                 });
@@ -1121,6 +1124,11 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("QuickServe.Domain.TemplateSteps.Entities.TemplateStep", b =>
                 {
                     b.Navigation("IngredientTypeTemplateSteps");
+                });
+
+            modelBuilder.Entity("QuickServe.Domain.Customers.Entities.Customer", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,6 @@
 ﻿using QuickServe.Domain.Accounts.Entities;
+using QuickServe.Domain.Orders.Entities;
+using System.Collections.Generic;
 
 namespace QuickServe.Domain.Customers.Entities
 {
@@ -6,5 +8,6 @@ namespace QuickServe.Domain.Customers.Entities
     {
         public Customer() { }
         public long Point { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

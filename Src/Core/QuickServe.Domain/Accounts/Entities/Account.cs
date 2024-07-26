@@ -15,8 +15,7 @@ namespace QuickServe.Domain.Accounts.Entities
         }
         public string Name { get; set; }
         public DateTime Created { get; set; }
-        
-        public virtual ICollection<Order> Orders { get; set; }
-        public virtual Staff Staff { get; set; } = null!;
+             
+        public virtual Employee Staff { get; set; } = null!;
     }
 }

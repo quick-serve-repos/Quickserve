@@ -36,5 +36,11 @@ public class OrderConfiguration :  IEntityTypeConfiguration<Order>
             .HasForeignKey(d => d.StoreId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .HasConstraintName("order_store_id_foreign");
+        
+        entity.HasOne(d => d.Customer)
+            .WithMany(p => p.Orders)
+            .HasForeignKey(d => d.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("order_customer_id_foreign");
     }
 }

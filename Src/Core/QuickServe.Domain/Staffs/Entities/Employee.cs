@@ -4,7 +4,7 @@ using System;
 
 namespace QuickServe.Domain.Staffs.Entities
 {
-    public class Staff
+    public class Employee
     {
         public long StoreId { get; set; }
         public Guid EmployeeId { get; set; }
