@@ -81,7 +81,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             List<OrderProduct> orderProducts = new List<OrderProduct>(); 
             var order = new Order()
             {
-                Id = EnumExtension.GenerateUniqueId(),
+                Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
                 CustomerId = account != null ? account.Id : null,
                 StoreId = 1, //hardcode storeId => 1
                 BillCode = "Bill-" + EnumExtension.GenerateUniqueId()

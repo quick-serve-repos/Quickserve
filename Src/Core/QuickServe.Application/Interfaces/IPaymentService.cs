@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Net.payOS.Types;
 using QuickServe.Application.DTOs.Payment;
 using QuickServe.Application.Features.Payments.Commands.CreatePayment;
 using QuickServe.Application.Utils.Payments.Model;
@@ -29,5 +30,7 @@ namespace QuickServe.Application.Interfaces
         Task<Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(GetVNPayPayment request, CancellationToken cancellationToken);
         Task<PaymentCallBackResult> VNPayCallBackResultAsync(GetVNPayPayment request, CancellationToken cancellationToken);
         Task<PaymentCallBackResult> SubmitOrder(long orderId);
+        Task<string> CreatePayOSPaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken);
+        Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request, CancellationToken cancellationToken);
     }
 }

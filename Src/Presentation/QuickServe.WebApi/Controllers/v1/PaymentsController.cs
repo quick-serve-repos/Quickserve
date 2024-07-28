@@ -12,6 +12,7 @@ using System;
 using System.Threading.Tasks;
 using QuickServe.Application.Interfaces;
 using System.Linq;
+using Azure.Core;
 
 namespace QuickServe.WebApi.Controllers.v1
 {
@@ -50,6 +51,28 @@ namespace QuickServe.WebApi.Controllers.v1
         public async Task<BaseResult<PaymentCallBackResult>> SubmitOrder(long orderId)
         {
             var result = await _paymentService.SubmitOrder(orderId);
+            return new BaseResult<PaymentCallBackResult>(result);
+        }
+
+        [HttpPost("CreatePayOS")]
+        public async Task<BaseResult<Application.DTOs.Payment.PaymentResponse>> CreatePayOSAsync([FromBody] CreatePayOSCommand command)
+        {
+            return await Mediator.Send(command);
+        }
+
+        [HttpGet("payos-call-back")]
+        public async Task<BaseResult<PaymentCallBackResult>> PayOsCallBack()
+        {
+            var payment = new GetPayOSResponse()
+            {
+                Code = Request.Query["code"],
+                Cancel = Request.Query["cancel"],
+                Status = Request.Query["status"],
+                OrderCode = Request.Query["orderCode"],
+            };
+
+            var result = await _paymentService.PayOSCallBackResultAsync(payment, cancellationToken: default);
+
             return new BaseResult<PaymentCallBackResult>(result);
         }
     }

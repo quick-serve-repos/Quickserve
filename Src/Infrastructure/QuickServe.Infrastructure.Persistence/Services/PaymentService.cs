@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Net.payOS.Types;
 using QuickServe.Application.DTOs.Payment;
 using QuickServe.Application.Features.Payments.Commands.CreatePayment;
 using QuickServe.Application.Interfaces;
@@ -35,6 +36,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly VNPayConfigModel _vnPayConfigModel;
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPayOSService _payOSService;
 
         public PaymentService(
             IVNPayService vnPayService,
@@ -42,7 +44,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             IHttpContextAccessor httpContextAccessor,
             IOrderRepository orderRepository,
             ApplicationDbContext context, 
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IPayOSService payOSService)
         {
             _vnPayService = vnPayService;
             _httpContextAccessor = httpContextAccessor;
@@ -55,6 +58,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 SecretKey = _vnPaySettings.SecretKey
             };
             _unitOfWork = unitOfWork;
+            _payOSService = payOSService;
             _context = context;
         }
         public async Task<string> CreateVNPayPaymentUrlAsync(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -166,5 +170,59 @@ namespace QuickServe.Infrastructure.Persistence.Services
             
             return result;
         }
+
+        #region PayOS
+        public async Task<string> CreatePayOSPaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken)
+        {
+            var paymentRequest = new CreatePaymentRequest
+            {
+                Amount = request.Amount,
+                OrderCode = request.OrderCode,
+                Description = "Nap tien vao vi",
+                CancelUrl = request.ReturnUrl,
+                ReturnUrl = request.ReturnUrl,
+                Items = new List<ItemData> { new ItemData("Thanh toán hoá đơn", 1, request.Amount) }
+            };
+
+            var reponse = await _payOSService.CreatePayment(paymentRequest);
+            return reponse.checkoutUrl;
+        }
+
+        public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request, CancellationToken cancellationToken)
+        {
+            var payment = new Payment()
+            {
+                Id = EnumExtension.GenerateUniqueId(),
+                Name = request.OrderCode,
+                RefOrderId = long.Parse(request.OrderCode),
+                PaymentType = 2
+            };
+
+            var order = await _orderRepository.GetByIdAsync(payment.RefOrderId);
+            if (order == null)
+                return null;
+
+            else
+            {
+                order.Status = request.Status == "PAID" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
+            }
+
+            await _context.Payments.AddRangeAsync(payment);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PaymentCallBackResult()
+            {
+                Id = payment.Id.ToString(),
+                Name = request.Code,
+                RefOrderId = order.Id.ToString(),
+                Status = order.Status,
+                PaymentType = 2
+            };
+
+            return result;
+        }
+
+        #endregion
     }
 }

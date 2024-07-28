@@ -34,6 +34,8 @@ using QuickServe.Application.Interfaces.IngredientSessions;
 using QuickServe.Application.Utils.Payments;
 using Microsoft.Extensions.Configuration;
 using QuickServe.Domain.Settings;
+using Net.payOS;
+using System;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +57,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IIngredientSessionService, IngredientSessionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
+builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddDistributedMemoryCache();
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -77,6 +80,14 @@ builder.Services.AddCors(x =>
     });
 });
 builder.Services.AddCustomLocalization(builder.Configuration);
+
+#region Service
+// Register third-party service
+PayOS payOS = new PayOS(builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ClientId"] ?? throw new Exception("Cannot find PayOS ClientId"),
+        builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ApiKey"] ?? throw new Exception("Cannot find PayOS ApiKey"),
+        builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ChecksumKey"] ?? throw new Exception("Cannot find PayOS ChecksumKey"));
+builder.Services.AddSingleton(payOS);
+#endregion
 
 //builder.Services.AddHealthChecks();
 builder.Services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService>();

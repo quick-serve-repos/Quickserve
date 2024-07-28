@@ -14,4 +14,8 @@ namespace QuickServe.Application.Utils.Enums
         Success = 4,
         Failed = 5,
     }
+    public class PayOSEnum
+    {
+        public static string PayOS_ReturnUrl = "https://localhost:7233/api/v1/payments/payos-call-back";
+    }
 }
