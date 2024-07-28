@@ -16,6 +16,6 @@ namespace QuickServe.Application.Utils.Enums
     }
     public class PayOSEnum
     {
-        public static string PayOS_ReturnUrl = "https://localhost:7233/api/v1/payments/payos-call-back";
+        public static string PayOS_ReturnUrl = "https://quickserve-api.azurewebsites.net/api/v1/payments/payos-call-back";
     }
 }
