@@ -15,5 +15,7 @@ namespace QuickServe.Infrastructure.Identity.Models
         public DateTime Created { get; set; }
         public string RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
+
+        public virtual ApplicationRole ApplicationRole { get; set; }
     }
 }

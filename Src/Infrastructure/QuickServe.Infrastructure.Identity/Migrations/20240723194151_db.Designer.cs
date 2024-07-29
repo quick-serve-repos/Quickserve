@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuickServe.Infrastructure.Identity.Contexts;
@@ -11,9 +12,11 @@ using QuickServe.Infrastructure.Identity.Contexts;
 namespace QuickServe.Infrastructure.Identity.Migrations
 {
     [DbContext(typeof(AppIdentityContext))]
-    partial class AppIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20240723194151_db")]
+    partial class db
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

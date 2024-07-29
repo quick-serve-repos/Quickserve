@@ -68,7 +68,7 @@ namespace QuickServe.Infrastructure.Identity.Services
                 return new BaseResult<AuthenticationResponse>(new Error(ErrorCode.FieldDataInvalid, translator.GetString(TranslatorMessages.AccountMessages.Mật_khẩu_không_hợp_lệ()), nameof(login.Password)));
             }
 
-            var rolesList = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+            //var rolesList = await userManager.GetRolesAsync(user).ConfigureAwait(false);
 
             var token = await CreateToken(user, true);
 
@@ -79,7 +79,8 @@ namespace QuickServe.Infrastructure.Identity.Services
                 RefreshToken = token.RefreshToken,
                 Email = user.Email,
                 UserName = user.UserName,
-                Roles = rolesList.FirstOrDefault(),
+                //Roles = rolesList.FirstOrDefault(),
+                Roles = user.ApplicationRole?.Name,
                 IsVerified = user.EmailConfirmed,
             };
 
@@ -188,7 +189,8 @@ namespace QuickServe.Infrastructure.Identity.Services
                 new(ClaimTypes.Name, user.UserName),
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Role, string.Join(",", await userManager.GetRolesAsync(user))),
+                new(ClaimTypes.Role, user.ApplicationRole?.Name),
+                //new(ClaimTypes.Role, string.Join(",", await userManager.GetRolesAsync(user))),
                 new(ClaimTypes.AuthenticationMethod, "Bearer"),
                 new(ClaimTypes.Expiration, DateTime.UtcNow.AddMinutes(double.Parse(configuration["JWTSettings:DurationInMinutes"])).ToString()),
             };

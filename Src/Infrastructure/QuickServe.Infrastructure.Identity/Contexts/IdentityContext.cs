@@ -15,14 +15,27 @@ namespace QuickServe.Infrastructure.Identity.Contexts
         {
             base.OnModelCreating(builder);
             builder.HasDefaultSchema("Identity");
+            // Cấu hình bảng ApplicationUser
             builder.Entity<ApplicationUser>(entity =>
             {
                 entity.ToTable(name: "User");
+
+                // Cấu hình mối quan hệ một-một với ApplicationRole
+                entity.HasOne(user => user.ApplicationRole)
+                    .WithOne(role => role.ApplicationUser)
+                    .HasForeignKey<ApplicationRole>(role => role.ApplicationUserId);
             });
 
+            /*builder.Entity<ApplicationRole>(entity =>
+            {
+                entity.ToTable(name: "Role");
+            });*/
+
+            // Cấu hình bảng ApplicationRole
             builder.Entity<ApplicationRole>(entity =>
             {
                 entity.ToTable(name: "Role");
+                entity.HasIndex(role => role.ApplicationUserId).IsUnique(); // Tạo chỉ mục duy nhất trên ApplicationUserId
             });
             builder.Entity<IdentityUserRole<Guid>>(entity =>
             {
