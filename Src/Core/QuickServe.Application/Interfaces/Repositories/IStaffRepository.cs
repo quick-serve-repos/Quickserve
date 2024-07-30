@@ -10,5 +10,8 @@ namespace QuickServe.Application.Interfaces.Repositories
     {
         void AddStaffToStore(long storeId, Guid employeeId);
         Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken, string[] roles);
+        Task<int> CountStaffByStoreIdAndDateRangeAsync(long storeId, DateTime startDate, DateTime endDate);
+        Task<int> CountStaffByDateRangeAsync(DateTime startDate, DateTime endDate);
+
     }
 }

@@ -32,10 +32,7 @@ namespace QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAcco
                 .NotNull().WithMessage(translator["Tên là bắt buộc"])
                 .MaximumLength(40).WithMessage(translator["Tên không được vượt quá 40 ký tự"]);
 
-            RuleFor(x => x.Phone)
-                .NotEmpty().WithMessage(translator["Số điện thoại là bắt buộc"])
-                .NotNull().WithMessage(translator["Số điện thoại là bắt buộc"])
-                .Matches(@"^(03|05|07|08|09)\d{8}$").WithMessage(translator["Số điện thoại phải có từ 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09"]);
+          
 
             RuleFor(x => x.Name)
                 .Must(name => char.IsUpper(name[0])).WithMessage(translator["Chữ cái đầu tiên của tên phải là chữ in hoa"])

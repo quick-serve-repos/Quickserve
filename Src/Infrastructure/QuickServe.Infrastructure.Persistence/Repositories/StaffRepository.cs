@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuickServe.Application.DTOs;
+using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.Repositories;
 using QuickServe.Domain.Accounts.Dtos;
 using QuickServe.Domain.Staffs.Entities;
@@ -21,6 +22,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IUnitOfWork unitOfWork;
         public StaffRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             this.context = context;
@@ -67,7 +69,8 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
             foreach (var item in listAccount)
             {
                 var user = await userManager.FindByIdAsync(item.Id.ToString());
-                item.Role = [.. (await userManager.GetRolesAsync(user))];
+                var rolesList = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+                item.Role = rolesList.FirstOrDefault();
                 if (listRoles.Any(p => item.Role.Contains(p)))
                 {
                     accountInListRoles.Add(item);
@@ -89,13 +92,30 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
                 Id = e.Id,
                 Name = e.Name,
                 Email = e.Email,
-                Role = e.Role.FirstOrDefault(),
+                Role = e.Role,
                 PhoneNumber = e.PhoneNumber,
                 Created = e.Created,
                 UserName = e.UserName,
             }).ToList();
 
             return new PagenationResponseDto<EmployeeDto>(employeeDtos, count);
+        }
+
+        public async Task<int> CountStaffByStoreIdAndDateRangeAsync(long storeId, DateTime startDate, DateTime endDate)
+        {
+            return await context.Staffs
+                .Where(s => s.StoreId == storeId &&
+                            s.Account.Created >= startDate &&
+                            s.Account.Created <= endDate)
+                .CountAsync();
+        }
+
+        public async Task<int> CountStaffByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await context.Staffs
+                .Where(s => s.Account.Created >= startDate &&
+                            s.Account.Created <= endDate)
+                .CountAsync();
         }
     }
 }

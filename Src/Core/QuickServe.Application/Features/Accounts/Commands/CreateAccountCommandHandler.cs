@@ -3,6 +3,7 @@ using QuickServe.Application.Helpers;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.Repositories;
 using QuickServe.Application.Interfaces.UserInterfaces;
+using QuickServe.Application.Utils.Enums;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.Accounts.Entities;
 using QuickServe.Utils.Enums;
@@ -12,10 +13,15 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Accounts.Commands
 {
-    public class CreateAccountCommandHandler(IAccountServices accountServices, IStaffRepository staffRepository ,IStoreRepository storeRepository,IGenericRepository<Account> accountRepository, ITranslator translator) : IRequestHandler<CreateAccountCommand, BaseResult<Guid>>
+    public class CreateAccountCommandHandler(IAuthenticatedUserService authenticated, IAccountServices accountServices, IStaffRepository staffRepository ,IStoreRepository storeRepository,IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<CreateAccountCommand, BaseResult<Guid>>
     {
         public async Task<BaseResult<Guid>> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
+            var currentUser = await accountRepository.FindByIdAsync(Guid.Parse(authenticated.UserId));
+            if (currentUser == null)
+            {
+                return new BaseResult<Guid>(new Error(ErrorCode.NotFound, translator.GetString("Không tim thấy tài khoản"), nameof(authenticated.UserId)));
+            }
             var result = await accountServices.CreateAccount(new DTOs.Account.Requests.CreateAccountRequest
             {
                 Email = request.Email,
@@ -31,12 +37,16 @@ namespace QuickServe.Application.Features.Accounts.Commands
                     Email = request.Email,
                     UserName = request.UserName,
                     Id = result.Data,
-                    Name = request.Name
+                    Name = request.Name, 
+                    Status =(int) AccountStatus.Active,
+                    CreatedBy = authenticated.UserName
+                    
                 };
 
                 await accountRepository.AddAsync(account);
                 if (request.Role == AccountRole.Staff.ToString() ||
-                    request.Role == AccountRole.Store_Manager.ToString())
+                    request.Role == AccountRole.Store_Manager.ToString()
+                   )
                 {
                     if(request.Role == AccountRole.Store_Manager.ToString())
                     {
@@ -55,6 +65,7 @@ namespace QuickServe.Application.Features.Accounts.Commands
                     }
                     staffRepository.AddStaffToStore(request.StoreId, account.Id);
                 }
+               
                 return new BaseResult<Guid>(account.Id);
             }
             return new BaseResult<Guid>(result.Errors);
