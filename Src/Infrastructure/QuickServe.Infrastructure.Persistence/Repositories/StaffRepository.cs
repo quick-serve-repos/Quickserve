@@ -1,22 +1,30 @@
-﻿using QuickServe.Application.DTOs;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using QuickServe.Application.DTOs;
 using QuickServe.Application.Interfaces.Repositories;
+using QuickServe.Domain.Accounts.Dtos;
 using QuickServe.Domain.Staffs.Entities;
 using QuickServe.Domain.Stores.Dtos;
+using QuickServe.Infrastructure.Identity.Models;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickServe.Infrastructure.Persistence.Repositories
 {
     public class StaffRepository : GenericRepository<Employee>, IStaffRepository
     {
         private readonly ApplicationDbContext context;
-
-        public StaffRepository(ApplicationDbContext context) : base(context)
+        private readonly UserManager<ApplicationUser> userManager;
+        public StaffRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager) : base(context)
         {
             this.context = context;
+            this.userManager = userManager;
         }
 
         public void AddStaffToStore(long storeId, Guid employeeId)
@@ -25,25 +33,69 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
             context.SaveChanges();
         }
 
-        public async Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken)
+        public async Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken, string[] roles)
         {
             var staffs = context.Staffs.Where(s => s.StoreId == storeId).OrderByDescending(s => s.Account.Created).AsQueryable();
 
+            var staffUserIds = await staffs.Select(s => s.Account.Id).ToListAsync(cancellationToken);
+
+            var listRoles = roles.ToList();
+            var query = userManager.Users
+                .Where(u => staffUserIds.Contains(u.Id))
+                .Select(c => new AccountDto
+                {
+                    Id = c.Id,
+                    UserName = c.UserName,
+                    Email = c.Email,
+                    Created = c.Created,
+                    PhoneNumber = c.PhoneNumber,
+                    Name = c.Name,
+                    Avatar = null,
+                    Address = null
+                });
+
             if (!string.IsNullOrEmpty(name))
             {
-                staffs = staffs.Where(s => s.Account.Name.Contains(name));
+                query = query.Where(c => c.UserName.Contains(name) || c.Email.Contains(name));
             }
 
-            return await Paged(staffs.Select(e => new EmployeeDto {
-                Id = e.Account.Id,
-                Name = e.Account.Name,
-                Email = e.Account.Email,
-                PhoneNumber = e.Account.PhoneNumber,
-                Created = e.Account.Created,
-                UserName = e.Account.UserName,
-            }),
-                pageNumber,
-                pageSize);
+            var count = await query.CountAsync(cancellationToken);
+
+            var accountInListRoles = new List<AccountDto>();
+            var listAccount = await query.ToListAsync(cancellationToken);
+
+            foreach (var item in listAccount)
+            {
+                var user = await userManager.FindByIdAsync(item.Id.ToString());
+                item.Role = [.. (await userManager.GetRolesAsync(user))];
+                if (listRoles.Any(p => item.Role.Contains(p)))
+                {
+                    accountInListRoles.Add(item);
+                }
+            }
+
+            var result = listAccount.AsQueryable();
+            if (roles != null && roles.Length > 0)
+            {
+                result = accountInListRoles.AsQueryable();
+            }
+            var paginatedResult = result
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var employeeDtos = paginatedResult.Select(e => new EmployeeDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Email = e.Email,
+                Role = e.Role.FirstOrDefault(),
+                PhoneNumber = e.PhoneNumber,
+                Created = e.Created,
+                UserName = e.UserName,
+            }).ToList();
+
+            return new PagenationResponseDto<EmployeeDto>(employeeDtos, count);
         }
     }
 }

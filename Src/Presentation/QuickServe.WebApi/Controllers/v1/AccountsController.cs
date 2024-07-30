@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuickServe.Application.DTOs.Account.Requests;
 using QuickServe.Application.DTOs.Account.Responses;
 using QuickServe.Application.Features.Accounts.Commands;
+using QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAccount;
 using QuickServe.Application.Features.Accounts.Queries.GetPagedListAccount;
 using QuickServe.Application.Interfaces.UserInterfaces;
 using QuickServe.Application.Wrappers;
@@ -19,14 +21,17 @@ namespace QuickServe.WebApi.Controllers.v1
         [HttpPost("authenticate")]
         public async Task<BaseResult<AuthenticationResponse>> Authenticate([FromBody] AuthenticationRequest request)
             => await accountServices.Authenticate(request);
+        [HttpPost("customer")]
+        public async Task<BaseResult> RegisterCustomerAccount([FromBody] RegisterCustomerAccountCommand command)
+           => await Mediator.Send(command);
 
-        //[HttpPut, Authorize]
-        //public async Task<BaseResult> ChangeUserName(ChangeUserNameRequest model)
-        //    => await accountServices.ChangeUserName(model);
+        [HttpPut("username"), Authorize]
+        public async Task<BaseResult> Changeusername(ChangeUserNameRequest model)
+           => await accountServices.ChangeUserName(model);
 
-        //[HttpPut, Authorize]
-        //public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
-        //    => await accountServices.ChangePassword(model);
+        [HttpPut("password"), Authorize]
+        public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
+            => await accountServices.ChangePassword(model);
 
         //[HttpPost]
         //public async Task<BaseResult<AuthenticationResponse>> Start()

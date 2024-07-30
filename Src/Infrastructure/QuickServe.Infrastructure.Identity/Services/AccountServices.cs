@@ -302,8 +302,8 @@ namespace QuickServe.Infrastructure.Identity.Services
             foreach (var item in listAccount)
             {
                 var user = await userManager.FindByIdAsync(item.Id.ToString());
-                item.Roles = [.. (await userManager.GetRolesAsync(user))];
-                if (listRoles.Any(p => item.Roles.Contains(p)))
+                item.Role = [.. (await userManager.GetRolesAsync(user))];
+                if (listRoles.Any(p => item.Role.Contains(p)))
                 {
                     accountInListRoles.Add(item);
                 }
@@ -332,7 +332,7 @@ namespace QuickServe.Infrastructure.Identity.Services
                 Name = account.Name,
                 Avatar = null,
                 Address = null,
-                Roles = [.. (await userManager.GetRolesAsync(account))]
+                Role = [.. (await userManager.GetRolesAsync(account))]
             });
         }
 
@@ -351,7 +351,7 @@ namespace QuickServe.Infrastructure.Identity.Services
                 Name = account.Name,
                 Avatar = null,
                 Address = null,
-                Roles = [.. (await userManager.GetRolesAsync(account))]
+                Role = [.. (await userManager.GetRolesAsync(account))]
             });
         }
     }

@@ -9,6 +9,6 @@ namespace QuickServe.Application.Interfaces.Repositories
     public interface IStaffRepository
     {
         void AddStaffToStore(long storeId, Guid employeeId);
-        Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken);
+        Task<PagenationResponseDto<EmployeeDto>> GetPagedListStaffByStoreIdAsync(long storeId, int pageNumber, int pageSize, string name, CancellationToken cancellationToken, string[] roles);
     }
 }
