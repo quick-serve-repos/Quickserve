@@ -1,10 +1,17 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Core;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuickServe.Application.DTOs.Account.Requests;
 using QuickServe.Application.DTOs.Account.Responses;
+using QuickServe.Application.Features.Accounts.AccountReport;
 using QuickServe.Application.Features.Accounts.Commands;
+using QuickServe.Application.Features.Accounts.Commands.DeleteAccount;
+using QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAccount;
 using QuickServe.Application.Features.Accounts.Queries.GetPagedListAccount;
+using QuickServe.Application.Features.Accounts.Queries.GetProfile;
+using QuickServe.Application.Features.Accounts.UpdateProfile;
 using QuickServe.Application.Interfaces.UserInterfaces;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.Accounts.Dtos;
@@ -19,14 +26,29 @@ namespace QuickServe.WebApi.Controllers.v1
         [HttpPost("authenticate")]
         public async Task<BaseResult<AuthenticationResponse>> Authenticate([FromBody] AuthenticationRequest request)
             => await accountServices.Authenticate(request);
+        [HttpPost("customer")]
+        public async Task<BaseResult> RegisterCustomerAccount([FromBody] RegisterCustomerAccountCommand command)
+           => await Mediator.Send(command);
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<BaseResult> UpdateAccount(Guid id, UpdateProfileCommand command)
+        {
+            command.Id = id;
+            return await accountServices.UpdateProfile(command);
+        }
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<BaseResult> DeleteAccount(Guid id)
+        {
+            return await accountServices.DeleteAccount(new DeleteAccountCommand { Id = id});
+        }
+        [HttpPut("username"), Authorize]
+        public async Task<BaseResult> Changeusername(ChangeUserNameRequest model)
+           => await accountServices.ChangeUserName(model);
 
-        //[HttpPut, Authorize]
-        //public async Task<BaseResult> ChangeUserName(ChangeUserNameRequest model)
-        //    => await accountServices.ChangeUserName(model);
-
-        //[HttpPut, Authorize]
-        //public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
-        //    => await accountServices.ChangePassword(model);
+        [HttpPut("password"), Authorize]
+        public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
+            => await accountServices.ChangePassword(model);
 
         //[HttpPost]
         //public async Task<BaseResult<AuthenticationResponse>> Start()
@@ -54,7 +76,16 @@ namespace QuickServe.WebApi.Controllers.v1
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<BaseResult<AccountDto>> GetAccountById(Guid id)
+        public async Task<BaseResult<ProfileResponse>> GetAccountById(Guid id)
             => await accountServices.GetAccountById(id);
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<BaseResult<ProfileResponse>> GetProfile([FromQuery] GetProfileQuery query)
+            => await Mediator.Send(query);
+
+        [HttpGet("report")]
+        [Authorize]
+        public async Task<BaseResult<AccountReportDto>> GetAccountReport([FromQuery] AccountReportQuery query)
+           => await Mediator.Send(query);
     }
 }
