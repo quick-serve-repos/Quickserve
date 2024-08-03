@@ -41,8 +41,9 @@ namespace QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAcco
                     Name = request.Name,
                     CreatedBy = request.UserName, 
                 };
-
+                customer.Created = DateTime.UtcNow;
                 await customerRepository.AddAsync(customer);
+                await unitOfWork.SaveChangesAsync();
                 return new BaseResult<Guid>(customer.Id);
             }
 
