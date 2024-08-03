@@ -27,7 +27,7 @@ namespace QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAcco
                 Password = request.Password,
                 Role = AccountRole.Customer.ToString(),
                 UserName = request.UserName,
-                Name = request.Name,
+                Name = request.Name
                 
             });
             
@@ -39,11 +39,10 @@ namespace QuickServe.Application.Features.Accounts.Commands.RegisterCustomerAcco
                     UserName = request.UserName,
                     Id = result.Data,
                     Name = request.Name,
-                    CreatedBy = request.UserName
+                    CreatedBy = request.UserName, 
                 };
 
                 await customerRepository.AddAsync(customer);
-                await unitOfWork.SaveChangesAsync();
                 return new BaseResult<Guid>(customer.Id);
             }
 
