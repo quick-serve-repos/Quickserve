@@ -416,8 +416,7 @@
                 user.Email = request.Email.Trim();
                 user.PhoneNumber = request.Phone.Trim();
 
-                acc.LastModified = DateTime.Now;
-                acc.LastModifiedBy = currentUser.UserName;
+               
 
                 var identityResult = await userManager.UpdateAsync(user);
                 if (identityResult.Succeeded)

@@ -16,7 +16,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
             .IsRequired();
         builder.Property(a => a.Id).HasColumnName("Id");
         builder.Property(a => a.Created)
-            .HasColumnType("timestamp with time zone")
+            .HasColumnType("timestamp without time zone")
             .IsRequired();
         builder.Property(a => a.Birthday)
             .HasColumnType("date");
