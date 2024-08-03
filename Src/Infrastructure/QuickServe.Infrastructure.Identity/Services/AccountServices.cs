@@ -298,7 +298,7 @@
             public async Task<PagenationResponseDto<AccountDto>> GetPagedListAsync(int pageNumber, int pageSize, string name, string[] roles)
             {
                 var listRoles = roles.ToList();
-                var query = userManager.Users.AsQueryable()
+                var query = userManager.Users.OrderByDescending(a=> a.Created).AsQueryable()
                     .Select(c => new AccountDto
                     {
                         Id = c.Id,
