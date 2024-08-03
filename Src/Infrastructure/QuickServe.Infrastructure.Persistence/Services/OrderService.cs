@@ -146,7 +146,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                     Quantity = igre.DefaultQuantity
                                 };
                                 ingredientProducts.Add(ingredientProduct);
-                                product.Price += igre.Price * igre.DefaultQuantity;
+                                product.Price += igre.Price;
                             }
                         }
                     }
@@ -171,6 +171,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         var sessions = await _sessionRepository.GetAllAsync();
                         var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                        //sau truyền lại sl thì int ingreQuantityDefault = ingre.Quantity;
+                        int ingreQuantityDefault = 1; 
 
                         if (currentSession != null)
                         {
@@ -180,14 +182,14 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             if (ingredientSession != null)
                             {
                                 //check tồn có đủ đk không
-                                var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
+                                var quantityExist = ingredientSession.SoldQuantity + ingreQuantityDefault;
                                 if (quantityExist > ingredientSession.Quantity)
                                 {
                                     throw new Exception("Nguyên liệu không đủ số lượng tồn");
                                 }
                                 else
                                 {
-                                    ingredientSession.SoldQuantity += ingre.Quantity;
+                                    ingredientSession.SoldQuantity += ingreQuantityDefault;
                                 }
                             }
                         }
@@ -196,11 +198,11 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         {
                             ProductId = product.Id,
                             IngredientId = ingre.Id,
-                            Quantity = ingre.Quantity
+                            Quantity = ingreQuantityDefault
                         };
                         ingredientProducts.Add(ingredientProduct);
 
-                        product.Price += ingre.Price * ingre.Quantity;
+                        product.Price += ingre.Price * ingreQuantityDefault;
                     }
                     products.Add(product);
 
