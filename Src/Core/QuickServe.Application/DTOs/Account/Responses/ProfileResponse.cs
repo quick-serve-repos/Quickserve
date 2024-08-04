@@ -13,7 +13,7 @@ namespace QuickServe.Application.DTOs.Account.Responses
         public string Username { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public string Role { get; set; }
+        public string Roles { get; set; }
         public string Address { get; set; }
         public string Avatar { get; set; }
         public DateTime? Birthday { get; set; }

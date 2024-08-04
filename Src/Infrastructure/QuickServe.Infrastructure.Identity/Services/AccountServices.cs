@@ -100,7 +100,7 @@
                     RefreshToken = token.RefreshToken,
                     Email = user.Email,
                     UserName = user.UserName,
-                    Role = rolesList.FirstOrDefault(),
+                    Roles = rolesList.FirstOrDefault(),
                     IsVerified = user.EmailConfirmed,
                 };
 
@@ -126,7 +126,7 @@
                     RefreshToken = token.RefreshToken,
                     Email = user.Email,
                     UserName = user.UserName,
-                    Role = rolesList.FirstOrDefault(),
+                    Roles = rolesList.FirstOrDefault(),
                     IsVerified = user.EmailConfirmed,
                 };
 
@@ -355,7 +355,7 @@
                     Email = user.Email,
                     Created = user.Created,
                     Phone = user.PhoneNumber,
-                    Role = rolesList.FirstOrDefault(),
+                    Roles = rolesList.FirstOrDefault(),
                     Address = account.Address,
                     Avatar = account.Avatar,
                     Status = account.Status,
