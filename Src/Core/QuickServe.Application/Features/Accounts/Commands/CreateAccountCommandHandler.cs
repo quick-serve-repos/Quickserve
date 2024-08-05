@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace QuickServe.Application.Features.Accounts.Commands
 {
-    public class CreateAccountCommandHandler(IAuthenticatedUserService authenticated, IAccountServices accountServices, IStaffRepository staffRepository ,IStoreRepository storeRepository,IAccountRepository accountRepository, ITranslator translator) : IRequestHandler<CreateAccountCommand, BaseResult<Guid>>
+    public class CreateAccountCommandHandler(IAuthenticatedUserService authenticated, IAccountServices accountServices, IStaffRepository staffRepository ,IStoreRepository storeRepository,IAccountRepository accountRepository, ITranslator translator, IUnitOfWork unitOfWork) : IRequestHandler<CreateAccountCommand, BaseResult<Guid>>
     {
         public async Task<BaseResult<Guid>> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
-            var currentUser = await accountRepository.FindByIdAsync(Guid.Parse(authenticated.UserId));
-            if (currentUser == null)
+            var currentuser = await accountRepository.FindByIdAsync(Guid.Parse(authenticated.UserId));
+            if (currentuser == null)
             {
-                return new BaseResult<Guid>(new Error(ErrorCode.NotFound, translator.GetString("Không tim thấy tài khoản"), nameof(authenticated.UserId)));
+                return new BaseResult<Guid>(new Error(ErrorCode.NotFound, translator.GetString("không tim thấy tài khoản"), nameof(authenticated.UserId)));
             }
             var result = await accountServices.CreateAccount(new DTOs.Account.Requests.CreateAccountRequest
             {
@@ -44,6 +44,7 @@ namespace QuickServe.Application.Features.Accounts.Commands
                 };
 
                 await accountRepository.AddAsync(account);
+                
                 if (request.Role == AccountRole.Staff.ToString() ||
                     request.Role == AccountRole.Store_Manager.ToString()
                    )
@@ -65,7 +66,7 @@ namespace QuickServe.Application.Features.Accounts.Commands
                     }
                     staffRepository.AddStaffToStore(request.StoreId, account.Id);
                 }
-               
+                await unitOfWork.SaveChangesAsync();
                 return new BaseResult<Guid>(account.Id);
             }
             return new BaseResult<Guid>(result.Errors);
