@@ -92,7 +92,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
                 Id = e.Id,
                 Name = e.Name,
                 Email = e.Email,
-                Role = e.Role,
+                Roles = e.Role,
                 PhoneNumber = e.PhoneNumber,
                 Created = e.Created,
                 UserName = e.UserName,
