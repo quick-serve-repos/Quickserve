@@ -20,6 +20,10 @@ using QuickServe.Application.DTOs.Ingredients.Responses;
 using QuickServe.Application.Features.TemplateSteps.Commands.CreateTemplateStep;
 using QuickServe.Domain.TemplateSteps.Entities;
 using System.Net;
+using QuickServe.Domain.ProductTemplates.Dtos;
+using Azure.Core;
+using MediatR;
+using QuickServe.Application.Interfaces.Repositories;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
@@ -28,12 +32,16 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly ApplicationDbContext _context;
         private readonly ITranslator _translator;
         private readonly IUnitOfWork _unitOfWork;
-
-        public IngredientTypeTemplateStepService(ApplicationDbContext context, ITranslator translator, IUnitOfWork unitOfWork)
+        private readonly ISessionRepository _sessionRepository;
+        private readonly IIngredientSessionRepository _ingredientSessionRepository;
+        public IngredientTypeTemplateStepService(ApplicationDbContext context, ITranslator translator, IUnitOfWork unitOfWork,
+            ISessionRepository sessionRepository, IIngredientSessionRepository ingredientSessionRepository)
         {
             _context = context;
             _translator = translator;
             _unitOfWork = unitOfWork;
+            _sessionRepository = sessionRepository;
+            _ingredientSessionRepository = ingredientSessionRepository;
         }
         public async Task<BaseResult> CreateTempalte(CreateTemplateStepCommand request)
         {
@@ -63,8 +71,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Name = request.Name.Trim(),
                     ProductTemplateId = request.ProductTemplateId,
                 };
-                await _context.TemplateSteps.AddAsync(result);
-                await _unitOfWork.SaveChangesAsync();
+               
                 foreach (var newIngredientType in request.IngredientTypes)
                 {
                     var ingredientType = await _context.IngredientTypes.Include(i=> i.Ingredients)
@@ -78,6 +85,12 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(ingredientType.Name +" chưa có nguyên liệu. Hãy thêm nguyên liệu.")));
 
                     }
+                    if(ingredientType.Ingredients.Count()< newIngredientType.QuantityMax)
+                    {
+                        return new BaseResult(new Error(ErrorCode.FieldDataInvalid, _translator.GetString(ingredientType.Name + " không đủ nguyên liệu. Chọn lại số lượng lớn nhất.")));
+                    }
+                    await _context.TemplateSteps.AddAsync(result);
+                    await _unitOfWork.SaveChangesAsync();
                     var ingredientStep = new IngredientTypeTemplateStep
                     {
                         TemplateStepId = result.Id,
@@ -210,6 +223,115 @@ namespace QuickServe.Infrastructure.Persistence.Services
             catch (Exception ex)
             {
                 return new BaseResult($"Đã xảy ra lỗi khi lấy mẫu: {ex.Message}");
+            }
+        }
+
+        public async Task<BaseResult> GetIngredients(long ingredientTypeId)
+        {
+            try
+            {
+                var ingredientType = await _context.IngredientTypes
+                    .Include(c => c.Ingredients)
+                    .FirstOrDefaultAsync(c=> c.Id == ingredientTypeId);
+                if (ingredientType == null)
+                {
+                    return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString("Không tìm thấy loại nguyên liệu")));
+                }
+                var ingredients = new List<GetIngredientsResponse>();
+                foreach (var ingredient in ingredientType.Ingredients.
+                    Where(c => c.Status == (int)IngredientStatus.Active))
+                {
+                    var remainQuantity = 0;
+                    var isSold = true;
+                    var sessions = await _sessionRepository.GetAllAsync();
+                    var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                    if (currentSession != null)
+                    {
+                        var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingredient.Id, currentSession.Id);
+                       
+                        if (ingredientSession != null)
+                        {
+                           remainQuantity = ingredientSession.Quantity - ingredientSession.SoldQuantity;
+                            if (remainQuantity > 0)
+                            {
+                                isSold = true;
+                            }
+                            else { 
+                                isSold=false;
+                            }
+                        }
+                    }
+                    var ingredientRes = new GetIngredientsResponse
+                    {
+                        Id = ingredient.Id,
+                        Name = ingredient.Name,
+                        ImageUrl = ingredient.ImageUrl,
+                        DefaultQuantity = ingredient.DefaultQuantity,
+                        QuantityMax = ingredient.QuantityMax,
+                        Price = ingredient.Price,
+                        RemainingQuantity = remainQuantity,
+                        IsSold = isSold
+                    };
+                    ingredients.Add(ingredientRes);
+                }
+                return new BaseResult<List<GetIngredientsResponse>>(ingredients);
+            }
+            catch (Exception ex)
+            {
+                return new BaseResult($"Đã xảy ra lỗi khi lấy các nguyên liệu: {ex.Message}");
+            }
+        }
+
+        public async Task<BaseResult> GetProductTemplate(GetAllTemplateRequest request)
+        {
+            try
+            {
+                var productTemplate = await _context.ProductTemplates
+                    .Include(c => c.TemplateSteps).ThenInclude(c => c.IngredientTypeTemplateSteps)
+                    .ThenInclude(c => c.IngredientType)
+                    .FirstOrDefaultAsync(c => c.Id == request.ProductTemplateId);
+
+                if (productTemplate == null)
+                {
+                    return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.ProductTemplateId)), nameof(request.ProductTemplateId)));
+                }
+                var templates = new List<TemplateStepResponse>();
+                foreach (var ts in productTemplate.TemplateSteps)
+                {
+                    var templateStep = new TemplateStepResponse
+                    {
+                        Id = ts.Id,
+                        Name = ts.Name
+                    };
+                    var its = new List<IngredientTypeDto>();
+                    foreach (var it in ts.IngredientTypeTemplateSteps)
+                    {
+                        var ingreStep = new IngredientTypeDto
+                        {
+                            Id = it.IngredientTypeId,
+                            Name = it.IngredientType.Name,
+                            QuantityMin = it.QuantityMin,
+                            QuantityMax = it.QuantityMax
+                        };
+                        its.Add(ingreStep);
+                    }
+                    templateStep.IngredientTypes = its;
+                    templates.Add(templateStep);
+                }
+                var result = new GetProductTemplateResponse
+                {
+                    Id = productTemplate.Id,
+                    Name = productTemplate.Name,
+                    Price = productTemplate.Price,
+                    Steps = templates,
+                };
+
+                return new BaseResult<GetProductTemplateResponse>(result);
+            }
+            catch (Exception ex)
+            {
+                return new BaseResult($"Đã xảy ra lỗi khi lấy tất cả mẫu: {ex.Message}");
             }
         }
 

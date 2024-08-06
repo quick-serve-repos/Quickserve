@@ -21,7 +21,12 @@ namespace QuickServe.WebApi.Controllers.v1
         [HttpGet("all")]
         public async Task<BaseResult> GetAll([FromQuery] GetAllTemplateRequest model)
             => await _service.GetAll(model);
-
+        [HttpGet("productemplate")]
+        public async Task<BaseResult> GetProductTemplate([FromQuery] GetAllTemplateRequest model)
+           => await _service.GetProductTemplate(model);
+        [HttpGet("IngredientType/{id}")]
+        public async Task<BaseResult> GetProductIngredients(long id)
+           => await _service.GetIngredients(id);
         [HttpGet("{id}")]
         public async Task<BaseResult> GetTemplateById(long id)
             => await _service.GetById(new GetTemplateByIdRequest { TemplateStepId = id });
