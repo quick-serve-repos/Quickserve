@@ -15,6 +15,8 @@ namespace QuickServe.Application.Interfaces.IngredientTypeTemplateSteps
         Task<BaseResult> CreateTempalte(CreateTemplateStepCommand request);
         Task<BaseResult> UpdateTempalte(CreateTemplateRequest request);
         Task<BaseResult> GetAll(GetAllTemplateRequest request);
+        Task<BaseResult> GetProductTemplate(GetAllTemplateRequest request);
+        Task<BaseResult> GetIngredients(long ingredientTypeId);
         Task<BaseResult> GetById(GetTemplateByIdRequest request);
         Task<BaseResult> UpdateTemplateStatus(UpdateTemplateStatusRequest request);
         Task<BaseResult> DeleteTemplate(DeleteTemplateRequest request);

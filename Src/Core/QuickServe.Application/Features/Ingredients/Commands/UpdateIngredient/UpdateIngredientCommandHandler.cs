@@ -29,7 +29,7 @@ public class UpdateIngredientCommandHandler(IIngredientRepository ingredientRepo
         }
 
         ingredient.Update(request.Name.Trim(), request.Price, request.Calo, request.DefaultQuantity, request.Description
-            , request.IngredientTypeId);
+            , request.IngredientTypeId, request.QuantityMax);
         if(ingredient.Price != request.Price)
         {
             foreach (var ingreStep in ingredient.IngredientType.IngredientTypeTemplateSteps)

@@ -17,6 +17,7 @@ namespace QuickServe.Domain.Ingredients.Dtos
             DefaultQuantity = ingredient.DefaultQuantity;
             Description = ingredient.Description;
             ImageUrl = ingredient.ImageUrl;
+            QuantityMax = ingredient.QuantityMax;
             IngredientTypeId = ingredient.IngredientTypeId;
             Status = ingredient.Status;
             IngredientType = ingredient.IngredientType != null 
@@ -33,6 +34,7 @@ namespace QuickServe.Domain.Ingredients.Dtos
         public int DefaultQuantity { get; set; }
         public string Description { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
+        public int QuantityMax { get; set; }
         public long IngredientTypeId { get; set; }
         public int Status { get; set; }
         public string CreatedBy { get; set; } = null!;
