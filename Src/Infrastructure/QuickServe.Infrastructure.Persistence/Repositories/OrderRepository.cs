@@ -16,6 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using QuickServe.Application.Interfaces;
 
 namespace QuickServe.Infrastructure.Persistence.Repositories;
 
@@ -23,11 +25,15 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
     private readonly DbSet<Order> orders;
     private readonly DbSet<Store> stores;
+    private readonly IAuthenticatedUserService _authenticatedUserService;
+    private readonly IAccountRepository _accountRepository;
 
-    public OrderRepository(ApplicationDbContext dbContext) : base(dbContext)
+    public OrderRepository(ApplicationDbContext dbContext, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository) : base(dbContext)
     {
         orders = dbContext.Set<Order>();
         stores = dbContext.Set<Store>();
+        _authenticatedUserService = authenticatedUserService;
+        _accountRepository = accountRepository;
     }
 
     public async Task<Order> GetByIdAsync(long id)
@@ -41,11 +47,18 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     }
     public async Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize)
     {
+        var userId =  _authenticatedUserService.UserId;
+        
+        var curretUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
+        
         var query = orders.AsNoTracking()
                 .Include(x => x.OrderProducts)
+                
                 .ThenInclude(e => e.Product)
                 .ThenInclude(a => a.IngredientProducts)
                 .ThenInclude(b => b.Ingredient)
+            
+                .Where(u =>u.StoreId == curretUser.Staff.StoreId)
                 .OrderByDescending(x=> x.Created);
 
         var totalCount = await query.CountAsync();
