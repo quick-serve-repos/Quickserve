@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuickServe.Application.DTOs.Nutritions.Request;
@@ -21,6 +22,7 @@ using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.ProductTemplates.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickServe.WebApi.Controllers.v1
@@ -96,5 +98,28 @@ namespace QuickServe.WebApi.Controllers.v1
             var result = await Mediator.Send(query);
             return Ok(result);
         }
+        
+        
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("CustomerOrderHistory")]
+        public async Task<BaseResult<List<OrderHistoryDto>>> GetCustomerOrderHistory()
+        {
+            var customerId = GetCurrentUserId(); // Method to get the current logged-in user's ID
+            var query = new GetCustomerOrderHistoryQuery { CustomerId = customerId };
+            return await Mediator.Send(query);
+        }
+        
+        private Guid GetCurrentUserId()
+        {
+            // Lấy thông tin của người dùng từ ClaimsPrincipal
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return userId;
+            }
+            throw new Exception("User ID not found in token");
+        }
+
     }
 }

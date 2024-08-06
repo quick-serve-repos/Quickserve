@@ -230,6 +230,18 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return bestSellingReport;
     }
 
+    public async Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId)
+    {
+        return await orders.AsNoTracking()
+            .Include(o => o.OrderProducts)
+            .ThenInclude(op => op.Product)
+            .ThenInclude(p => p.IngredientProducts)
+            .ThenInclude(ip => ip.Ingredient)
+            .Where(o => o.CustomerId == customerId)
+            .OrderByDescending(o => o.Created) // Sắp xếp theo thời gian tạo, mới nhất trước
+            .ToListAsync();
+    }
+   
     public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber, int pageSize, int status)
     {
         if (await stores.AnyAsync(c => c.Id == storeId) == false)

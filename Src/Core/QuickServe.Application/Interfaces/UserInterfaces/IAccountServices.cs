@@ -6,6 +6,7 @@ using QuickServe.Application.Features.Accounts.UpdateProfile;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.Accounts.Dtos;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace QuickServe.Application.Interfaces.UserInterfaces

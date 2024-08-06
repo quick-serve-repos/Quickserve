@@ -49,7 +49,7 @@ namespace QuickServe.WebApi.Controllers.v1
         [HttpPut("password"), Authorize]
         public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
             => await accountServices.ChangePassword(model);
-
+        
         //[HttpPost]
         //public async Task<BaseResult<AuthenticationResponse>> Start()
         //{

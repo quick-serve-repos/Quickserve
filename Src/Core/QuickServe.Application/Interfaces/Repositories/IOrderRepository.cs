@@ -18,4 +18,6 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<int> GetTotalOrderCountAsync(long? storeId);
     Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId);
+    Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId);
+    
 }
