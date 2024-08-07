@@ -11,6 +11,7 @@ namespace QuickServe.Application.DTOs.ProductTemplates.Response
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public decimal Price { get; set; }
         public List<TemplateResponse> Templates { get; set; }
         public ProductTemplateResponse() { }
     }

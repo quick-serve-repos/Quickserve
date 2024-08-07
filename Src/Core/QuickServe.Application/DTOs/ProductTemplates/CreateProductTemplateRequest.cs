@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using QuickServe.Application.DTOs.Ingredients.Request;
 using QuickServe.Application.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ namespace QuickServe.Application.DTOs.ProductTemplates
         public string Name { get; set; } = null!;
         public string Size { get; set; }
         public IFormFile Image { get; set; }
-        public decimal Price { get; set; }
         public string Description { get; set; } = null!;
     }
 
@@ -28,8 +26,6 @@ namespace QuickServe.Application.DTOs.ProductTemplates
                 .NotEmpty().WithMessage(translator["Tên là bắt buộc."])
                 .Length(2, 40).WithMessage(translator["Tên phải từ 2 đến 40 ký tự."]);
 
-            RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage(translator["Giá phải lớn hơn 0."]);
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage(translator["Mô tả là bắt buộc."])

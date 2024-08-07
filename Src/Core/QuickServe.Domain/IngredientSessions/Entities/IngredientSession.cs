@@ -9,6 +9,7 @@ namespace QuickServe.Domain.IngredientSessions.Entities
         public long IngredientId { get; set; }
         public long SessionId { get; set; }
         public int Quantity { get; set; }
+        public int SoldQuantity { get; set; }
 
         public virtual Ingredient Ingredient { get; set; } = null!;
         public virtual Session Session { get; set; } = null!;

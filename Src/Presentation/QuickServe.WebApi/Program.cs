@@ -27,6 +27,15 @@ using QuickServe.Infrastructure.FileManager.Services;
 using QuickServe.Application.Interfaces.ImageInterfaces;
 using QuickServe.Application.Interfaces.IProductTemplateServices;
 using QuickServe.Application.Interfaces.IngredientTypeTemplateSteps;
+using QuickServe.Application.Interfaces.Nutritions;
+using QuickServe.Application.Interfaces.IngredientNutritions;
+using QuickServe.Application.Interfaces.IOrderServices;
+using QuickServe.Application.Interfaces.IngredientSessions;
+using QuickServe.Application.Utils.Payments;
+using Microsoft.Extensions.Configuration;
+using QuickServe.Domain.Settings;
+using Net.payOS;
+using System;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,8 +49,15 @@ builder.Services.AddResourcesInfrastructure();
 builder.Services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService>();
 builder.Services.AddScoped<IIngredientService, IngredientService>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IProductTemplateService,  ProductTemplateService>();
+builder.Services.AddScoped<IProductTemplateService, ProductTemplateService>();
+builder.Services.AddScoped<INutritionService, NutritionService>();
+builder.Services.AddScoped<IIngredientNutritionService, IngredientNutritionService>();
 builder.Services.AddScoped<IIngredientTypeTemplateStepService, IngredientTypeTemplateStepService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IIngredientSessionService, IngredientSessionService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IVNPayService, VNPayService>();
+builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddDistributedMemoryCache();
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -65,11 +81,21 @@ builder.Services.AddCors(x =>
 });
 builder.Services.AddCustomLocalization(builder.Configuration);
 
+#region Service
+// Register third-party service
+PayOS payOS = new PayOS(builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ClientId"] ?? throw new Exception("Cannot find PayOS ClientId"),
+        builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ApiKey"] ?? throw new Exception("Cannot find PayOS ApiKey"),
+        builder.Configuration["AppSettings:PaymentSettings:PayOSSettings:ChecksumKey"] ?? throw new Exception("Cannot find PayOS ChecksumKey"));
+builder.Services.AddSingleton(payOS);
+#endregion
+
 //builder.Services.AddHealthChecks();
 builder.Services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService>();
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
-
 builder.Services.AddJwt(builder.Configuration);
+
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
+
 
 var app = builder.Build();
 
@@ -94,6 +120,10 @@ using (var scope = app.Services.CreateScope())
     //Seed Data
     await DefaultRoles.SeedAsync(services.GetRequiredService<RoleManager<ApplicationRole>>());
     await DefaultBasicUser.SeedAsync(services.GetRequiredService<UserManager<ApplicationUser>>());
+   // await DefaultBasicUser.SeedAsync(
+   //services.GetRequiredService<UserManager<ApplicationUser>>(),
+   //services.GetRequiredService<RoleManager<ApplicationRole>>());
+
 }
 
 app.UseCustomLocalization();

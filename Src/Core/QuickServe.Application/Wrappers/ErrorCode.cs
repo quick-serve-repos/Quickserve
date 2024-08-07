@@ -31,5 +31,31 @@
         LicenseException = 26,
         Unauthorized = 27,
         Duplicate = 28,
+        
+        TokenExpired = 29,
+        InvalidToken = 30,
+        AccountLocked = 31,
+       
+        Forbidden = 32,
+        RoleNotAssigned = 33,
+       
+        ForeignKeyViolation = 34,
+        ConstraintViolation = 35,
+       
+        FileNotFound = 36,
+        FileUploadFailed = 37,
+        FileFormatInvalid = 38,
+
+        NetworkError = 39,
+        Timeout = 40,
+
+        ServiceUnavailable = 41,
+        ExternalServiceError = 42,
+
+        BusinessRuleViolation = 43,
+        OperationNotAllowed = 44,
+
+        ConcurrencyConflict = 45,
+        OptimisticConcurrencyFailure = 46,
     }
 }

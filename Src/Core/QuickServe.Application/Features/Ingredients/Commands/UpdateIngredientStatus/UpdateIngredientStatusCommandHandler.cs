@@ -22,7 +22,7 @@ namespace QuickServe.Application.Features.Ingredients.Commands.UpdateIngredientS
 
             if (ingredient is null)
             {
-                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Nguyên_liệu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Không_tìm_thấy_nguyên_liệu(request.Id)), nameof(request.Id)));
             }
             if (ingredient.Status == (int)IngredientStatus.Active)
             {

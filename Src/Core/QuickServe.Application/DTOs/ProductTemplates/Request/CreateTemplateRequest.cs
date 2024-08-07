@@ -17,12 +17,11 @@ namespace QuickServe.Application.DTOs.ProductTemplates.Request
     {
         public CreateTemplateRequestValidator()
         {
-            RuleFor(x => x.TemplateStepId)
-                 .NotEmpty().WithMessage("Id bước mẫu là bắt buộc.")
-                 .GreaterThan(0).WithMessage("Id bước mẫu phải lớn hơn 0.");
-
             RuleForEach(x => x.IngredientType)
                 .SetValidator(new IngredientTypeTemplateStepsValidator());
+            RuleFor(x => x.IngredientType)
+               .Must(ingredientTypes => ingredientTypes.Select(i => i.IngredientTypeId).Distinct().Count() == ingredientTypes.Count)
+               .WithMessage("Mỗi loại nguyên liệu chỉ được xuất hiện một lần.");
         }
     }
 }

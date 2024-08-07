@@ -17,9 +17,9 @@ public class SessionConfiguration : IEntityTypeConfiguration<Session>
         entity.Property(e => e.Name)
             .HasMaxLength(40)
             .IsUnicode(false);
-
-        entity.Property(e => e.OrderId).HasColumnName("Order_Id");
-
+        entity.Property(e => e.Created).HasColumnType("timestamp with time zone");
+        entity.Property(e => e.StoreId).HasColumnName("Store_Id");
+        entity.Property(e => e.LastModified).HasColumnType("timestamp with time zone");
         entity.Property(e => e.StartTime).HasColumnName("Start_Time").IsRequired();
 
         entity.HasMany(d => d.IngredientSessions)

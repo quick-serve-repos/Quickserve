@@ -18,7 +18,7 @@ public class GetStoreByIdQueryHandler(IStoreRepository storeRepository, ITransla
         var store = await storeRepository.GetByIdAsync(request.Id);
         if (store is null)
         {
-            return new BaseResult<StoreDto>(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.StoreMessages.Cửa_hàng_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult<StoreDto>(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.Id)), nameof(request.Id)));
 
         }
 

@@ -13,17 +13,22 @@ public class UpdateProductTemplateCommandHandler(IProductTemplateRepository prod
 {
     public async Task<BaseResult> Handle(UpdateProductTemplateCommand request, CancellationToken cancellationToken)
     {
-        var ingredient = await productTemplateRepository.GetByIdAsync(request.Id);
+        if (request.Id <= 0)
+        {
+            return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString(TranslatorMessages.RequestMessage.Trường_id_không_hợp_lệ(request.Id)), nameof(request.Id)));
+        }
+        var productTemplate = await productTemplateRepository.GetByIdAsync(request.Id);
 
-        if (ingredient is null)
+        if (productTemplate is null)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ProductTemplateMessages.Mẫu_sản_phẩm_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.Id)), nameof(request.Id)));
         }
-        if (await productTemplateRepository.ExistByNameAsync(request.Name.Trim()))
+        if (await productTemplateRepository.ExistByNameAsync(request.Name.Trim()) &&
+            productTemplate.Name.ToLower() != request.Name.ToLower().Trim())
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ProductTemplateMessages.Tên_mẫu_sản_phẩm_đã_tồn_tại_với_tên(request.Name)), nameof(request.Name)));
+            return new BaseResult(new Error(ErrorCode.Duplicate, translator.GetString(TranslatorMessages.ProductTemplateMessages.Tên_mẫu_sản_phẩm_đã_tồn_tại(request.Name)), nameof(request.Name)));
         }
-        ingredient.Update(request.Name.Trim(), request.Price, request.Size, request.Description
+        productTemplate.Update(request.Name.Trim(), request.Size, request.Description
             , request.CategoryId);
         await unitOfWork.SaveChangesAsync();
         return new BaseResult();

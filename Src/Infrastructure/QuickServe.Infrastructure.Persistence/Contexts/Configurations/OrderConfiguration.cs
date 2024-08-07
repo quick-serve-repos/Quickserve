@@ -13,7 +13,9 @@ public class OrderConfiguration :  IEntityTypeConfiguration<Order>
 
         entity.Property(e => e.CustomerId).HasColumnName("Customer_id");
 
-        entity.Property(e => e.Created).HasColumnType("date");
+        entity.Property(e => e.Amount).HasColumnName("amount"); 
+
+        entity.Property(e => e.Created).HasColumnType("timestamp with time zone");
 
         entity.Property(e => e.StoreId).HasColumnName("Store_id");
 
@@ -34,17 +36,11 @@ public class OrderConfiguration :  IEntityTypeConfiguration<Order>
             .HasForeignKey(d => d.StoreId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .HasConstraintName("order_store_id_foreign");
-
-        entity.HasMany(d => d.Sessions)
-            .WithOne(p => p.Order)
-            .HasForeignKey(d => d.OrderId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("order_session_id_foreign");
-
+        
         entity.HasOne(d => d.Customer)
             .WithMany(p => p.Orders)
             .HasForeignKey(d => d.CustomerId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("order_customer_id_foreign");
     }
 }

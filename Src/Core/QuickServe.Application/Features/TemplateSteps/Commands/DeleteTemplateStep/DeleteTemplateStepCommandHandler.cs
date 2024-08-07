@@ -21,11 +21,11 @@ namespace QuickServe.Application.Features.TemplateSteps.Commands.DeleteTemplateS
 
             if (templateStep is null)
             {
-                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Bước_mẫu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Không_tìm_thấy_bước_mẫu(request.Id)), nameof(request.Id)));
             }
             if (templateStep.IngredientTypeTemplateSteps.Count != 0)
             {
-                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Bước_mẫu_tồn_tại_loại_nguyên_liệu(request.Id)), nameof(request.Id)));
+                return new BaseResult(new Error(ErrorCode.ConstraintViolation, translator.GetString(TranslatorMessages.TemplateStepMessages.Bước_mẫu_tồn_tại_loại_nguyên_liệu(request.Id)), nameof(request.Id)));
             }
             templateStepRepository.Delete(templateStep);
             await unitOfWork.SaveChangesAsync();

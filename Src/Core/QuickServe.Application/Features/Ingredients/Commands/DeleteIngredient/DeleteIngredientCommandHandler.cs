@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace QuickServe.Application.Features.Ingredients.Commands.DeleteIngredient;
 
-public class DeleteIngredientCommandHandler(IIngredientRepository ingredientRepository, INutritionRepository nutritionRepository,IUnitOfWork unitOfWork, ITranslator translator) : IRequestHandler<DeleteIngredientCommand, BaseResult>
+public class DeleteIngredientCommandHandler(IIngredientRepository ingredientRepository,IUnitOfWork unitOfWork, ITranslator translator) : IRequestHandler<DeleteIngredientCommand, BaseResult>
 {
     public async Task<BaseResult> Handle(DeleteIngredientCommand request, CancellationToken cancellationToken)
     {
@@ -16,11 +16,11 @@ public class DeleteIngredientCommandHandler(IIngredientRepository ingredientRepo
 
         if (ingredient is null)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Nguyên_liệu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Không_tìm_thấy_nguyên_liệu(request.Id)), nameof(request.Id)));
         }
         if (ingredient.IngredientSessions.Count !=0 && ingredient.IngredientProducts.Count != 0)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Nguyên_liệu_tồn_tại_trong_sản_phẩm_và_phiên_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.ConstraintViolation, translator.GetString(TranslatorMessages.IngredientMessages.Nguyên_liệu_tồn_tại_trong_sản_phẩm_và_ca_làm_việc(request.Id)), nameof(request.Id)));
         }
         if(ingredient.IngredientNutritions.Count != 0)
         {

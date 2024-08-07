@@ -10,6 +10,5 @@ public class UpdateProductTemplateCommand : IRequest<BaseResult>
     public long CategoryId { get; set; }
     public string Name { get; set; } = null!;
     public string Size { get; set; }
-    public decimal Price { get; set; }
     public string Description { get; set; } = null!;
 }

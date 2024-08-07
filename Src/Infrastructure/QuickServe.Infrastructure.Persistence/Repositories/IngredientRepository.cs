@@ -12,6 +12,7 @@ using QuickServe.Domain.IngredientTypes.Dtos;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using QuickServe.Infrastructure.Resources.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,7 +36,11 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
     public async Task<Ingredient> GetIngredientByIdAsync(long id)
     {
         return await ingredients.Include(i=> i.IngredientType)
+            .ThenInclude(i=> i.IngredientTypeTemplateSteps)
+            .ThenInclude(i=> i.TemplateStep)
+            .ThenInclude(i=> i.ProductTemplate)
             .Include(i=>i.IngredientSessions)
+            .ThenInclude(s=> s.Session)
             .Include(i=>i.IngredientNutritions)
             .Include(i=>i.IngredientProducts).ThenInclude(ip=> ip.Product)
             .FirstOrDefaultAsync(i=>i.Id == id);
@@ -44,7 +49,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
 
     public async Task<PagenationResponseDto<IngredientDTO>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = ingredients.OrderBy(c => c.Created).AsQueryable();
+        var query = ingredients.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));
@@ -105,4 +110,5 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
             pageNumber,
             pageSize);
     }
+    
 }

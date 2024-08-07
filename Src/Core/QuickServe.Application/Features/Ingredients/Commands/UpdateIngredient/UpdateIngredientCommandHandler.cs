@@ -13,18 +13,30 @@ public class UpdateIngredientCommandHandler(IIngredientRepository ingredientRepo
 {
     public async Task<BaseResult> Handle(UpdateIngredientCommand request, CancellationToken cancellationToken)
     {
-        var ingredient = await ingredientRepositiry.GetByIdAsync(request.Id);
+        if (request.Id <= 0)
+        {
+            return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString(TranslatorMessages.RequestMessage.Trường_id_không_hợp_lệ(request.Id)), nameof(request.Id)));
+        }
+        var ingredient = await ingredientRepositiry.GetIngredientByIdAsync(request.Id);
 
         if (ingredient is null)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Nguyên_liệu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Không_tìm_thấy_nguyên_liệu(request.Id)), nameof(request.Id)));
         }
-        if (await ingredientRepositiry.ExistByNameAsync(request.Name.Trim()))
+        if (await ingredientRepositiry.ExistByNameAsync(request.Name.Trim()) && ingredient.Name.ToLower() != request.Name.ToLower().Trim())
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientMessages.Tên_nguyên_liệu_đã_tồn_tại_với_tên(request.Name)), nameof(request.Name)));
+            return new BaseResult(new Error(ErrorCode.Duplicate, translator.GetString(TranslatorMessages.IngredientMessages.Tên_nguyên_liệu_đã_tồn_tại(request.Name)), nameof(request.Name)));
         }
-        ingredient.Update(request.Name.Trim(), request.Price, request.Calo, request.Description
-            ,request.IngredientTypeId);
+
+        ingredient.Update(request.Name.Trim(), request.Price, request.Calo, request.DefaultQuantity, request.Description
+            , request.IngredientTypeId, request.QuantityMax);
+        if(ingredient.Price != request.Price)
+        {
+            foreach (var ingreStep in ingredient.IngredientType.IngredientTypeTemplateSteps)
+            {
+                ingreStep.TemplateStep.ProductTemplate.Price += (request.Price - ingredient.Price)* ingredient.DefaultQuantity;
+            }
+        }
         await unitOfWork.SaveChangesAsync();
         return new BaseResult();
     }

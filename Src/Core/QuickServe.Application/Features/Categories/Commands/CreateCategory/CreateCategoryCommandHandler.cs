@@ -16,7 +16,7 @@ public class CreateCategoryCommandHandler(ICategoryRepository categoryRepository
     {
         if (await categoryRepository.ExistsCategoryByNameAsync(request.Name.Trim()))
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CategoryMessages.Tên_danh_mục_đã_tồn_tại_với_tên(request.Name)), nameof(request.Name)));
+            return new BaseResult(new Error(ErrorCode.Duplicate, translator.GetString(TranslatorMessages.CategoryMessages.Tên_danh_mục_đã_tồn_tại(request.Name)), nameof(request.Name)));
         }
         var category = new Category(request.Name.Trim());
         category.Status = (int) CategoryStatus.Active;

@@ -25,7 +25,7 @@ namespace QuickServe.Application.Features.TemplateSteps.Queries.GetTemplateStepB
             if (templateStep is null)
             {
                 return new BaseResult<TemplateStepDTO>(new Error(ErrorCode.NotFound,
-                    translator.GetString(TranslatorMessages.CategoryMessages.Danh_mục_không_tìm_thấy_với_id(request.Id)),
+                    translator.GetString(TranslatorMessages.TemplateStepMessages.Không_tìm_thấy_bước_mẫu(request.Id)),
                     nameof(request.Id)));
             }
 

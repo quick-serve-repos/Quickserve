@@ -17,7 +17,7 @@ namespace QuickServe.Application.DTOs.ProductTemplates.Request
         public GetAllTemplateRequestValidator()
         {
             RuleFor(x => x.ProductTemplateId)
-                 .NotEmpty().WithMessage("Id mẫu sản phẩm là bắt buộc.")
+                 .NotEmpty().WithMessage("Mẫu sản phẩm là bắt buộc.")
                  .GreaterThan(0).WithMessage("Id mẫu sản phẩm phải lớn hơn 0.");
         }
     }

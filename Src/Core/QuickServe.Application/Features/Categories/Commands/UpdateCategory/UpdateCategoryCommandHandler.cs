@@ -13,14 +13,19 @@ public class UpdateCategoryCommandHandler(ICategoryRepository categoryRepository
 {
     public async Task<BaseResult> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
+        if(request.Id <= 0)
+        {
+            return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString(TranslatorMessages.RequestMessage.Trường_id_không_hợp_lệ(request.Id)), nameof(request.Id)));
+        }
         var category = await categoryRepository.GetByIdAsync(request.Id);
 
         if (category is null)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CategoryMessages.Danh_mục_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CategoryMessages.Không_tìm_thấy_danh_mục(request.Id)), nameof(request.Id)));
         }
-        if(await categoryRepository.ExistsCategoryByNameAsync(request.Name.Trim())) { 
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.CategoryMessages.Tên_danh_mục_đã_tồn_tại_với_tên(request.Name)), nameof(request.Name)));
+        if (await categoryRepository.ExistsCategoryByNameAsync(request.Name.Trim()) && category.Name.ToLower() != request.Name.Trim().ToLower())
+        {
+            return new BaseResult(new Error(ErrorCode.Duplicate, translator.GetString(TranslatorMessages.CategoryMessages.Tên_danh_mục_đã_tồn_tại(request.Name)), nameof(request.Name)));
         }
         category.Update(request.Name.Trim());
         await unitOfWork.SaveChangesAsync();

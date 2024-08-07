@@ -10,5 +10,12 @@ namespace QuickServe.Utils.Extensions
             var attributes = (DescriptionAttribute[])field.GetCustomAttributes(typeof(DescriptionAttribute), false);
             return attributes.Length > 0 ? attributes[0].Description : value.ToString();
         }
+
+        public static long GenerateUniqueId()
+        {
+            Guid guid = Guid.NewGuid();
+            byte[] bytes = guid.ToByteArray();
+            return BitConverter.ToInt64(bytes, 0);
+        }
     }
 }

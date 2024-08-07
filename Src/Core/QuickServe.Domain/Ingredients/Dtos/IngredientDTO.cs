@@ -14,11 +14,14 @@ namespace QuickServe.Domain.Ingredients.Dtos
             Name = ingredient.Name;
             Price = ingredient.Price;
             Calo = ingredient.Calo;
+            DefaultQuantity = ingredient.DefaultQuantity;
             Description = ingredient.Description;
             ImageUrl = ingredient.ImageUrl;
+            QuantityMax = ingredient.QuantityMax;
             IngredientTypeId = ingredient.IngredientTypeId;
             Status = ingredient.Status;
-            IngredientType = new SimpleIngredietTypeRespone(ingredient.IngredientType);
+            IngredientType = ingredient.IngredientType != null 
+                ? new SimpleIngredietTypeRespone(ingredient.IngredientType) : null;
             Created = ingredient.Created;
             CreatedBy = ingredient.CreatedBy;
             LastModified = ingredient.LastModified ?? null;  // Xử lý giá trị NULL
@@ -28,8 +31,10 @@ namespace QuickServe.Domain.Ingredients.Dtos
         public string Name { get; set; } = null!;
         public decimal Price { get; set; }
         public int Calo { get; set; }
+        public int DefaultQuantity { get; set; }
         public string Description { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
+        public int QuantityMax { get; set; }
         public long IngredientTypeId { get; set; }
         public int Status { get; set; }
         public string CreatedBy { get; set; } = null!;

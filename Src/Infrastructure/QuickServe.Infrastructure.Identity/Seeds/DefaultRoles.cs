@@ -12,17 +12,17 @@ namespace QuickServe.Infrastructure.Identity.Seeds
         public static async Task SeedAsync(RoleManager<ApplicationRole> roleManager)
         {
             
-            // Danh sách các role cần được tạo
-            var roles = new List<string> { "Admin", "Customer", "Staff", "Store_Manager", "Brand_Manager" };
+            //// Danh sách các role cần được tạo
+            //var roles = new List<string> { "Admin", "Customer", "Staff", "Store_Manager", "Brand_Manager" };
 
-            foreach (var role in roles)
-            {
-                // Kiểm tra nếu role chưa tồn tại thì tạo mới
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                    await roleManager.CreateAsync(new ApplicationRole(role));
-                }
-            }
+            //foreach (var role in roles)
+            //{
+            //    // Kiểm tra nếu role chưa tồn tại thì tạo mới
+            //    if (!await roleManager.RoleExistsAsync(role))
+            //    {
+            //        await roleManager.CreateAsync(new ApplicationRole(role));
+            //    }
+            //}
         }
     }
 }

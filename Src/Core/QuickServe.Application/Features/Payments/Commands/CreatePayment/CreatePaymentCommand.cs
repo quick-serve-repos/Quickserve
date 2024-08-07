@@ -1,6 +1,17 @@
-﻿namespace QuickServe.Application.Features.Payments.Commands.CreatePayment;
+﻿using System.Text.Json.Serialization;
+using System;
+using MediatR;
+using QuickServe.Application.Wrappers;
+using QuickServe.Application.DTOs.Payment;
 
-public class CreatePaymentCommand
+namespace QuickServe.Application.Features.Payments.Commands.CreatePayment;
+
+public class CreatePaymentCommand : IRequest<BaseResult<PaymentResponse>>
 {
+    public long OrderId { get; set; }
+
+    public long? TotalPrice { get; set; }
+
+    public string OrderInfo { get; set; }
     
 }

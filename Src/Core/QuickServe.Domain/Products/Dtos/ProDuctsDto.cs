@@ -1,4 +1,6 @@
-﻿using QuickServe.Domain.Products.Entities;
+﻿using System.Collections.Generic;
+using QuickServe.Domain.Ingredients.Dtos;
+using QuickServe.Domain.Products.Entities;
 
 namespace QuickServe.Domain.Products.Dtos
 {
@@ -23,5 +25,6 @@ namespace QuickServe.Domain.Products.Dtos
 
         public long ProductTemplateId { get; set; }
         public int? Quantity { get; set; }
+        public virtual ICollection<IngredientDTO>? Ingredients { get; set; }
     }
 }

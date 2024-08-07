@@ -16,7 +16,7 @@ public class GetProductTemplateByIdQueryHandler(IProductTemplateRepository produ
         var productTemplate = await productTemplateRepository.GetProductTemplateByIdAsync(request.Id);
         if (productTemplate is null)
         {
-            return new BaseResult<ProductTemplateDto>(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ProductTemplateMessages.Mẫu_sản_phẩm_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult<ProductTemplateDto>(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.Id)), nameof(request.Id)));
         }
 
         var result = new ProductTemplateDto(productTemplate);

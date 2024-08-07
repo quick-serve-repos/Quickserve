@@ -1,6 +1,11 @@
-﻿namespace QuickServe.Application.Features.Orders.Queries.GetPagedListOrder;
+﻿using MediatR;
+using QuickServe.Application.Parameters;
+using QuickServe.Application.Wrappers;
+using QuickServe.Domain.Orders.Dtos;
 
-public class GetPagedListOrderQuery
+namespace QuickServe.Application.Features.Orders.Queries.GetPagedListOrder;
+
+public class GetPagedListOrderQuery : PagenationRequestParameter, IRequest<PagedResponse<OrderDto>>
 {
     
 }

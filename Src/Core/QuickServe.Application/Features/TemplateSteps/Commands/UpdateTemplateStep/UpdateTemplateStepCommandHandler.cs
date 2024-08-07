@@ -17,15 +17,19 @@ namespace QuickServe.Application.Features.TemplateSteps.Commands.UpdateTemplateS
     {
         public async Task<BaseResult> Handle(UpdateTemplateStepCommand request, CancellationToken cancellationToken)
         {
+            if (request.Id <= 0)
+            {
+                return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString(TranslatorMessages.RequestMessage.Trường_id_không_hợp_lệ(request.Id)), nameof(request.Id)));
+            }
             var templateStep = await templateStepRepository.GetByIdAsync(request.Id);
 
             if (templateStep is null)
             {
-                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Bước_mẫu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Không_tìm_thấy_bước_mẫu(request.Id)), nameof(request.Id)));
             }
             if (await templateStepRepository.ExistNameAsync(templateStep.ProductTemplateId, request.Name.Trim()))
             {
-                return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.TemplateStepMessages.Tên_bước_mẫu_đã_tồn_tại(request.Name)), nameof(request.Name)));
+                return new BaseResult(new Error(ErrorCode.Duplicate, translator.GetString(TranslatorMessages.TemplateStepMessages.Tên_bước_mẫu_đã_tồn_tại(request.Name)), nameof(request.Name)));
             }
             templateStep.Update(request.Name.Trim());
             await unitOfWork.SaveChangesAsync();
