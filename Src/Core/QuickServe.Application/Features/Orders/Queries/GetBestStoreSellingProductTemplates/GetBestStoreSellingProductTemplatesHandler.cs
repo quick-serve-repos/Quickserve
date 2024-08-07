@@ -50,8 +50,33 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBestStoreSellingProd
                 return new BaseResult<BestSellingReportDto>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
 
+            var soldIngredients = await _orderRepository.GetSoldIngredientsAsync(startDate.ToUniversalTime(), endDate.ToUniversalTime(), currentUser.Staff.StoreId);
             var reportDto = await _orderRepository.GetBestSellingProductTemplatesAsync(startDate.ToUniversalTime(), endDate.ToUniversalTime(), currentUser.Staff.StoreId);
 
+            
+            if (request.Top.HasValue)
+            {
+                reportDto.SoldIngredients = soldIngredients
+                    .OrderByDescending(i => i.QuantitySold) 
+                    .Take(request.Top.Value) 
+                    .ToList();
+            }
+            else
+            {
+                reportDto.SoldIngredients = soldIngredients.ToList();
+            }
+
+            if (request.Top.HasValue)
+            {
+                reportDto.BestSellingProductTemplates = reportDto.BestSellingProductTemplates
+                    .OrderByDescending(p => p.SellingQuantity)
+                    .Take(request.Top.Value) 
+                    .ToList();
+            }
+            else
+            {
+                reportDto.BestSellingProductTemplates = reportDto.BestSellingProductTemplates.ToList();
+            }
 
             return new BaseResult<BestSellingReportDto>(reportDto);
         }

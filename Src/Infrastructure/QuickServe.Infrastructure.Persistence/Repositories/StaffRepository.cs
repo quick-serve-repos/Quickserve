@@ -70,8 +70,8 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
             {
                 var user = await userManager.FindByIdAsync(item.Id.ToString());
                 var rolesList = await userManager.GetRolesAsync(user).ConfigureAwait(false);
-                item.Role = rolesList.FirstOrDefault();
-                if (listRoles.Any(p => item.Role.Contains(p)))
+                item.Roles = rolesList.FirstOrDefault();
+                if (listRoles.Any(p => item.Roles.Contains(p)))
                 {
                     accountInListRoles.Add(item);
                 }
@@ -92,7 +92,7 @@ namespace QuickServe.Infrastructure.Persistence.Repositories
                 Id = e.Id,
                 Name = e.Name,
                 Email = e.Email,
-                Roles = e.Role,
+                Roles = e.Roles,
                 PhoneNumber = e.PhoneNumber,
                 Created = e.Created,
                 UserName = e.UserName,

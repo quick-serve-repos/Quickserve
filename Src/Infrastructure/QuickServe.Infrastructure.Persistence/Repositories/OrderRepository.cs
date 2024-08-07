@@ -25,6 +25,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 {
     private readonly DbSet<Order> orders;
     private readonly DbSet<Store> stores;
+    private readonly ApplicationDbContext _context;
     private readonly IAuthenticatedUserService _authenticatedUserService;
     private readonly IAccountRepository _accountRepository;
 
@@ -34,6 +35,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         stores = dbContext.Set<Store>();
         _authenticatedUserService = authenticatedUserService;
         _accountRepository = accountRepository;
+        _context = dbContext;
     }
 
     public async Task<Order> GetByIdAsync(long id)
@@ -278,4 +280,58 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             pageNumber,
             pageSize);
     }
+    public async Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate, long? storeId)
+    {
+        var query = orders.AsNoTracking()
+            .Where(o => o.Created >= startDate && o.Created <= endDate);
+
+        if (storeId.HasValue)
+        {
+            query = query.Where(o => o.StoreId == storeId);
+        }
+
+        var orderStatusCounts = await query
+            .GroupBy(o => o.Status)
+            .ToDictionaryAsync(g => (OrderStatus)g.Key, g => g.Count());
+
+        foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+        {
+            if (!orderStatusCounts.ContainsKey(status))
+            {
+                orderStatusCounts[status] = 0;
+            }
+        }
+
+        return orderStatusCounts;
+    }
+    public async Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate, long? storeId)
+    {
+        var soldIngredientsQuery = _context.OrderProducts
+            .Where(op => op.Order.Created >= startDate && op.Order.Created <= endDate);
+
+        if (storeId.HasValue)
+        {
+            soldIngredientsQuery = soldIngredientsQuery.Where(op => op.Order.StoreId == storeId.Value);
+        }
+
+        var soldIngredients = await soldIngredientsQuery
+            .Join(_context.IngredientProducts,
+                  op => op.ProductId,
+                  ip => ip.ProductId,
+                  (op, ip) => new { ip.Ingredient.Id, ip.Ingredient.Name, ip.Ingredient.ImageUrl, ip.Quantity })
+            .GroupBy(x => new { x.Id, x.Name, x.ImageUrl })
+            .Select(group => new SoldIngredientDTO
+            {
+                Id = group.Key.Id,
+                Name = group.Key.Name,
+                UrlImage = group.Key.ImageUrl,
+                QuantitySold = group.Sum(x => x.Quantity)
+            })
+            .OrderByDescending(dto => dto.QuantitySold)
+            .Take(10)
+            .ToListAsync();
+
+        return soldIngredients;
+    }
+
 }

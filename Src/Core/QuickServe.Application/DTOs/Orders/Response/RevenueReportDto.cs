@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuickServe.Application.Utils.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace QuickServe.Application.DTOs.Orders.Response
         public int SpecificOrderCount { get; set; }
         public List<MonthlyRevenueDto> MonthlyRevenues { get; set; }
         public List<YearlyRevenueDto> YearlyRevenues { get; set; }
+        public Dictionary<OrderStatus, int> OrderStatusCounts { get; set; }
     }
     public class MonthlyRevenueDto
     {

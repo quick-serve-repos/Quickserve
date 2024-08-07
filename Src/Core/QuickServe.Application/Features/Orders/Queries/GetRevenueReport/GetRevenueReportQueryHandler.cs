@@ -52,7 +52,7 @@ namespace QuickServe.Application.Features.Orders.Queries.GetRevenueReport
             var totalRevenue = await orderRepository.GetTotalRevenueAsync(request.StoreId);
             var specificOrderCount = await orderRepository.GetOrderCountAsync(startDate, endDate, request.StoreId);
             var totalOrderCount = await orderRepository.GetTotalOrderCountAsync(request.StoreId);
-
+            var orderStatusCounts = await orderRepository.GetOrderStatusCountsAsync(startDate, endDate,request.StoreId);
             List<MonthlyRevenueDto> monthlyRevenues = null;
             List<YearlyRevenueDto> yearlyRevenues = null;
 
@@ -73,7 +73,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetRevenueReport
                 SpecificOrderCount = specificOrderCount,
                 TotalOrderCount = totalOrderCount,
                 MonthlyRevenues = monthlyRevenues,
-                YearlyRevenues = yearlyRevenues
+                YearlyRevenues = yearlyRevenues, 
+                OrderStatusCounts = orderStatusCounts
             };
 
             return new BaseResult<RevenueReportDto>(result);

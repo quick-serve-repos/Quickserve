@@ -324,8 +324,8 @@
                 {
                     var user = await userManager.FindByIdAsync(item.Id.ToString());
                     var rolesList = await userManager.GetRolesAsync(user).ConfigureAwait(false);
-                    item.Role = rolesList.FirstOrDefault();
-                    if (listRoles.Any(p => item.Role.Contains(p)))
+                    item.Roles = rolesList.FirstOrDefault();
+                    if (listRoles.Any(p => item.Roles.Contains(p)))
                     {
                         accountInListRoles.Add(item);
                     }
@@ -382,7 +382,7 @@
                     Name = account.Name,
                     Avatar = null,
                     Address = null,
-                    Role = rolesList.FirstOrDefault()
+                    Roles = rolesList.FirstOrDefault()
                 });
             }
             public async Task<BaseResult> UpdateProfile(UpdateProfileCommand request)
