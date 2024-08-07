@@ -13,6 +13,7 @@ namespace QuickServe.Application.Utils.Enums
         Preparing = 3,
         Success = 4,
         Failed = 5,
+        Canceled = 6
     }
     public class PayOSEnum
     {

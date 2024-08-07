@@ -18,5 +18,6 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBestSellingProductTe
         public int? Year { get; set; }
         public DateTime? SpecificDate { get; set; }
         public long? StoreId { get; set; }
+        public int? Top { get; set; }
     }
 }

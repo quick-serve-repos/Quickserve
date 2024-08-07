@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using QuickServe.Application.DTOs.Orders.Response;
-using QuickServe.Application.Features.Orders.Queries.GetRevenueReport;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.Repositories;
 using QuickServe.Application.Wrappers;
@@ -58,6 +57,7 @@ namespace QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport
             var totalRevenue = await orderRepository.GetTotalRevenueAsync(currentUser.Staff.StoreId);
             var specificOrderCount = await orderRepository.GetOrderCountAsync(startDate, endDate, currentUser.Staff.StoreId);
             var totalOrderCount = await orderRepository.GetTotalOrderCountAsync(currentUser.Staff.StoreId);
+            var orderStatusCounts = await orderRepository.GetOrderStatusCountsAsync(startDate, endDate, currentUser.Staff.StoreId);
             List<MonthlyRevenueDto> monthlyRevenues = null;
             List<YearlyRevenueDto> yearlyRevenues = null;
 
@@ -78,7 +78,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetStoreRevenueReport
                 SpecificOrderCount = specificOrderCount,
                 TotalOrderCount = totalOrderCount,
                 MonthlyRevenues = monthlyRevenues,
-                YearlyRevenues = yearlyRevenues
+                YearlyRevenues = yearlyRevenues,
+                OrderStatusCounts = orderStatusCounts
             };
 
             return new BaseResult<RevenueReportDto>(result);

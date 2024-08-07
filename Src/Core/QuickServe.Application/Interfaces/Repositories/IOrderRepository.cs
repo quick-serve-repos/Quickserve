@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System;
 using QuickServe.Application.DTOs.Orders.Response;
 using QuickServe.Domain.Orders.Dtos;
+using QuickServe.Application.Utils.Enums;
 
 namespace QuickServe.Application.Interfaces.Repositories;
 
@@ -19,5 +20,6 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<int> GetTotalOrderCountAsync(long? storeId);
     Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId);
-    
+    Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate, long? storeId);
+    Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate, long? storeId);
 }
