@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using QuickServe.Application.Interfaces;
 using System.Linq;
 using Azure.Core;
+using QuickServe.Application.Features.Payments.Queries.GetPagedListPayment;
+using QuickServe.Application.Features.Payments.Queries.GetPaymentById;
+using QuickServe.Domain.Payments.Dtos;
 
 namespace QuickServe.WebApi.Controllers.v1
 {
@@ -74,6 +77,17 @@ namespace QuickServe.WebApi.Controllers.v1
             var result = await _paymentService.PayOSCallBackResultAsync(payment, cancellationToken: default);
 
             return new BaseResult<PaymentCallBackResult>(result);
+        }
+
+        [HttpGet()]
+        public async Task<PagedResponse<PaymentDto>> GetPayments([FromQuery] GetPagedListPaymentQuery command)
+        {
+            return await Mediator.Send(command);
+        } 
+        [HttpGet("by-store")]
+        public async Task<PagedResponse<PaymentDto>> GetPaymentsByStoreId([FromQuery] GetPaymentByStoreIdQuery command)
+        {
+            return await Mediator.Send(command);
         }
     }
 }
