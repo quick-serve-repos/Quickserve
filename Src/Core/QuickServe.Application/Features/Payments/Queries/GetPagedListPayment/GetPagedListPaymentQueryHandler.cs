@@ -17,33 +17,28 @@ public class GetPagedListPaymentQueryHandler : IRequestHandler<GetPagedListPayme
         _paymentRepository = paymentRepository;
     }
 
-    /*public async Task<PagedResponse<PaymentDto>> Handle(GetPagedListPaymentQuery request,
+
+    public async Task<PagedResponse<PaymentDto>> Handle(GetPagedListPaymentQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await _paymentRepository.GetPagedListAsync(request.PageNumber, request.PageSize, request.StoreId);
-        return new PagedResponse<PaymentDto>(result, request);
-    }*/
-    public async Task<PagedResponse<PaymentDto>> Handle(GetPagedListPaymentQuery request, CancellationToken cancellationToken)
-    {
-        
         DateTime? createdDateUtc = null;
 
         if (request.CreatedDate.HasValue)
         {
             createdDateUtc = DateTime.SpecifyKind(request.CreatedDate.Value, DateTimeKind.Utc);
         }
+
         var result = await _paymentRepository.GetPagedListAsync(
-            request.PageNumber, 
-            request.PageSize, 
+            request.PageNumber,
+            request.PageSize,
             request.StoreId,
             request.RefOrderId,
             createdDateUtc,
             request.Last7Days,
-            request.LastMonth
+            request.SpecificMonth,
+            request.SpecificYear
         );
-    
+
         return new PagedResponse<PaymentDto>(result, request);
     }
-
-    
 }

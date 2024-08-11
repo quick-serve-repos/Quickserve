@@ -12,5 +12,6 @@ public class GetPaymentByStoreIdQuery : PagenationRequestParameter, IRequest<Pag
     public long? RefOrderId { get; set; }
     public DateTime? CreatedDate { get; set; }
     public bool Last7Days { get; set; }
-    public bool LastMonth { get; set; }
+    public int? SpecificMonth { get; set; } // Tháng cụ thể
+    public int? SpecificYear { get; set; } // Năm cụ thể
 }

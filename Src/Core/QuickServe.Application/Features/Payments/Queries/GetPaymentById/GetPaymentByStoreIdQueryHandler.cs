@@ -17,30 +17,26 @@ public class GetPaymentByStoreIdQueryHandler : IRequestHandler<GetPaymentByStore
         _paymentRepository = paymentRepository;
     }
 
-  /*  public async Task<PagedResponse<PaymentDto>> Handle(GetPaymentByStoreIdQuery request,
+    public async Task<PagedResponse<PaymentDto>> Handle(GetPaymentByStoreIdQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await _paymentRepository.GetPagedListByStoreIdAsync(request.PageNumber, request.PageSize, request.StoreId);
-        return new PagedResponse<PaymentDto>(result, request);
-    }*/
-    
-    public async Task<PagedResponse<PaymentDto>> Handle(GetPaymentByStoreIdQuery request, CancellationToken cancellationToken)
-    {
-        
         DateTime? createdDateUtc = null;
 
         if (request.CreatedDate.HasValue)
         {
             createdDateUtc = DateTime.SpecifyKind(request.CreatedDate.Value, DateTimeKind.Utc);
         }
+
         var result = await _paymentRepository.GetPagedListByStoreIdAsync(
-            request.PageNumber, 
-            request.PageSize, 
-            request.StoreId, 
+            request.PageNumber,
+            request.PageSize,
+            request.StoreId,
             request.RefOrderId,
-            createdDateUtc, 
-            request.Last7Days, 
-            request.LastMonth);
+            createdDateUtc,
+            request.Last7Days,
+            request.SpecificMonth, // Tháng cụ thể
+            request.SpecificYear // Năm cụ thể
+        );
 
         return new PagedResponse<PaymentDto>(result, request);
     }
