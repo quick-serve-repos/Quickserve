@@ -29,7 +29,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     private readonly IAuthenticatedUserService _authenticatedUserService;
     private readonly IAccountRepository _accountRepository;
 
-    public OrderRepository(ApplicationDbContext dbContext, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository) : base(dbContext)
+    public OrderRepository(ApplicationDbContext dbContext, IAuthenticatedUserService authenticatedUserService,
+        IAccountRepository accountRepository) : base(dbContext)
     {
         orders = dbContext.Set<Order>();
         stores = dbContext.Set<Store>();
@@ -47,21 +48,20 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .ThenInclude(b => b.Ingredient)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
+
     public async Task<PagenationResponseDto<OrderDto>> GetOrderAsync(int pageNumber, int pageSize)
     {
-        var userId =  _authenticatedUserService.UserId;
-        
+        var userId = _authenticatedUserService.UserId;
+
         var curretUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
-        
+
         var query = orders.AsNoTracking()
-                .Include(x => x.OrderProducts)
-                
-                .ThenInclude(e => e.Product)
-                .ThenInclude(a => a.IngredientProducts)
-                .ThenInclude(b => b.Ingredient)
-            
-                .Where(u =>u.StoreId == curretUser.Staff.StoreId)
-                .OrderByDescending(x=> x.Created);
+            .Include(x => x.OrderProducts)
+            .ThenInclude(e => e.Product)
+            .ThenInclude(a => a.IngredientProducts)
+            .ThenInclude(b => b.Ingredient)
+            .Where(u => u.StoreId == curretUser.Staff.StoreId)
+            .OrderByDescending(x => x.Created);
 
         var totalCount = await query.CountAsync();
         var pagedOrders = await query
@@ -96,7 +96,6 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         }
 
         return new PagenationResponseDto<OrderDto>(orderDtos, totalCount);
-
     }
 
     public async Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, long? storeId)
@@ -110,22 +109,22 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             }
 
             orderCount = await orders.AsNoTracking()
-            .Where(o => o.Created >= startDate && o.Created <= endDate
-          && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
-          .CountAsync();
+                .Where(o => o.Created >= startDate && o.Created <= endDate
+                                                   && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                .CountAsync();
         }
         else
         {
             orderCount = await orders.AsNoTracking()
-           .Where(o => o.Created >= startDate && o.Created <= endDate
-           && o.Status == (int)OrderStatus.Success)
-           .CountAsync();
+                .Where(o => o.Created >= startDate && o.Created <= endDate
+                                                   && o.Status == (int)OrderStatus.Success)
+                .CountAsync();
         }
-       
+
 
         return orderCount;
     }
-   
+
     public async Task<int> GetTotalOrderCountAsync(long? storeId)
     {
         var totalOrderCount = 0;
@@ -135,73 +134,80 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             {
                 throw new Exception("Không tìm thấy cửa hàng.");
             }
+
             totalOrderCount = await orders.AsNoTracking()
-            .Include(x => x.Store)
-            .Where(o => o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
-            .CountAsync();
+                .Include(x => x.Store)
+                .Where(o => o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                .CountAsync();
         }
         else
         {
             totalOrderCount = await orders.AsNoTracking()
-            .Include(x => x.Store)
-            .Where(o => o.Status == (int)OrderStatus.Success)
-            .CountAsync();
+                .Include(x => x.Store)
+                .Where(o => o.Status == (int)OrderStatus.Success)
+                .CountAsync();
         }
+
         return totalOrderCount;
     }
+
     public async Task<double> GetRevenueReportAsync(DateTime startDate, DateTime endDate, long? storeId)
     {
         var totalRevenue = 0.0;
-        if(storeId != null)
+        if (storeId != null)
         {
             if (await stores.AnyAsync(c => c.Id == storeId) == false)
             {
                 throw new Exception("Không tìm thấy cửa hàng.");
             }
+
             totalRevenue = await orders.AsNoTracking()
-            .Include(x => x.Store)
-           .Where(o => o.Created >= startDate && o.Created <= endDate
-           && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
-           .SumAsync(o => o.Amount);
+                .Include(x => x.Store)
+                .Where(o => o.Created >= startDate && o.Created <= endDate
+                                                   && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                .SumAsync(o => o.Amount);
         }
         else
         {
             totalRevenue = await orders.AsNoTracking()
-          .Include(x => x.Store)
-         .Where(o => o.Created >= startDate && o.Created <= endDate
-         && o.Status == (int)OrderStatus.Success)
-         .SumAsync(o => o.Amount);
+                .Include(x => x.Store)
+                .Where(o => o.Created >= startDate && o.Created <= endDate
+                                                   && o.Status == (int)OrderStatus.Success)
+                .SumAsync(o => o.Amount);
         }
 
         return totalRevenue;
     }
+
     public async Task<double> GetTotalRevenueAsync(long? storeId)
     {
         var totalRevenue = 0.0;
-        if(storeId != null)
+        if (storeId != null)
         {
             if (await stores.AnyAsync(c => c.Id == storeId) == false)
             {
                 throw new Exception("Không tìm thấy cửa hàng.");
             }
+
             totalRevenue = await orders.AsNoTracking()
                 .Include(x => x.Store)
                 .Where(o => o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
-               .SumAsync(o => o.Amount);
+                .SumAsync(o => o.Amount);
         }
         else
         {
             totalRevenue = await orders.AsNoTracking()
-            .Include(x => x.Store)
-            .Where(o => o.Status == (int)OrderStatus.Success)
-           .SumAsync(o => o.Amount);
+                .Include(x => x.Store)
+                .Where(o => o.Status == (int)OrderStatus.Success)
+                .SumAsync(o => o.Amount);
         }
-      
+
         return totalRevenue;
     }
-    public async Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId)
-    {
 
+    public async Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate,
+        long? storeId)
+    {
         var bestSellingReport = new BestSellingReportDto
         {
             StartDate = startDate,
@@ -221,6 +227,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             {
                 throw new Exception("Không tìm thấy cửa hàng.");
             }
+
             query = query.Where(o => o.StoreId == storeId);
         }
 
@@ -256,31 +263,35 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .OrderByDescending(o => o.Created) // Sắp xếp theo thời gian tạo, mới nhất trước
             .ToListAsync();
     }
-   
-    public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber, int pageSize, int status)
+
+    public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersToWaitingScreen(long storeId, int pageNumber,
+        int pageSize, int status)
     {
         if (await stores.AnyAsync(c => c.Id == storeId) == false)
         {
             throw new Exception("Không tìm thấy cửa hàng.");
         }
+
         var query = orders.AsNoTracking()
-       .Where(o => (o.Status == (int)OrderStatus.Preparing || o.Status == (int)OrderStatus.Success)
-                   && o.StoreId == storeId
-                   && (status == 0 || o.Status == status))
-       .Take(20)
-       .OrderByDescending(x => x.Created)
-       .AsQueryable();
+            .Where(o => (o.Status == (int)OrderStatus.Preparing || o.Status == (int)OrderStatus.Success)
+                        && o.StoreId == storeId
+                        && (status == 0 || o.Status == status))
+            .Take(20)
+            .OrderByDescending(x => x.Created)
+            .AsQueryable();
 
 
-        return await Paged(query.Select(c=> new OderStatusResponse
-        {
-            Id = c.Id.ToString(),
-            Status = c.Status
-        }),
+        return await Paged(query.Select(c => new OderStatusResponse
+            {
+                Id = c.Id.ToString(),
+                Status = c.Status
+            }),
             pageNumber,
             pageSize);
     }
-    public async Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate, long? storeId)
+
+    public async Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate,
+        long? storeId)
     {
         var query = orders.AsNoTracking()
             .Where(o => o.Created >= startDate && o.Created <= endDate);
@@ -304,7 +315,9 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
         return orderStatusCounts;
     }
-    public async Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate, long? storeId)
+
+    public async Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate,
+        long? storeId)
     {
         var soldIngredientsQuery = _context.OrderProducts
             .Where(op => op.Order.Created >= startDate && op.Order.Created <= endDate);
@@ -316,9 +329,9 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
         var soldIngredients = await soldIngredientsQuery
             .Join(_context.IngredientProducts,
-                  op => op.ProductId,
-                  ip => ip.ProductId,
-                  (op, ip) => new { ip.Ingredient.Id, ip.Ingredient.Name, ip.Ingredient.ImageUrl, ip.Quantity })
+                op => op.ProductId,
+                ip => ip.ProductId,
+                (op, ip) => new { ip.Ingredient.Id, ip.Ingredient.Name, ip.Ingredient.ImageUrl, ip.Quantity })
             .GroupBy(x => new { x.Id, x.Name, x.ImageUrl })
             .Select(group => new SoldIngredientDTO
             {
@@ -334,4 +347,103 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return soldIngredients;
     }
 
+    public async Task<PagenationResponseDto<OrderDtos>> GetOrderAsync(int pageNumber, int pageSize, long? storeId,
+        long? refOrderId = null, DateTime? createdDate = null, bool last7Days = false, int? specificMonth = null,
+        int? specificYear = null)
+    {
+        var query = orders.AsNoTracking()
+            .Where(u => storeId == null || u.StoreId == storeId.Value)
+            .OrderByDescending(x => x.Created)
+            .AsQueryable();
+
+        // Filter by RefOrderId if provided
+        if (refOrderId.HasValue)
+        {
+            query = query.Where(p => p.Id == refOrderId.Value);
+        }
+
+        // Ensure that the DateTime is handled correctly
+        if (createdDate.HasValue)
+        {
+            var date = DateTime.SpecifyKind(createdDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(p => p.Created.Date == date);
+        }
+        else if (last7Days)
+        {
+            var fromDate = DateTime.UtcNow.AddDays(-7);
+            query = query.Where(p => p.Created >= fromDate);
+        }
+        else if (specificMonth.HasValue && specificYear.HasValue)
+        {
+            var firstDayOfMonth = new DateTime(specificYear.Value, specificMonth.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1).AddHours(23).AddMinutes(59).AddSeconds(59);
+            query = query.Where(p => p.Created >= firstDayOfMonth && p.Created <= lastDayOfMonth);
+        }
+        else if (specificYear.HasValue && !specificMonth.HasValue)
+        {
+            var firstDayOfYear = new DateTime(specificYear.Value, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var lastDayOfYear = new DateTime(specificYear.Value, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+            query = query.Where(p => p.Created >= firstDayOfYear && p.Created <= lastDayOfYear);
+        }
+
+        var totalCount = await query.CountAsync();
+        var pagedOrders = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var orderDtos = pagedOrders.Select(order => new OrderDtos(order)).ToList();
+
+        return new PagenationResponseDto<OrderDtos>(orderDtos, totalCount);
+    }
+
+    public async Task<PagenationResponseDto<OrderDtos>> GetOrderByStoreIdAsync(int pageNumber, int pageSize,
+        long storeId, long? refOrderId = null, DateTime? createdDate = null, bool last7Days = false,
+        int? specificMonth = null, int? specificYear = null)
+    {
+        var query = orders.AsNoTracking()
+            .Where(u => u.StoreId == storeId)
+            .OrderByDescending(x => x.Created)
+            .AsQueryable();
+
+        // Filter by RefOrderId if provided
+        if (refOrderId.HasValue)
+        {
+            query = query.Where(p => p.Id == refOrderId.Value);
+        }
+
+        // Ensure that the DateTime is handled correctly
+        if (createdDate.HasValue)
+        {
+            var date = DateTime.SpecifyKind(createdDate.Value.Date, DateTimeKind.Utc);
+            query = query.Where(p => p.Created.Date == date);
+        }
+        else if (last7Days)
+        {
+            var fromDate = DateTime.UtcNow.AddDays(-7);
+            query = query.Where(p => p.Created >= fromDate);
+        }
+        else if (specificMonth.HasValue && specificYear.HasValue)
+        {
+            var firstDayOfMonth = new DateTime(specificYear.Value, specificMonth.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1).AddHours(23).AddMinutes(59).AddSeconds(59);
+            query = query.Where(p => p.Created >= firstDayOfMonth && p.Created <= lastDayOfMonth);
+        }
+        else if (specificYear.HasValue && !specificMonth.HasValue)
+        {
+            var firstDayOfYear = new DateTime(specificYear.Value, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var lastDayOfYear = new DateTime(specificYear.Value, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+            query = query.Where(p => p.Created >= firstDayOfYear && p.Created <= lastDayOfYear);
+        }
+
+        var totalCount = await query.CountAsync();
+        var pagedOrders = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var orderDtos = pagedOrders.Select(order => new OrderDtos(order)).ToList();
+
+        return new PagenationResponseDto<OrderDtos>(orderDtos, totalCount);
+    }
 }

@@ -22,4 +22,12 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId);
     Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate, long? storeId);
+
+    Task<PagenationResponseDto<OrderDtos>> GetOrderAsync(int pageNumber, int pageSize, long? storeId,
+        long? refOrderId , DateTime? createdDate , bool last7Days , int? specificMonth,
+        int? specificYear);
+
+    Task<PagenationResponseDto<OrderDtos>> GetOrderByStoreIdAsync(int pageNumber, int pageSize, long storeId,
+        long? refOrderId , DateTime? createdDate , bool last7Days , int? specificMonth ,
+        int? specificYear);
 }

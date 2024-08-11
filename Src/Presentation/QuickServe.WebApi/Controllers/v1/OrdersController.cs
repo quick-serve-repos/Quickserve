@@ -23,6 +23,8 @@ using QuickServe.Domain.ProductTemplates.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
+using QuickServe.Application.Features.Orders.Queries.GetOrders;
+using QuickServe.Application.Features.Payments.Queries.GetPaymentById;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickServe.WebApi.Controllers.v1
@@ -110,6 +112,18 @@ namespace QuickServe.WebApi.Controllers.v1
             return await Mediator.Send(query);
         }
         
+        [HttpGet("OrderList")]
+        public async Task<PagedResponse<OrderDtos>> GetOrdersList([FromQuery] GetPagedOrderListQuery command)
+        {
+            return await Mediator.Send(command);
+        }
+        
+        
+        [HttpGet("OrderListByStoreId")]
+        public async Task<PagedResponse<OrderDtos>> GetOrdersListByStoreId([FromQuery] GetOrderByStoreIdQuery command)
+        {
+            return await Mediator.Send(command);
+        }
         private Guid GetCurrentUserId()
         {
             // Lấy thông tin của người dùng từ ClaimsPrincipal
