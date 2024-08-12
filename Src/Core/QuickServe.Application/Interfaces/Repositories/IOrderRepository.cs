@@ -19,7 +19,7 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<int> GetOrderCountAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<int> GetTotalOrderCountAsync(long? storeId);
     Task<BestSellingReportDto> GetBestSellingProductTemplatesAsync(DateTime startDate, DateTime endDate, long? storeId);
-    Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId);
+   // Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(Guid customerId);
     Task<Dictionary<OrderStatus, int>> GetOrderStatusCountsAsync(DateTime startDate, DateTime endDate, long? storeId);
     Task<List<SoldIngredientDTO>> GetSoldIngredientsAsync(DateTime startDate, DateTime endDate, long? storeId);
 
@@ -30,4 +30,7 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<PagenationResponseDto<OrderDtos>> GetOrderByStoreIdAsync(int pageNumber, int pageSize, long storeId,
         long? refOrderId , DateTime? createdDate , bool last7Days , int? specificMonth ,
         int? specificYear);
+
+    Task<PagenationResponseDto<OrderHistoryDto>> GetOrdersByCustomerIdAsync(Guid customerId, string storeName ,
+        DateTime? createdDate, bool last7Days , int? specificMonth , int? specificYear);
 }

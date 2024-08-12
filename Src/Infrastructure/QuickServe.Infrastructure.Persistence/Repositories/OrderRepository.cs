@@ -448,4 +448,52 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
         return new PagenationResponseDto<OrderDtos>(orderDtos, totalCount);
     }
+    
+    public async Task<PagenationResponseDto<OrderHistoryDto>> GetOrdersByCustomerIdAsync(Guid customerId, string storeName = null, DateTime? createdDate = null, bool last7Days = false, int? specificMonth = null, int? specificYear = null)
+{
+    var query = orders.AsNoTracking()
+        .Include(o => o.Store)
+        .Include(o => o.OrderProducts)
+        .ThenInclude(op => op.Product)
+        .ThenInclude(p => p.ProductTemplate)
+        .Where(o => o.CustomerId == customerId && o.Status == (int)OrderStatus.Success)
+        .AsQueryable();
+
+    if (!string.IsNullOrEmpty(storeName))
+    {
+        query = query.Where(o => o.Store.Name.Contains(storeName));
+    }
+
+    if (createdDate.HasValue)
+    {
+        var date = DateTime.SpecifyKind(createdDate.Value.Date, DateTimeKind.Utc);
+        query = query.Where(o => o.Created.Date == date);
+    }
+    else if (last7Days)
+    {
+        var fromDate = DateTime.UtcNow.AddDays(-7);
+        query = query.Where(o => o.Created >= fromDate);
+    }
+    else if (specificMonth.HasValue && specificYear.HasValue)
+    {
+        var firstDayOfMonth = new DateTime(specificYear.Value, specificMonth.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+        var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1).AddHours(23).AddMinutes(59).AddSeconds(59);
+        query = query.Where(o => o.Created >= firstDayOfMonth && o.Created <= lastDayOfMonth);
+    }
+    else if (specificYear.HasValue && !specificMonth.HasValue)
+    {
+        var firstDayOfYear = new DateTime(specificYear.Value, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var lastDayOfYear = new DateTime(specificYear.Value, 12, 31, 23, 59, 59, DateTimeKind.Utc);
+        query = query.Where(o => o.Created >= firstDayOfYear && o.Created <= lastDayOfYear);
+    }
+
+    var totalCount = await query.CountAsync();
+    var pagedOrders = await query.ToListAsync();
+
+    var orderHistoryDtos = pagedOrders.Select(order => new OrderHistoryDto(order)).ToList();
+
+    return new PagenationResponseDto<OrderHistoryDto>(orderHistoryDtos, totalCount);
+}
+
+
 }

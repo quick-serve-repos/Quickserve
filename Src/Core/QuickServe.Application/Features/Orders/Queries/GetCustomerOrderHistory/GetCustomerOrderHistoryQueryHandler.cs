@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,7 +11,7 @@ using QuickServe.Application.Wrappers;
 
 namespace QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
 
-public class GetCustomerOrderHistoryQueryHandler : IRequestHandler<GetCustomerOrderHistoryQuery, BaseResult<List<OrderHistoryDto>>>
+public class GetCustomerOrderHistoryQueryHandler : IRequestHandler<GetCustomerOrderHistoryQuery, PagedResponse<OrderHistoryDto>>
 {
     private readonly IOrderRepository _orderRepository;
 
@@ -19,19 +20,24 @@ public class GetCustomerOrderHistoryQueryHandler : IRequestHandler<GetCustomerOr
         _orderRepository = orderRepository;
     }
 
-    public async Task<BaseResult<List<OrderHistoryDto>>> Handle(GetCustomerOrderHistoryQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<OrderHistoryDto>> Handle(GetCustomerOrderHistoryQuery request, CancellationToken cancellationToken)
     {
-        var orders = await _orderRepository.GetOrdersByCustomerIdAsync(request.CustomerId);
-        if (orders == null || !orders.Any())
+        DateTime? createdDateUtc = null;
+
+        if (request.CreatedDate.HasValue)
         {
-            return new BaseResult<List<OrderHistoryDto>>(new List<OrderHistoryDto>());
+            createdDateUtc = DateTime.SpecifyKind(request.CreatedDate.Value, DateTimeKind.Utc);
         }
 
-        var orderHistoryDtos = orders.Select(order => new OrderHistoryDto(order)).ToList();
-        return new BaseResult<List<OrderHistoryDto>>(orderHistoryDtos);
+        var result = await _orderRepository.GetOrdersByCustomerIdAsync(
+            request.CustomerId, 
+            request.StoreName, 
+            createdDateUtc,
+            request.Last7Days,
+            request.SpecificMonth,
+            request.SpecificYear
+        );
+
+        return new PagedResponse<OrderHistoryDto>(result, request);
     }
-    
-    
-    
-    
 }
