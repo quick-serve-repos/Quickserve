@@ -284,7 +284,9 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         return await Paged(query.Select(c => new OderStatusResponse
             {
                 Id = c.Id.ToString(),
-                Status = c.Status
+                Status = c.Status,
+                Created = c.Created,
+                Platform = c.Platform
             }),
             pageNumber,
             pageSize);

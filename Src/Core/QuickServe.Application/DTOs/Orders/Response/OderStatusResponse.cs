@@ -10,5 +10,7 @@ namespace QuickServe.Application.DTOs.Orders.Response
     {
         public string Id { get; set; }
         public int Status { get; set; }
+        public DateTime Created { get; set; }    
+        public int Platform { get; set; }        
     }
 }
