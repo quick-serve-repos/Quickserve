@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using QuickServe.Application.Interfaces;
 using System.Linq;
 using Azure.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using QuickServe.Application.Features.Payments.Queries.GetPagedListPayment;
 using QuickServe.Application.Features.Payments.Queries.GetPaymentById;
 using QuickServe.Domain.Payments.Dtos;
@@ -84,6 +85,9 @@ namespace QuickServe.WebApi.Controllers.v1
         {
             return await Mediator.Send(command);
         } 
+        
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Store_Manager")]
+
         [HttpGet("by-store")]
         public async Task<PagedResponse<PaymentDto>> GetPaymentsByStoreId([FromQuery] GetPaymentByStoreIdQuery command)
         {

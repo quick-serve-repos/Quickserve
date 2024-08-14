@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using QuickServe.Application.DTOs;
+using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.Repositories;
 using QuickServe.Domain.Payments.Dtos;
 using QuickServe.Domain.Payments.Entities;
@@ -13,10 +14,15 @@ namespace QuickServe.Infrastructure.Persistence.Repositories;
 public class PaymentRepository : GenericRepository<Payment>, IPaymentRepository
 {
     private readonly DbSet<Payment> _payments;
-
-    public PaymentRepository(ApplicationDbContext dbContext) : base(dbContext)
+    private readonly IAuthenticatedUserService _authenticatedUserService;
+    private readonly IAccountRepository _accountRepository;
+    private readonly ApplicationDbContext _context;
+    public PaymentRepository(ApplicationDbContext dbContext, IAuthenticatedUserService authenticatedUserService, IAccountRepository accountRepository ) : base(dbContext)
     {
         _payments = dbContext.Set<Payment>();
+        _authenticatedUserService = authenticatedUserService;
+        _accountRepository = accountRepository;
+        _context = dbContext;
     }
 
     public async Task<PagenationResponseDto<PaymentDto>> GetPagedListAsync(int pageNumber, int pageSize, long? storeId,
@@ -137,13 +143,17 @@ public class PaymentRepository : GenericRepository<Payment>, IPaymentRepository
     public async Task<PagenationResponseDto<PaymentDto>> GetPagedListByStoreIdAsync(
         int pageNumber,
         int pageSize,
-        long storeId,
         long? refOrderId = null,
         DateTime? createdDate = null,
         bool last7Days = false,
         int? specificMonth = null,
         int? specificYear = null)
     {
+        
+        var userId = _authenticatedUserService.UserId;
+
+        var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
+        var storeId = currentUser.Staff.StoreId;
         var query = _payments
             .Include(p => p.Order)
             .Where(p => p.Order.StoreId == storeId)

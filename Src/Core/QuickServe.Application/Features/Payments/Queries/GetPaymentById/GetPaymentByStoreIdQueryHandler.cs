@@ -30,7 +30,6 @@ public class GetPaymentByStoreIdQueryHandler : IRequestHandler<GetPaymentByStore
         var result = await _paymentRepository.GetPagedListByStoreIdAsync(
             request.PageNumber,
             request.PageSize,
-            request.StoreId,
             request.RefOrderId,
             createdDateUtc,
             request.Last7Days,

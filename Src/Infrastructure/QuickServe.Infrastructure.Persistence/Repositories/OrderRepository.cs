@@ -400,9 +400,15 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     }
 
     public async Task<PagenationResponseDto<OrderDtos>> GetOrderByStoreIdAsync(int pageNumber, int pageSize,
-        long storeId, long? refOrderId = null, DateTime? createdDate = null, bool last7Days = false,
+         long? refOrderId = null, DateTime? createdDate = null, bool last7Days = false,
         int? specificMonth = null, int? specificYear = null)
     {
+        
+        var userId = _authenticatedUserService.UserId;
+
+        var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
+        var storeId = currentUser.Staff.StoreId;
+        
         var query = orders.AsNoTracking()
             .Where(u => u.StoreId == storeId)
             .OrderByDescending(x => x.Created)
@@ -495,5 +501,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     return new PagenationResponseDto<OrderHistoryDto>(orderHistoryDtos, totalCount);
 }
 
-
+    public Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status)
+    {
+        throw new NotImplementedException();
+    }
 }

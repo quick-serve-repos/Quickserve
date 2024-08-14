@@ -8,7 +8,7 @@ namespace QuickServe.Application.Features.Payments.Queries.GetPaymentById;
 
 public class GetPaymentByStoreIdQuery : PagenationRequestParameter, IRequest<PagedResponse<PaymentDto>>
 {
-    public long StoreId { get; set; }
+    
     public long? RefOrderId { get; set; }
     public DateTime? CreatedDate { get; set; }
     public bool Last7Days { get; set; }

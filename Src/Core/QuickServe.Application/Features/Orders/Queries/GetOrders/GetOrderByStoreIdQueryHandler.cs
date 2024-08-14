@@ -29,7 +29,6 @@ public class GetOrderByStoreIdQueryHandler : IRequestHandler<GetOrderByStoreIdQu
         var result = await _orderRepository.GetOrderByStoreIdAsync(
             request.PageNumber, 
             request.PageSize, 
-            request.StoreId, 
             request.RefOrderId,
             createdDateUtc,
             request.Last7Days,

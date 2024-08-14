@@ -8,7 +8,7 @@ namespace QuickServe.Application.Features.Orders.Queries.GetOrders;
 
 public class GetOrderByStoreIdQuery  : PagenationRequestParameter, IRequest<PagedResponse<OrderDtos>>
 {
-    public long StoreId { get; set; }
+ 
     public long? RefOrderId { get; set; }
     public DateTime? CreatedDate { get; set; }
     public bool Last7Days { get; set; }

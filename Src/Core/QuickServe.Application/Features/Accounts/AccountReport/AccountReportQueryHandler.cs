@@ -46,8 +46,11 @@ namespace QuickServe.Application.Features.Accounts.AccountReport
                 return new BaseResult<AccountReportDto>(new Error(ErrorCode.FieldDataInvalid, "Phạm vi ngày, tháng/năm hoặc ngày cụ thể không hợp lệ"));
             }
 
-            startDate = startDate.ToUniversalTime();
-            endDate = endDate.ToUniversalTime();
+            //startDate = startDate.ToUniversalTime();
+            //endDate = endDate.ToUniversalTime();
+            // Chuyển đổi DateTime thành Unspecified để tránh lỗi khi lưu vào PostgreSQL
+            startDate = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
+            endDate = DateTime.SpecifyKind(endDate, DateTimeKind.Unspecified);
 
             // Thống kê tổng số tài khoản và số tài khoản theo vai trò
             var totalAccountsCount = await accountRepository.GetFilteredAccountsCountAsync(startDate, endDate);
