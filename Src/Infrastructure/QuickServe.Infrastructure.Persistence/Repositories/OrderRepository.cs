@@ -501,8 +501,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     return new PagenationResponseDto<OrderHistoryDto>(orderHistoryDtos, totalCount);
 }
 
-    public Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status)
+   /* public Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status)
     {
         throw new NotImplementedException();
-    }
+    }*/
 }

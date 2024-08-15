@@ -34,5 +34,5 @@ public interface IOrderRepository : IGenericRepository<Order>
     Task<PagenationResponseDto<OrderHistoryDto>> GetOrdersByCustomerIdAsync(Guid customerId, string storeName ,
         DateTime? createdDate, bool last7Days , int? specificMonth , int? specificYear);
     
-    Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status);
+   // Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status);
 }
