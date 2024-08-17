@@ -60,8 +60,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Description = request.Description,
                     IngredientTypeId = request.IngredientTypeId,
                     Status = (int)IngredientStatus.Active,
-                    IngredientType = ingredientType
-                    
+                    IngredientType = ingredientType,
+                    QuantityMax = request.QuantityMax
                 };
 
                 if (request.Image != null)
