@@ -12,5 +12,6 @@ namespace QuickServe.Application.Interfaces.IOrderServices
     public interface IOrderService
     {
         Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command);
+        Task<BaseResult<OrderResponse>> CreateOrderForCustomerAsync(CreateOrderCommand command);
     }
 }

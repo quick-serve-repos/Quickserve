@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
 using QuickServe.Application.Features.Orders.Queries.GetOrders;
+using QuickServe.Application.Features.Orders.Queries.GetOrdersForStaff;
 using QuickServe.Application.Features.Payments.Queries.GetPaymentById;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -56,6 +57,14 @@ namespace QuickServe.WebApi.Controllers.v1
         {
             return await _orderService.CreateOrderAsync(command);
         }
+        
+        [HttpPost("CreateOrderForCustomer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Customer")]
+        public async Task<BaseResult<OrderResponse>> CreateOrderForCustomer(CreateOrderCommand command)
+        {
+            return await _orderService.CreateOrderForCustomerAsync(command);
+        }
+
 
         [HttpPut("UpdateOrderStatus")]
         public async Task<BaseResult<OrderResponse>> UpdateOrderStatus(UpdateOrderCommand command)
@@ -100,7 +109,14 @@ namespace QuickServe.WebApi.Controllers.v1
             var result = await Mediator.Send(query);
             return Ok(result);
         }
-        
+        [HttpGet("Staff/OrderStatus")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff, Store_Manager")]
+        public async Task<ActionResult<BaseResult<List<OderStatusResponse>>>> GetOrdersForStaff([FromQuery] GetOrdersForStaffQuery query)
+        {
+            var result = await Mediator.Send(query);
+            return Ok(result);
+        }
+
         
         
        /* [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

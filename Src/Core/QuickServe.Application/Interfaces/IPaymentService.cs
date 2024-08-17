@@ -32,5 +32,7 @@ namespace QuickServe.Application.Interfaces
         Task<PaymentCallBackResult> SubmitOrder(long orderId);
         Task<string> CreatePayOSPaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken);
         Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request, CancellationToken cancellationToken);
+        Task<PaymentCallBackResult> PayOSCallBackResultForCustomerAsync(GetPayOSResponse request, Guid customerId, CancellationToken cancellationToken);
+        
     }
 }

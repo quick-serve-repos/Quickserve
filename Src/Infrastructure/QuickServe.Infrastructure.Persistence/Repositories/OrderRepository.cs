@@ -500,9 +500,30 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
     return new PagenationResponseDto<OrderHistoryDto>(orderHistoryDtos, totalCount);
 }
+    
+   public async Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status)
+   {
+       if (await stores.AnyAsync(c => c.Id == storeId) == false)
+       {
+           throw new Exception("Không tìm thấy cửa hàng.");
+       }
 
-   /* public Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status)
-    {
-        throw new NotImplementedException();
-    }*/
+       // Retrieve all orders for the specified store and status
+       var query = orders.AsNoTracking()
+           .Where(o => o.StoreId == storeId && (status == 0 || o.Status == status)) // No longer filtering by specific statuses
+           .OrderByDescending(x => x.Created)  // Order by creation date
+           .AsQueryable();
+
+       // Return paginated results
+       return await Paged(query.Select(c => new OderStatusResponse
+           {
+               Id = c.Id.ToString(),
+               Status = c.Status,
+               Created = c.Created,
+               Platform = c.Platform
+           }),
+           pageNumber,
+           pageSize);
+   }
+
 }

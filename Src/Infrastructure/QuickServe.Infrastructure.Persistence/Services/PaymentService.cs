@@ -224,5 +224,48 @@ namespace QuickServe.Infrastructure.Persistence.Services
         }
 
         #endregion
+        
+        
+        public async Task<PaymentCallBackResult> PayOSCallBackResultForCustomerAsync(GetPayOSResponse request, Guid customerId, CancellationToken cancellationToken)
+        {
+            var payment = new Payment()
+            {
+                Id = EnumExtension.GenerateUniqueId(),
+                Name = request.OrderCode,
+                RefOrderId = long.Parse(request.OrderCode),
+                PaymentType = 2
+            };
+
+            var order = await _orderRepository.GetByIdAsync(payment.RefOrderId);
+            if (order == null)
+                return null;
+
+            // Assign the customerId to the order
+            order.CustomerId = customerId;
+
+            if (request.Status == "PAID")
+            {
+                order.Status = (int)OrderStatus.Paided;
+            }
+            else
+            {
+                order.Status = (int)OrderStatus.Failed;
+            }
+
+            await _context.Payments.AddRangeAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PaymentCallBackResult()
+            {
+                Id = payment.Id.ToString(),
+                Name = request.Code,
+                RefOrderId = order.Id.ToString(),
+                Status = order.Status,
+                PaymentType = 2
+            };
+
+            return result;
+        }
+
     }
 }
