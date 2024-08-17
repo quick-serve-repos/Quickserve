@@ -287,7 +287,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Name = productTemplate.Name,
                     Quantity = obj.Quantity,
                     ProductTemplateId = productTemplate.Id,
-                    Price = productTemplate.Price
+                    //Price = productTemplate.Price
                 };
 
                 if (!obj.Ingredients.Any())

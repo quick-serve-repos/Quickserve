@@ -127,11 +127,11 @@ namespace QuickServe.WebApi.Controllers.v1
             var query = new GetCustomerOrderHistoryQuery { CustomerId = customerId };
             return await Mediator.Send(query);
         }*/
-       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+       [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Customer")]
        [HttpGet("CustomerOrderHistory")]
        public async Task<PagedResponse<OrderHistoryDto>> GetCustomerOrderHistory([FromQuery] GetCustomerOrderHistoryQuery query)
        {
-           query.CustomerId = GetCurrentUserId(); // Method to get the current logged-in user's ID
            return await Mediator.Send(query);
        }
         
