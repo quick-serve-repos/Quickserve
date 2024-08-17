@@ -166,6 +166,30 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         foreach(var ingredient in it.IngredientType.Ingredients.
                             Where(c=>c.Status == (int)IngredientStatus.Active)) {
                             var ingredientRes = new IngredientInfoResponse(ingredient);
+                            var remainQuantity = 0;
+                            var isSold = true;
+                            var sessions = await _sessionRepository.GetAllAsync();
+                            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                            if (currentSession != null)
+                            {
+                                var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingredient.Id, currentSession.Id);
+
+                                if (ingredientSession != null)
+                                {
+                                    remainQuantity = ingredientSession.Quantity - ingredientSession.SoldQuantity;
+                                    if (remainQuantity > 0)
+                                    {
+                                        isSold = true;
+                                    }
+                                    else
+                                    {
+                                        isSold = false;
+                                    }
+                                }
+                            }
+                            ingredientRes.RemainingQuantity = remainQuantity;
+                            ingredientRes.IsSold = isSold;
                             ingredients.Add(ingredientRes);
                         }
                         ingreStep.Ingredients = ingredients;

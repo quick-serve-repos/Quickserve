@@ -17,12 +17,16 @@ namespace QuickServe.Application.DTOs.Ingredients.Responses
             Calo  = ingredient.Calo;
             DefaultQuantity = ingredient.DefaultQuantity;
             ImageUrl = ingredient.ImageUrl;
+            QuantityMax = ingredient.QuantityMax;
         }
         public long Id { get; set; }
         public string Name { get; set; } = null!;
         public decimal Price { get; set; }
         public int Calo { get; set; }
         public int DefaultQuantity { get; set; }
+        public int QuantityMax { get; set; }
         public string ImageUrl { get; set; } = null!;
+        public bool IsSold { get; set; }
+        public int RemainingQuantity { get; set; }
     }
 }
