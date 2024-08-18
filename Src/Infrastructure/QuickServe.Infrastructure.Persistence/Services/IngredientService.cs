@@ -43,7 +43,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
         {
             try
             {
-                if(await _context.Ingredients.AnyAsync(i=> i.Name.ToLower() == request.Name.Trim().ToLower())) {
+                if(await _context.Ingredients.AnyAsync(i=> i.Name.ToLower() == request.Name.Trim().ToLower() && i.IngredientTypeId == request.IngredientTypeId)) {
                     return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.IngredientMessages.Tên_nguyên_liệu_đã_tồn_tại(request.Name)), nameof(request.Name)));
                 }
                 var ingredientType = await _context.IngredientTypes.FirstOrDefaultAsync(i => i.Id == request.IngredientTypeId);
