@@ -6,11 +6,13 @@
     using QuickServe.Application.DTOs;
     using QuickServe.Application.DTOs.Account.Requests;
     using QuickServe.Application.DTOs.Account.Responses;
-    using QuickServe.Application.Features.Accounts.Commands.DeleteAccount;
+using QuickServe.Application.DTOs.Ingredients.Request;
+using QuickServe.Application.Features.Accounts.Commands.DeleteAccount;
     using QuickServe.Application.Features.Accounts.UpdateProfile;
     using QuickServe.Application.Helpers;
     using QuickServe.Application.Interfaces;
-    using QuickServe.Application.Interfaces.Repositories;
+using QuickServe.Application.Interfaces.ImageInterfaces;
+using QuickServe.Application.Interfaces.Repositories;
     using QuickServe.Application.Interfaces.UserInterfaces;
     using QuickServe.Application.Utils.Enums;
     using QuickServe.Application.Wrappers;
@@ -27,7 +29,7 @@
 
     namespace QuickServe.Infrastructure.Identity.Services
     {
-        public class AccountServices(UserManager<ApplicationUser> userManager, IAuthenticatedUserService authenticatedUser, ITranslator translator, IConfiguration configuration, IAccountRepository accountRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository) : IAccountServices
+        public class AccountServices(UserManager<ApplicationUser> userManager, IAuthenticatedUserService authenticatedUser, ITranslator translator, IConfiguration configuration, IAccountRepository accountRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository, IImageService imageService) : IAccountServices
         {
 
             public async Task<BaseResult> ChangePassword(ChangePasswordRequest model)
@@ -415,7 +417,8 @@
                 user.Name = request.Name.Trim();
                 user.Email = request.Email.Trim();
                 user.PhoneNumber = request.Phone.Trim();
-
+                acc.LastModified = DateTime.Now;
+                acc.LastModifiedBy = user.UserName;
                
 
                 var identityResult = await userManager.UpdateAsync(user);
@@ -461,7 +464,39 @@
                     return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString("Khách hàng đã đặt các đơn hàng không thể xoá.")));
                 }
             }
+
+        public async Task<BaseResult> UpdateImageAsync(Guid id, UpdateIngredientImageRequest request)
+        {
+            try
+            {
+                var acc = await accountRepository.FindByIdAsync(id);
+                if (acc == null)
+                {
+                    return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString("Tài khoản không tồn tại")));
+                }
+                if (request.Image != null)
+                {
+                    if (acc.Avatar != null) {
+                        var imageUrl = await imageService.UpdateImageAsync(acc.Avatar, request.Image);
+                        acc.Avatar = imageUrl;
+                    }
+                    else
+                    {
+                        var imageUrl = await imageService.UploadImageAsync(request.Image);
+                        acc.Avatar = imageUrl;
+                    }
+                }
+                
+                accountRepository.Update(acc);
+                await unitOfWork.SaveChangesAsync();
+                return new BaseResult();
+            }
+            catch (Exception ex)
+            {
+                return new BaseResult($"An error occurred while creating the ingredient: {ex.Message}");
+            }
         }
+    }
 
         
     }
