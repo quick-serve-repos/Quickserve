@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuickServe.Application.DTOs.Account.Requests;
 using QuickServe.Application.DTOs.Account.Responses;
+using QuickServe.Application.DTOs.Ingredients.Request;
 using QuickServe.Application.Features.Accounts.AccountReport;
 using QuickServe.Application.Features.Accounts.Commands;
 using QuickServe.Application.Features.Accounts.Commands.DeleteAccount;
@@ -82,6 +83,10 @@ namespace QuickServe.WebApi.Controllers.v1
         [Authorize]
         public async Task<BaseResult<ProfileResponse>> GetProfile([FromQuery] GetProfileQuery query)
             => await Mediator.Send(query);
+        [HttpPut("{id}/image")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Brand_Manager")]
+        public async Task<BaseResult> UpdateIngredientImage(Guid id, [FromForm] UpdateIngredientImageRequest request)
+           => await accountServices.UpdateImageAsync(id, request);
 
         [HttpGet("report")]
         [Authorize]

@@ -1,6 +1,7 @@
 ﻿using QuickServe.Application.DTOs;
 using QuickServe.Application.DTOs.Account.Requests;
 using QuickServe.Application.DTOs.Account.Responses;
+using QuickServe.Application.DTOs.Ingredients.Request;
 using QuickServe.Application.Features.Accounts.Commands.DeleteAccount;
 using QuickServe.Application.Features.Accounts.UpdateProfile;
 using QuickServe.Application.Wrappers;
@@ -25,5 +26,6 @@ namespace QuickServe.Application.Interfaces.UserInterfaces
         Task<PagenationResponseDto<AccountDto>> GetPagedListAsync(int pageNumber, int pageSize, string name, string[] roles);
         Task<BaseResult<ProfileResponse>> GetAccountById(Guid id);
         Task<BaseResult<AccountDto>> FindByEmailAsync(string email);
+        Task<BaseResult> UpdateImageAsync(Guid id, UpdateIngredientImageRequest request);
     }
 }
