@@ -72,13 +72,16 @@ public class ProductTemplateRepository : GenericRepository<ProductTemplate>, IPr
 
         if (storeId.HasValue)
         {
+            var currentTime = DateTime.UtcNow.AddHours(7).TimeOfDay;
             query = query.Where(pt => pt.TemplateSteps.Any(ts =>
                 ts.IngredientTypeTemplateSteps.Any(itts =>
                     itts.IngredientType.Ingredients.Any(i =>
                         i.IngredientSessions.Any(isess =>
                             !(isess.Session.StoreId == storeId.Value &&
                             isess.Quantity == isess.SoldQuantity &&
-                            itts.QuantityMin > 0)
+                            itts.QuantityMin > 0 &&
+                            isess.Session.StartTime <= currentTime &&
+                            isess.Session.EndTime >= currentTime )
                         )
                     )
                 )
