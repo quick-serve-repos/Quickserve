@@ -65,6 +65,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
                 Calo = c.Calo,
                 Description = c.Description,
                 ImageUrl = c.ImageUrl,
+                DefaultQuantity = c.DefaultQuantity,
                 QuantityMax = c.QuantityMax,
                 IngredientType = new SimpleIngredietTypeRespone(c.IngredientType),
                 IngredientTypeId = c.IngredientTypeId,
