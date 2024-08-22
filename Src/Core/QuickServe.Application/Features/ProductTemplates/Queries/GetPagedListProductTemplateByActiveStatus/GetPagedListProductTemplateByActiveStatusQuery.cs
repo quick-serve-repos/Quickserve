@@ -13,5 +13,6 @@ namespace QuickServe.Application.Features.ProductTemplates.Queries.GetPagedListP
     public class GetPagedListProductTemplateByActiveStatusQuery : PagenationRequestParameter, IRequest<PagedResponse<ProductTemplateDto>>
     {
         public string Name { get; set; }
+        public long StoreId { get; set; }
     }
 }

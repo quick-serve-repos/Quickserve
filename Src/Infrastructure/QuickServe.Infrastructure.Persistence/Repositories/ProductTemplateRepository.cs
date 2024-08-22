@@ -62,12 +62,27 @@ public class ProductTemplateRepository : GenericRepository<ProductTemplate>, IPr
              pageSize);
     }
 
-    public async Task<PagenationResponseDto<ProductTemplateDto>> GetPagedListByAcitveStatusAsync(int pageNumber, int pageSize, string name)
+    public async Task<PagenationResponseDto<ProductTemplateDto>> GetPagedListByAcitveStatusAsync(int pageNumber, int pageSize, string name, long? storeId)
     {
         var query = _productTemplates.Where(c => c.Status == (int)ProductTemplateStatus.Active).OrderByDescending(p => p.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(s => s.Name.Contains(name));
+        }
+
+        if (storeId.HasValue)
+        {
+            query = query.Where(pt => pt.TemplateSteps.Any(ts =>
+                ts.IngredientTypeTemplateSteps.Any(itts =>
+                    itts.IngredientType.Ingredients.Any(i =>
+                        i.IngredientSessions.Any(isess =>
+                            !(isess.Session.StoreId == storeId.Value &&
+                            isess.Quantity == isess.SoldQuantity &&
+                            itts.QuantityMin > 0)
+                        )
+                    )
+                )
+            ));
         }
 
         return await Paged(

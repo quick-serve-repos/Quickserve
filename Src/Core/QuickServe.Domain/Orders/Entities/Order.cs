@@ -20,7 +20,7 @@ namespace QuickServe.Domain.Orders.Entities
 
         public Guid? CustomerId { get; set; }
         public double Amount { get; set; }
-        public int Number {  get; set; }
+       // public int Number {  get; set; }
         public string BillCode { get; set; }
         public int Status { get; set; }
         public int Platform {  get; set; }
