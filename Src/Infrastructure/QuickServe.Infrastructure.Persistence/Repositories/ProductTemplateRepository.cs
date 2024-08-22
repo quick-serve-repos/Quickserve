@@ -70,7 +70,7 @@ public class ProductTemplateRepository : GenericRepository<ProductTemplate>, IPr
             query = query.Where(s => s.Name.Contains(name));
         }
 
-        if (storeId.HasValue)
+        if (storeId != null)
         {
             var currentTime = DateTime.UtcNow.AddHours(7).TimeOfDay;
             query = query.Where(pt => pt.TemplateSteps.Any(ts =>
