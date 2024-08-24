@@ -61,7 +61,7 @@ public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unit
         // Chỉ cập nhật nếu trạng thái thay đổi
         if (order.Status != request.Status)
         {
-            // Nếu trạng thái là 4 (Thành công), tăng soldQuantity trong ingredientSession
+            // Nếu trạng thái là 2 (Paid), tăng soldQuantity trong ingredientSession
             if (request.Status == 2)
             {
                 // Lấy phiên hiện tại
