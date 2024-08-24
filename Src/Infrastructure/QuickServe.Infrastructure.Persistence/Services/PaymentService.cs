@@ -268,8 +268,10 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
 
             // Cập nhật trạng thái đơn hàng
-            order.Status = request.Status == "PAID" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
+            order.Status = request.Status == "PAID" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
 
+            // Cập nhật lại order vào repository
+            _orderRepository.Update(order);
             // Lưu Payment và đơn hàng
             await _context.Payments.AddAsync(payment);
             await _unitOfWork.SaveChangesAsync();
