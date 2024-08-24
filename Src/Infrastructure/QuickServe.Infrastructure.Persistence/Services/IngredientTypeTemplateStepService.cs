@@ -49,6 +49,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             try
             {
                 var productTemplate = await _context.ProductTemplates
+                    .Include(c => c.TemplateSteps).ThenInclude(c => c.IngredientTypeTemplateSteps)
+                    .ThenInclude(c => c.IngredientType)
                     .FirstOrDefaultAsync(c=> c.Id == request.ProductTemplateId);
                 if(productTemplate == null)
                 {
