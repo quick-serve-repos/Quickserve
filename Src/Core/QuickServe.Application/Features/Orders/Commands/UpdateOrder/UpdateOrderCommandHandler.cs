@@ -64,10 +64,14 @@ public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unit
             // Nếu trạng thái là 2 (Paid), tăng soldQuantity trong ingredientSession
             if (request.Status == 2)
             {
-                // Lấy phiên hiện tại
+                // Lấy giờ hiện tại theo UTC+7
+                var utcNow = DateTime.UtcNow.AddHours(7);
+                var currentTimeOfDay = utcNow.TimeOfDay;
+
+                // Lấy phiên hiện tại dựa trên thời gian UTC+7
                 var sessions = await sessionRepository.GetAllAsync();
                 var currentSession = sessions.FirstOrDefault(x =>
-                    x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                    x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
 
                 if (currentSession == null)
                 {
