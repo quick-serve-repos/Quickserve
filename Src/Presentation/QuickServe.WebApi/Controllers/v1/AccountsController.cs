@@ -84,7 +84,7 @@ namespace QuickServe.WebApi.Controllers.v1
         public async Task<BaseResult<ProfileResponse>> GetProfile([FromQuery] GetProfileQuery query)
             => await Mediator.Send(query);
         [HttpPut("{id}/image")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Brand_Manager")]
+        [Authorize]
         public async Task<BaseResult> UpdateIngredientImage(Guid id, [FromForm] UpdateIngredientImageRequest request)
            => await accountServices.UpdateImageAsync(id, request);
 

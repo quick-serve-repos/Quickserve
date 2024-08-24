@@ -256,6 +256,167 @@ namespace QuickServe.Infrastructure.Persistence.Services
             return new BaseResult<OrderResponse>(response);
         }*/
 
+        /* public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
+         {
+             if (command.Products == null || !command.Products.Any())
+                 return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
+
+             List<Product> products = new List<Product>();
+             List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
+             List<OrderProduct> orderProducts = new List<OrderProduct>();
+
+             // Customer information is no longer required
+             var order = new Order()
+             {
+                 Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
+                 StoreId = command.StoreId, // StoreId is now passed from the command
+                 BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
+                 Platform = 2
+             };
+
+             foreach (var obj in command.Products)
+             {
+                 if (obj == null || obj.ProductTemplateId <= 0) continue;
+                 var productTemplate =
+                     await _productTemplateRepository.GetProductTemplateByIdAsync(obj.ProductTemplateId);
+                 var orderProduct = new OrderProduct();
+
+                 var product = new Product()
+                 {
+                     Id = EnumExtension.GenerateUniqueId(),
+                     Name = productTemplate.Name,
+                     Quantity = obj.Quantity,
+                     ProductTemplateId = productTemplate.Id,
+                     //Price = productTemplate.Price
+                 };
+
+                 if (!obj.Ingredients.Any())
+                 {
+                     foreach (var step in productTemplate.TemplateSteps)
+                     {
+                         var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
+                         foreach (var ingreStep in temStep.IngredientTypeTemplateSteps)
+                         {
+                             var ingreType =
+                                 await _ingredientTypeRepository.GetIngredientTypeByIdAsync(ingreStep.IngredientTypeId);
+                             foreach (var igre in ingreType.Ingredients)
+                             {
+                                 if (igre.DefaultQuantity == 0) continue;
+
+                                 var sessions = await _sessionRepository.GetAllAsync();
+                                 var currentSession = sessions.FirstOrDefault(x =>
+                                     x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                                 if (currentSession != null)
+                                 {
+                                     var ingredientSession =
+                                         await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+                                     if (ingredientSession != null)
+                                     {
+                                         var quantityExist = ingredientSession.SoldQuantity + igre.DefaultQuantity;
+                                         if (quantityExist > ingredientSession.Quantity)
+                                         {
+                                             throw new Exception("Nguyên liệu không đủ số lượng tồn");
+                                         }
+                                         else
+                                         {
+                                             ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                                         }
+                                     }
+                                 }
+
+                                 var ingredientProduct = new IngredientProduct()
+                                 {
+                                     ProductId = product.Id,
+                                     IngredientId = igre.Id,
+                                     Quantity = igre.DefaultQuantity
+                                 };
+                                 ingredientProducts.Add(ingredientProduct);
+                                 product.Price += igre.Price;
+                             }
+                         }
+                     }
+
+                     products.Add(product);
+                     orderProduct = new OrderProduct()
+                     {
+                         OrderId = order.Id,
+                         ProductId = product.Id,
+                         Quantity = obj.Quantity,
+                         Price = product.Price
+                     };
+                     orderProducts.Add(orderProduct);
+                     order.Amount += (double)product.Price * obj.Quantity;
+                     order.Status = (int)OrderStatus.Pending;
+                 }
+                 else
+                 {
+                     foreach (var ingre in obj.Ingredients)
+                     {
+                         var sessions = await _sessionRepository.GetAllAsync();
+                         var currentSession = sessions.FirstOrDefault(x =>
+                             x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                         if (currentSession != null)
+                         {
+                             var ingredientSession =
+                                 await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
+                             if (ingredientSession != null)
+                             {
+                                 var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
+                                 if (quantityExist > ingredientSession.Quantity)
+                                 {
+                                     throw new Exception("Nguyên liệu không đủ số lượng tồn");
+                                 }
+                                 else
+                                 {
+                                     ingredientSession.SoldQuantity += ingre.Quantity;
+                                 }
+                             }
+                         }
+
+                         var ingredientProduct = new IngredientProduct()
+                         {
+                             ProductId = product.Id,
+                             IngredientId = ingre.Id,
+                             Quantity = ingre.Quantity
+                         };
+                         ingredientProducts.Add(ingredientProduct);
+                         product.Price += ingre.Price * ingre.Quantity;
+                     }
+
+                     products.Add(product);
+                     orderProduct = new OrderProduct()
+                     {
+                         OrderId = order.Id,
+                         ProductId = product.Id,
+                         Quantity = obj.Quantity,
+                         Price = product.Price
+                     };
+                     orderProducts.Add(orderProduct);
+                     order.Amount += (double)product.Price * obj.Quantity;
+                     order.Status = (int)OrderStatus.Pending;
+                 }
+             }
+
+             await _context.ProDucts.AddRangeAsync(products);
+             if (ingredientProducts.Any())
+                 await _context.IngredientProducts.AddRangeAsync(ingredientProducts);
+
+             await _context.Orders.AddRangeAsync(order);
+             await _context.OrderProducts.AddRangeAsync(orderProducts);
+
+             var result = await _unitOfWork.SaveChangesAsync();
+
+             OrderResponse response = new OrderResponse()
+             {
+                 OrderId = result ? order.Id.ToString() : null,
+                 Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
+                 BillCode = order.BillCode
+             };
+
+             return new BaseResult<OrderResponse>(response);
+         }*/
         public async Task<BaseResult<OrderResponse>> CreateOrderAsync(CreateOrderCommand command)
         {
             if (command.Products == null || !command.Products.Any())
@@ -265,13 +426,183 @@ namespace QuickServe.Infrastructure.Persistence.Services
             List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
             List<OrderProduct> orderProducts = new List<OrderProduct>();
 
-            // Customer information is no longer required
             var order = new Order()
             {
                 Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
                 StoreId = command.StoreId, // StoreId is now passed from the command
                 BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
                 Platform = 2
+            };
+
+            foreach (var obj in command.Products)
+            {
+                if (obj == null || obj.ProductTemplateId <= 0) continue;
+                var productTemplate =
+                    await _productTemplateRepository.GetProductTemplateByIdAsync(obj.ProductTemplateId);
+                var orderProduct = new OrderProduct();
+
+                var product = new Product()
+                {
+                    Id = EnumExtension.GenerateUniqueId(),
+                    Name = productTemplate.Name,
+                    Quantity = obj.Quantity,
+                    ProductTemplateId = productTemplate.Id,
+                };
+
+                if (!obj.Ingredients.Any())
+                {
+                    foreach (var step in productTemplate.TemplateSteps)
+                    {
+                        var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
+                        foreach (var ingreStep in temStep.IngredientTypeTemplateSteps)
+                        {
+                            var ingreType =
+                                await _ingredientTypeRepository.GetIngredientTypeByIdAsync(ingreStep.IngredientTypeId);
+                            foreach (var igre in ingreType.Ingredients)
+                            {
+                                if (igre.DefaultQuantity == 0) continue;
+
+                                var sessions = await _sessionRepository.GetAllAsync();
+                                var currentSession = sessions.FirstOrDefault(x =>
+                                    x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                                if (currentSession != null)
+                                {
+                                    var ingredientSession =
+                                        await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+                                    if (ingredientSession != null)
+                                    {
+                                        // Kiểm tra số lượng yêu cầu có thỏa mãn số lượng tồn kho không
+                                        if (igre.DefaultQuantity >
+                                            (ingredientSession.Quantity - ingredientSession.SoldQuantity))
+                                        {
+                                            throw new Exception("Nguyên liệu không đủ số lượng tồn.");
+                                        }
+                                    }
+                                }
+
+                                var ingredientProduct = new IngredientProduct()
+                                {
+                                    ProductId = product.Id,
+                                    IngredientId = igre.Id,
+                                    Quantity = igre.DefaultQuantity
+                                };
+                                ingredientProducts.Add(ingredientProduct);
+                                product.Price += igre.Price;
+                            }
+                        }
+                    }
+
+                    products.Add(product);
+                    orderProduct = new OrderProduct()
+                    {
+                        OrderId = order.Id,
+                        ProductId = product.Id,
+                        Quantity = obj.Quantity,
+                        Price = product.Price
+                    };
+                    orderProducts.Add(orderProduct);
+                    order.Amount += (double)product.Price * obj.Quantity;
+                    order.Status = (int)OrderStatus.Pending;
+                }
+                else
+                {
+                    foreach (var ingre in obj.Ingredients)
+                    {
+                        var sessions = await _sessionRepository.GetAllAsync();
+                        var currentSession = sessions.FirstOrDefault(x =>
+                            x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                        if (currentSession != null)
+                        {
+                            var ingredientSession =
+                                await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
+                            if (ingredientSession != null)
+                            {
+                                // Kiểm tra số lượng yêu cầu có thỏa mãn số lượng tồn kho không
+                                if (ingre.Quantity > (ingredientSession.Quantity - ingredientSession.SoldQuantity))
+                                {
+                                    throw new Exception("Nguyên liệu không đủ số lượng tồn.");
+                                }
+                            }
+                        }
+
+                        var ingredientProduct = new IngredientProduct()
+                        {
+                            ProductId = product.Id,
+                            IngredientId = ingre.Id,
+                            Quantity = ingre.Quantity
+                        };
+                        ingredientProducts.Add(ingredientProduct);
+                        product.Price += ingre.Price * ingre.Quantity;
+                    }
+
+                    products.Add(product);
+                    orderProduct = new OrderProduct()
+                    {
+                        OrderId = order.Id,
+                        ProductId = product.Id,
+                        Quantity = obj.Quantity,
+                        Price = product.Price
+                    };
+                    orderProducts.Add(orderProduct);
+                    order.Amount += (double)product.Price * obj.Quantity;
+                    order.Status = (int)OrderStatus.Pending;
+                }
+            }
+
+            await _context.ProDucts.AddRangeAsync(products);
+            if (ingredientProducts.Any())
+                await _context.IngredientProducts.AddRangeAsync(ingredientProducts);
+
+            await _context.Orders.AddRangeAsync(order);
+            await _context.OrderProducts.AddRangeAsync(orderProducts);
+
+            var result = await _unitOfWork.SaveChangesAsync();
+
+            OrderResponse response = new OrderResponse()
+            {
+                OrderId = result ? order.Id.ToString() : null,
+                Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
+                BillCode = order.BillCode
+            };
+
+            return new BaseResult<OrderResponse>(response);
+        }
+
+
+        /*public async Task<BaseResult<OrderResponse>> CreateOrderForCustomerAsync(CreateOrderCommand command)
+        {
+            if (command.Products == null || !command.Products.Any())
+                return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
+
+            List<Product> products = new List<Product>();
+            List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
+            List<OrderProduct> orderProducts = new List<OrderProduct>();
+
+
+            var userId = _authenticatedUserService.UserId;
+
+            var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
+            Guid? customerId = null;
+            if (currentUser is Customer customer)
+            {
+                customerId = customer.Id; // Assuming the 'Id' in the Customer class is the customerId
+            }
+
+            if (customerId == null)
+            {
+                throw new Exception("User is not a customer");
+            }
+
+            // Customer information is no longer required
+            var order = new Order()
+            {
+                Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
+                StoreId = command.StoreId, // StoreId is now passed from the command
+                BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
+                CustomerId = customerId,
+                Platform = 1
             };
 
             foreach (var obj in command.Products)
@@ -416,9 +747,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
 
             return new BaseResult<OrderResponse>(response);
-        }
-        
-        
+        }*/
+
         public async Task<BaseResult<OrderResponse>> CreateOrderForCustomerAsync(CreateOrderCommand command)
         {
             if (command.Products == null || !command.Products.Any())
@@ -428,25 +758,25 @@ namespace QuickServe.Infrastructure.Persistence.Services
             List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
             List<OrderProduct> orderProducts = new List<OrderProduct>();
 
-            
             var userId = _authenticatedUserService.UserId;
 
             var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
             Guid? customerId = null;
             if (currentUser is Customer customer)
             {
-                customerId = customer.Id;  // Assuming the 'Id' in the Customer class is the customerId
+                customerId = customer.Id; // Assuming the 'Id' in the Customer class is the customerId
             }
 
             if (customerId == null)
             {
                 throw new Exception("User is not a customer");
             }
-            // Customer information is no longer required
+
+            // Create new order
             var order = new Order()
             {
                 Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
-                StoreId = command.StoreId, // StoreId is now passed from the command
+                StoreId = command.StoreId,
                 BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
                 CustomerId = customerId,
                 Platform = 1
@@ -465,7 +795,6 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Name = productTemplate.Name,
                     Quantity = obj.Quantity,
                     ProductTemplateId = productTemplate.Id,
-                    Price = productTemplate.Price
                 };
 
                 if (!obj.Ingredients.Any())
@@ -491,14 +820,11 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                         await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
                                     if (ingredientSession != null)
                                     {
-                                        var quantityExist = ingredientSession.SoldQuantity + igre.DefaultQuantity;
-                                        if (quantityExist > ingredientSession.Quantity)
+                                        // Kiểm tra số lượng yêu cầu có thỏa mãn số lượng tồn kho không
+                                        if (igre.DefaultQuantity >
+                                            (ingredientSession.Quantity - ingredientSession.SoldQuantity))
                                         {
-                                            throw new Exception("Nguyên liệu không đủ số lượng tồn");
-                                        }
-                                        else
-                                        {
-                                            ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                                            throw new Exception("Nguyên liệu không đủ số lượng tồn.");
                                         }
                                     }
                                 }
@@ -541,14 +867,10 @@ namespace QuickServe.Infrastructure.Persistence.Services
                                 await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
                             if (ingredientSession != null)
                             {
-                                var quantityExist = ingredientSession.SoldQuantity + ingre.Quantity;
-                                if (quantityExist > ingredientSession.Quantity)
+                                // Kiểm tra số lượng yêu cầu có thỏa mãn số lượng tồn kho không
+                                if (ingre.Quantity > (ingredientSession.Quantity - ingredientSession.SoldQuantity))
                                 {
-                                    throw new Exception("Nguyên liệu không đủ số lượng tồn");
-                                }
-                                else
-                                {
-                                    ingredientSession.SoldQuantity += ingre.Quantity;
+                                    throw new Exception("Nguyên liệu không đủ số lượng tồn.");
                                 }
                             }
                         }

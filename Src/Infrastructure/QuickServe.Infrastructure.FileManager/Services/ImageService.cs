@@ -18,7 +18,7 @@ namespace QuickServe.Infrastructure.FileManager.Services
 
         public ImageService(IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("AzureBlobStorage");
+           var connectionString = configuration.GetConnectionString("AzureBlobStorage");
             _blobServiceClient = new BlobServiceClient(connectionString);
         }
 

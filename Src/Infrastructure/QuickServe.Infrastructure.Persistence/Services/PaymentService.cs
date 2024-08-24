@@ -22,12 +22,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.EntityFrameworkCore;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
     public class PaymentService : IPaymentService
     {
-
         private readonly IVNPayService _vnPayService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOrderRepository _orderRepository;
@@ -43,7 +43,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             IOptions<AppSettings> appSettings,
             IHttpContextAccessor httpContextAccessor,
             IOrderRepository orderRepository,
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             IUnitOfWork unitOfWork,
             IPayOSService payOSService)
         {
@@ -61,7 +61,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
             _payOSService = payOSService;
             _context = context;
         }
-        public async Task<string> CreateVNPayPaymentUrlAsync(CreatePaymentCommand request, CancellationToken cancellationToken)
+
+        public async Task<string> CreateVNPayPaymentUrlAsync(CreatePaymentCommand request,
+            CancellationToken cancellationToken)
         {
             var locale = "vn";
             var title = $"Deposit for user has phone number {request.OrderInfo}, amount {request.TotalPrice}";
@@ -77,12 +79,15 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
 
             // Call the VNPay's service.
-            var paymentUrl = await _vnPayService.CreatePaymentUrlAsync(_vnPayConfigModel, orderInfo, locale, _vnPaySettings.CallBackUrl);
+            var paymentUrl =
+                await _vnPayService.CreatePaymentUrlAsync(_vnPayConfigModel, orderInfo, locale,
+                    _vnPaySettings.CallBackUrl);
 
             return paymentUrl;
         }
 
-        public async Task<PaymentCallBackResult> VNPayCallBackResultAsync(GetVNPayPayment request, CancellationToken cancellationToken)
+        public async Task<PaymentCallBackResult> VNPayCallBackResultAsync(GetVNPayPayment request,
+            CancellationToken cancellationToken)
         {
             var vnPayPayment = await GetVNPayPaymentAsync(request, cancellationToken);
             var payment = new Payment()
@@ -99,7 +104,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             else
             {
-                order.Status = vnPayPayment?.TransactionStatus == "00" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
+                order.Status = vnPayPayment?.TransactionStatus == "00"
+                    ? (int)OrderStatus.Paided
+                    : (int)OrderStatus.Failed;
             }
 
             await _context.Payments.AddRangeAsync(payment);
@@ -114,15 +121,17 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 Status = order.Status,
                 PaymentType = 2
             };
-            
+
             return result;
         }
 
-        
-        public async Task<Application.Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(GetVNPayPayment request, CancellationToken cancellationToken)
+
+        public async Task<Application.Utils.Payments.Model.PaymentResponse> GetVNPayPaymentAsync(
+            GetVNPayPayment request, CancellationToken cancellationToken)
         {
             IQueryCollection queryList = _httpContextAccessor.HttpContext.Request.Query;
-            bool checkSignature = _vnPayService.ValidateSignature(queryList, request.SecureHash, _vnPaySettings.SecretKey);
+            bool checkSignature =
+                _vnPayService.ValidateSignature(queryList, request.SecureHash, _vnPaySettings.SecretKey);
 
             if (!checkSignature) return null;
 
@@ -140,7 +149,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return resultFromVnPay;
         }
-        
+
         public async Task<PaymentCallBackResult> SubmitOrder(long orderId)
         {
             var order = await _orderRepository.GetByIdAsync(orderId);
@@ -167,12 +176,14 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 Status = order.Status,
                 PaymentType = 1
             };
-            
+
             return result;
         }
 
         #region PayOS
-        public async Task<string> CreatePayOSPaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken)
+
+        public async Task<string> CreatePayOSPaymentAsync(CreatePaymentRequest request,
+            CancellationToken cancellationToken)
         {
             var paymentRequest = new CreatePaymentRequest
             {
@@ -188,7 +199,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
             return reponse.checkoutUrl;
         }
 
-        public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request, CancellationToken cancellationToken)
+        /*public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request, CancellationToken cancellationToken)
         {
             var payment = new Payment()
             {
@@ -204,7 +215,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             else
             {
-                order.Status = request.Status == "PAID" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
+                order.Status = request.Status == "PAID" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
             }
 
             await _context.Payments.AddRangeAsync(payment);
@@ -221,12 +232,65 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
 
             return result;
+        }*/
+        public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request,
+            CancellationToken cancellationToken)
+        {
+            var orderId = long.Parse(request.OrderCode);
+
+            // Tìm kiếm đơn hàng dựa trên RefOrderId (OrderId)
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                return null;
+
+            // Kiểm tra xem đã có Payment nào cho RefOrderId này chưa
+            var existingPayment = await _context.Payments.FirstOrDefaultAsync(p => p.RefOrderId == order.Id);
+            if (existingPayment != null)
+            {
+                // Nếu Payment đã tồn tại, trả về thông tin thanh toán hiện có
+                return new PaymentCallBackResult()
+                {
+                    Id = existingPayment.Id.ToString(),
+                    Name = existingPayment.Name,
+                    RefOrderId = existingPayment.RefOrderId.ToString(),
+                    Status = order.Status,
+                    PaymentType = existingPayment.PaymentType
+                };
+            }
+
+            // Nếu chưa có Payment nào, tạo mới
+            var payment = new Payment()
+            {
+                Id = EnumExtension.GenerateUniqueId(),
+                Name = request.OrderCode,
+                RefOrderId = order.Id,
+                PaymentType = 2
+            };
+
+            // Cập nhật trạng thái đơn hàng
+            order.Status = request.Status == "PAID" ? (int)OrderStatus.Success : (int)OrderStatus.Failed;
+
+            // Lưu Payment và đơn hàng
+            await _context.Payments.AddAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PaymentCallBackResult()
+            {
+                Id = payment.Id.ToString(),
+                Name = payment.Name,
+                RefOrderId = order.Id.ToString(),
+                Status = order.Status,
+                PaymentType = payment.PaymentType
+            };
+
+            return result;
         }
 
         #endregion
-        
-        
-        public async Task<PaymentCallBackResult> PayOSCallBackResultForCustomerAsync(GetPayOSResponse request, Guid customerId, CancellationToken cancellationToken)
+
+
+        public async Task<PaymentCallBackResult> PayOSCallBackResultForCustomerAsync(GetPayOSResponse request,
+            Guid customerId, CancellationToken cancellationToken)
         {
             var payment = new Payment()
             {
@@ -266,6 +330,5 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return result;
         }
-
     }
 }
