@@ -37,6 +37,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPayOSService _payOSService;
+        private readonly IIngredientSessionRepository _ingredientSessionRepository;
+        private readonly ISessionRepository _sessionRepository;
 
         public PaymentService(
             IVNPayService vnPayService,
@@ -45,7 +47,9 @@ namespace QuickServe.Infrastructure.Persistence.Services
             IOrderRepository orderRepository,
             ApplicationDbContext context,
             IUnitOfWork unitOfWork,
-            IPayOSService payOSService)
+            IPayOSService payOSService,
+            IIngredientSessionRepository ingredientSessionRepository, ISessionRepository sessionRepository
+        )
         {
             _vnPayService = vnPayService;
             _httpContextAccessor = httpContextAccessor;
@@ -59,6 +63,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             };
             _unitOfWork = unitOfWork;
             _payOSService = payOSService;
+            _ingredientSessionRepository = ingredientSessionRepository;
+            _sessionRepository = sessionRepository;
             _context = context;
         }
 
@@ -267,11 +273,45 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 PaymentType = 2
             };
 
-            // Cập nhật trạng thái đơn hàng
-            order.Status = request.Status == "PAID" ? (int)OrderStatus.Paided : (int)OrderStatus.Failed;
+            // Nếu thanh toán thành công, cập nhật trạng thái thành Paided và tăng soldQuantity
+            if (request.Status == "PAID")
+            {
+                order.Status = (int)OrderStatus.Paided;
+
+                // Lấy phiên hiện tại
+                var sessions = await _sessionRepository.GetAllAsync();
+                var currentSession = sessions.FirstOrDefault(x =>
+                    x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+
+                if (currentSession != null)
+                {
+                    // Cập nhật số lượng soldQuantity trong IngredientSession mà không kiểm tra tồn kho
+                    foreach (var orderProduct in order.OrderProducts)
+                    {
+                        foreach (var ingredientProduct in orderProduct.Product.IngredientProducts)
+                        {
+                            // Sử dụng ingredientId và sessionId để tìm ingredientSession
+                            var ingredientSession =
+                                await _ingredientSessionRepository.GetByIdAsync(ingredientProduct.IngredientId,
+                                    currentSession.Id);
+                            if (ingredientSession != null)
+                            {
+                                // Cập nhật soldQuantity trong IngredientSession
+                                ingredientSession.SoldQuantity += ingredientProduct.Quantity;
+                                _ingredientSessionRepository.Update(ingredientSession);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                order.Status = (int)OrderStatus.Failed;
+            }
 
             // Cập nhật lại order vào repository
             _orderRepository.Update(order);
+
             // Lưu Payment và đơn hàng
             await _context.Payments.AddAsync(payment);
             await _unitOfWork.SaveChangesAsync();

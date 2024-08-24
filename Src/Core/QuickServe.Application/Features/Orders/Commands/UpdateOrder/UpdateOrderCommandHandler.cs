@@ -62,7 +62,7 @@ public class UpdateOrderCommandHandler (ITranslator translator, IUnitOfWork unit
         if (order.Status != request.Status)
         {
             // Nếu trạng thái là 4 (Thành công), tăng soldQuantity trong ingredientSession
-            if (request.Status == 4)
+            if (request.Status == 2)
             {
                 // Lấy phiên hiện tại
                 var sessions = await sessionRepository.GetAllAsync();
