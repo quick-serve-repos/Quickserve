@@ -24,6 +24,7 @@ using QuickServe.Domain.ProductTemplates.Dtos;
 using Azure.Core;
 using MediatR;
 using QuickServe.Application.Interfaces.Repositories;
+using QuickServe.Domain.IngredientTypes.Entities;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
@@ -65,6 +66,15 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         _translator.GetString(TranslatorMessages.TemplateStepMessages.Tên_bước_mẫu_đã_tồn_tại(request.Name)),
                         nameof(request.Name)));
 
+                }
+                foreach (var st in productTemplate.TemplateSteps) {
+                    foreach (var t in request.IngredientTypes)
+                    {
+                        if(st.IngredientTypeTemplateSteps.Any(c => c.IngredientTypeId == t.IngredientTypeId))
+                        {
+                            return new BaseResult(new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Loại nguyên liệu đã tồn tại trong bước khác.")));
+                        }
+                    }
                 }
                 var result = new TemplateStep
                 {
@@ -423,6 +433,10 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 if (productTemplate == null)
                 {
                     return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.ProductTemplateId)), nameof(request.ProductTemplateId)));
+                }
+                if (productTemplate.TemplateSteps.Count == 0)
+                {
+                    return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString("Mẫu chưa có bước!!!")));
                 }
                 if (productTemplate.TemplateSteps.Any(c => c.Status == (int)TemplateStepStatus.Inactive))
                 {

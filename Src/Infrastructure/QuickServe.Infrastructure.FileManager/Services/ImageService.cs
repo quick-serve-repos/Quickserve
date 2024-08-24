@@ -19,7 +19,7 @@ namespace QuickServe.Infrastructure.FileManager.Services
         public ImageService(IConfiguration configuration)
         {
            var connectionString = configuration.GetConnectionString("AzureBlobStorage");
-           // _blobServiceClient = new BlobServiceClient(connectionString);
+            _blobServiceClient = new BlobServiceClient(connectionString);
         }
 
         public async Task<string> UploadImageAsync(IFormFile image)
