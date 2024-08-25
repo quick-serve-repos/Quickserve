@@ -86,6 +86,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                
                 foreach (var newIngredientType in request.IngredientTypes)
                 {
+                    var count = 0;
                     var ingredientType = await _context.IngredientTypes.Include(i=> i.Ingredients)
                         .FirstOrDefaultAsync(i => i.Id == newIngredientType.IngredientTypeId);
                     if (ingredientType == null)
@@ -100,6 +101,18 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     if(ingredientType.Ingredients.Count()< newIngredientType.QuantityMax)
                     {
                         return new BaseResult(new Error(ErrorCode.FieldDataInvalid, _translator.GetString(ingredientType.Name + " không đủ nguyên liệu. Chọn lại số lượng lớn nhất.")));
+                    }
+                    foreach (var ingre in ingredientType.Ingredients)
+                    {
+                        if(ingre.DefaultQuantity > 0)
+                        {
+                            count++;
+                        }
+                    }
+                    if(count > newIngredientType.QuantityMax)
+                    {
+                        return new BaseResult(new Error(ErrorCode.FieldDataInvalid, 
+                            _translator.GetString(ingredientType.Name + " chứa "+count+" nguyên liệu mặc định. Chọn lại số lượng lớn nhất.")));
                     }
                     await _context.TemplateSteps.AddAsync(result);
                     await _unitOfWork.SaveChangesAsync();
