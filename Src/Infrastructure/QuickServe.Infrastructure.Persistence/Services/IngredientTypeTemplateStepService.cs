@@ -167,14 +167,17 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.ProductTemplateId)), nameof(request.ProductTemplateId)));
                 }
                 var templates = new List<TemplateResponse>();
-                foreach(var ts in productTemplate.TemplateSteps)
+               
+                
+                foreach (var ts in productTemplate.TemplateSteps)
                 {
                     var templateStep = new TemplateResponse(ts);
                     var its = new List<IngredientTypeResponse>();
-                    foreach(var it in ts.IngredientTypeTemplateSteps)
+                    var ingredients = new List<IngredientInfoResponse>();
+                    foreach (var it in ts.IngredientTypeTemplateSteps)
                     {
                         var ingreStep = new IngredientTypeResponse(it);
-                        var ingredients = new List<IngredientInfoResponse>();
+                       
                         foreach(var ingredient in it.IngredientType.Ingredients.
                             Where(c=>c.Status == (int)IngredientStatus.Active)) {
                             var ingredientRes = new IngredientInfoResponse(ingredient);
