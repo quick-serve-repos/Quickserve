@@ -509,9 +509,14 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     foreach (var ingre in obj.Ingredients)
                     {
+                        // Lấy giờ hiện tại theo UTC+7
+                        var utcNow = DateTime.UtcNow.AddHours(7);
+                        var currentTimeOfDay = utcNow.TimeOfDay;
+
+                        // Lấy phiên hiện tại dựa trên thời gian UTC+7
                         var sessions = await _sessionRepository.GetAllAsync();
                         var currentSession = sessions.FirstOrDefault(x =>
-                            x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                            x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
 
                         if (currentSession != null)
                         {
@@ -810,9 +815,14 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             {
                                 if (igre.DefaultQuantity == 0) continue;
 
+                                // Lấy giờ hiện tại theo UTC+7
+                                var utcNow = DateTime.UtcNow.AddHours(7);
+                                var currentTimeOfDay = utcNow.TimeOfDay;
+
+                                // Lấy phiên hiện tại dựa trên thời gian UTC+7
                                 var sessions = await _sessionRepository.GetAllAsync();
                                 var currentSession = sessions.FirstOrDefault(x =>
-                                    x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                                    x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
 
                                 if (currentSession != null)
                                 {
