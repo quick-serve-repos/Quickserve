@@ -408,7 +408,14 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     {
                         return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.IngredientTypeMessages.Không_tìm_thấy_loại_nguyên_liệu(ingreType.IngredientTypeId)), nameof(ingreType.IngredientTypeId)));
                     }
+                    if (_context.IngredientTypeTemplateSteps.Any(c => c.IngredientTypeId == ingredientType.Id &&
+                        c.TemplateStepId != templateStep.Id
+                    ))
+                    {
+                        return new BaseResult(new Error(ErrorCode.FieldDataInvalid, _translator.GetString("Loại nguyên liệu đã tồn tại trong bước khác.")));
+                    }
                 }
+
                 var existsTemplate = await _context.IngredientTypeTemplateSteps
                     .Where(c=> c.TemplateStepId == request.TemplateStepId).ToListAsync();
                 if (existsTemplate.Any())
@@ -418,6 +425,30 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
                 foreach (var newIngredientType in request.IngredientType)
                 {
+                    var count = 0;
+                    var ingredientType = await _context.IngredientTypes.Include(i => i.Ingredients)
+                        .FirstOrDefaultAsync(i => i.Id == newIngredientType.IngredientTypeId);
+                    if (!ingredientType.Ingredients.Any())
+                    {
+                        return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(ingredientType.Name + " chưa có nguyên liệu. Hãy thêm nguyên liệu.")));
+
+                    }
+                    if (ingredientType.Ingredients.Count() < newIngredientType.QuantityMax)
+                    {
+                        return new BaseResult(new Error(ErrorCode.FieldDataInvalid, _translator.GetString(ingredientType.Name + " không đủ nguyên liệu. Chọn lại số lượng lớn nhất.")));
+                    }
+                    foreach (var ingre in ingredientType.Ingredients)
+                    {
+                        if (ingre.DefaultQuantity > 0)
+                        {
+                            count++;
+                        }
+                    }
+                    if (count > newIngredientType.QuantityMax)
+                    {
+                        return new BaseResult(new Error(ErrorCode.FieldDataInvalid,
+                            _translator.GetString(ingredientType.Name + " chứa " + count + " nguyên liệu mặc định. Chọn lại số lượng lớn nhất.")));
+                    }
                     var ingredientProduct = new IngredientTypeTemplateStep
                     {
                         TemplateStepId = request.TemplateStepId,
