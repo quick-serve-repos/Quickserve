@@ -57,5 +57,7 @@
 
         ConcurrencyConflict = 45,
         OptimisticConcurrencyFailure = 46,
+        SessionNotFound =47,
+        NotEnoughQuantityIngredient =48
     }
 }
