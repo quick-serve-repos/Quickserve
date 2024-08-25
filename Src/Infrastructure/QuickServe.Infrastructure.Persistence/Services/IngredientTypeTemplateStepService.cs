@@ -184,7 +184,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             var remainQuantity = 0;
                             var isSold = true;
                             var sessions = await _sessionRepository.GetAllAsync();
-                            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.AddHours(7).TimeOfDay && x.EndTime >= DateTime.Now.AddHours(7).TimeOfDay);
 
                             if (currentSession != null)
                             {
