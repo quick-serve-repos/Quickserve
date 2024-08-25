@@ -22,6 +22,17 @@ namespace QuickServe.Application.Features.Accounts.Commands
             {
                 return new BaseResult<Guid>(new Error(ErrorCode.NotFound, translator.GetString("không tim thấy tài khoản"), nameof(authenticated.UserId)));
             }
+            var store = await storeRepository.GetByIdAsync(request.StoreId);
+
+            if (store == null)
+            {
+                throw new Exception(translator
+                    .GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.StoreId)));
+            }
+            if (store.StoreManager != null)
+            {
+                throw new Exception("Cửa hàng đã có quản lý");
+            }
             var result = await accountServices.CreateAccount(new DTOs.Account.Requests.CreateAccountRequest
             {
                 Email = request.Email,
@@ -51,17 +62,6 @@ namespace QuickServe.Application.Features.Accounts.Commands
                 {
                     if(request.Role == AccountRole.Store_Manager.ToString())
                     {
-                        var store = await storeRepository.GetByIdAsync(request.StoreId);
-                        
-                        if (store == null)
-                        {
-                            throw new Exception(translator
-                                .GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.StoreId)));
-                        }
-                        if(store.StoreManager != null)
-                        {
-                            throw new Exception("Cửa hàng đã có quản lý");
-                        }
                         store.StoreManager = request.UserName;
                     }
                     staffRepository.AddStaffToStore(request.StoreId, account.Id);
