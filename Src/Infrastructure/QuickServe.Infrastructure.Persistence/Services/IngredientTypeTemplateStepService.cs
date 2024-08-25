@@ -49,6 +49,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             try
             {
                 var productTemplate = await _context.ProductTemplates
+                    .Include(c => c.TemplateSteps).ThenInclude(c => c.IngredientTypeTemplateSteps)
+                    .ThenInclude(c => c.IngredientType)
                     .FirstOrDefaultAsync(c=> c.Id == request.ProductTemplateId);
                 if(productTemplate == null)
                 {
@@ -165,21 +167,24 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     return new BaseResult(new Error(ErrorCode.NotFound, _translator.GetString(TranslatorMessages.ProductTemplateMessages.Không_tìm_thấy_mẫu_sản_phẩm(request.ProductTemplateId)), nameof(request.ProductTemplateId)));
                 }
                 var templates = new List<TemplateResponse>();
-                foreach(var ts in productTemplate.TemplateSteps)
+               
+                
+                foreach (var ts in productTemplate.TemplateSteps)
                 {
                     var templateStep = new TemplateResponse(ts);
                     var its = new List<IngredientTypeResponse>();
-                    foreach(var it in ts.IngredientTypeTemplateSteps)
+                    var ingredients = new List<IngredientInfoResponse>();
+                    foreach (var it in ts.IngredientTypeTemplateSteps)
                     {
                         var ingreStep = new IngredientTypeResponse(it);
-                        var ingredients = new List<IngredientInfoResponse>();
+                       
                         foreach(var ingredient in it.IngredientType.Ingredients.
                             Where(c=>c.Status == (int)IngredientStatus.Active)) {
                             var ingredientRes = new IngredientInfoResponse(ingredient);
                             var remainQuantity = 0;
                             var isSold = true;
                             var sessions = await _sessionRepository.GetAllAsync();
-                            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.TimeOfDay && x.EndTime >= DateTime.Now.TimeOfDay);
+                            var currentSession = sessions.FirstOrDefault(x => x.StartTime <= DateTime.Now.AddHours(7).TimeOfDay && x.EndTime >= DateTime.Now.AddHours(7).TimeOfDay);
 
                             if (currentSession != null)
                             {
