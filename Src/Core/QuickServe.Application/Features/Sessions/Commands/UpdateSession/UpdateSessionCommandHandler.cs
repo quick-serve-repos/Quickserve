@@ -24,6 +24,12 @@ public class UpdateSessionCommandHandler(ISessionRepository sessionRepository, I
         {
             return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.SessionMessage.Không_tìm_thấy_ca_làm_việc(request.Id)), nameof(request.Id)));
         }
+        if (session.IngredientSessions.Count != 0) {
+            return new BaseResult(new 
+                Error(ErrorCode.NotFound, 
+                translator.GetString("Ca làm việc hiện tại tồn tại các nguyên liệu. Xin hãy xóa các nguyên liệu để cập nhật.")));
+
+        }
         TimeSpan startTime = TimeSpan.Parse(request.StartTime);
         TimeSpan endTime = TimeSpan.Parse(request.EndTime);
         if (startTime >= endTime)
