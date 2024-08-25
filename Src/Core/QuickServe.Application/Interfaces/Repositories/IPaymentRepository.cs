@@ -14,4 +14,6 @@ public interface IPaymentRepository : IGenericRepository<Payment>
     Task<PagenationResponseDto<PaymentDto>> GetPagedListByStoreIdAsync(int pageNumber, int pageSize, 
         long? refOrderId, DateTime? createdDate, bool last7Days, int? specificMonth,
         int? specificYear);
+    Task<Payment?> GetByOrderIdAsync(long orderId);
+
 }

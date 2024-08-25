@@ -42,6 +42,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
     public async Task<Order> GetByIdAsync(long id)
     {
         return await orders.AsNoTracking()
+            .Include(o => o.Store)  
             .Include(x => x.OrderProducts)
             .ThenInclude(e => e.Product)
             .ThenInclude(a => a.IngredientProducts)

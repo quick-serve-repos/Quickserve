@@ -206,4 +206,12 @@ public class PaymentRepository : GenericRepository<Payment>, IPaymentRepository
 
         return result;
     }
+
+    public async Task<Payment?> GetByOrderIdAsync(long orderId)
+    {
+        return await _payments
+            .Include(p => p.Order)  // Bao gồm thông tin đơn hàng liên quan
+            .FirstOrDefaultAsync(p => p.RefOrderId == orderId);  // Lọc theo RefOrderId
+    }
+
 }

@@ -22,6 +22,8 @@ using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.ProductTemplates.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using QuickServe.Application.DTOs.Bill;
+using QuickServe.Application.Features.Orders.Queries.GetBillByOrderId;
 using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
 using QuickServe.Application.Features.Orders.Queries.GetOrders;
 using QuickServe.Application.Features.Orders.Queries.GetOrdersForStaff;
@@ -147,6 +149,14 @@ namespace QuickServe.WebApi.Controllers.v1
         {
             return await Mediator.Send(command);
         }
+        
+        [HttpGet("PrintBill/{orderId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff")]
+        public async Task<BaseResult<BillDto>> PrintBill(long orderId)
+        {
+            return await Mediator.Send(new GetBillByOrderIdQuery { OrderId = orderId });
+        }
+
         private Guid GetCurrentUserId()
         {
             // Lấy thông tin của người dùng từ ClaimsPrincipal
