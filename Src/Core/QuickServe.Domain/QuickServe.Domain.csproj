@@ -10,6 +10,9 @@
 	  <Folder Include="OrderProducts\Dtos\" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="BouncyCastle" Version="1.8.9" />
+	  <PackageReference Include="itext7" Version="8.0.5" />
+	  <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
 	  <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.0" />
 	</ItemGroup>
 </Project>

@@ -21,7 +21,15 @@ using QuickServe.Application.Wrappers;
 using QuickServe.Domain.Orders.Dtos;
 using QuickServe.Domain.ProductTemplates.Dtos;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using iText.IO.Font;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 using QuickServe.Application.DTOs.Bill;
 using QuickServe.Application.Features.Orders.Queries.GetBillByOrderId;
 using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
@@ -156,7 +164,28 @@ namespace QuickServe.WebApi.Controllers.v1
         {
             return await Mediator.Send(new GetBillByOrderIdQuery { OrderId = orderId });
         }
+        
+        [HttpGet("PrintBillPdf/{orderId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Staff")]
+        public async Task<IActionResult> PrintBillPdf(long orderId)
+        {
+            // Fetch bill data using existing query
+            var result = await Mediator.Send(new GetBillByOrderIdQuery { OrderId = orderId });
 
+            if (result.Data == null)
+            {
+                return BadRequest("Order not found or not paid.");
+            }
+
+            var pdfGenerator = new PdfGeneratorService();
+            var pdfBytes = pdfGenerator.GenerateBillPdf(result.Data);
+
+            // Return PDF as a file response
+            return File(pdfBytes, "application/pdf", $"Bill-{orderId}.pdf");
+        }
+
+
+        
         private Guid GetCurrentUserId()
         {
             // Lấy thông tin của người dùng từ ClaimsPrincipal
