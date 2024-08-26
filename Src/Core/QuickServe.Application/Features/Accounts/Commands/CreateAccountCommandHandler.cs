@@ -24,12 +24,8 @@ namespace QuickServe.Application.Features.Accounts.Commands
             }
             var store = await storeRepository.GetByIdAsync(request.StoreId);
 
-            if (store == null)
-            {
-                throw new Exception(translator
-                    .GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.StoreId)));
-            }
-            if (store.StoreManager != null)
+           
+            if (store.StoreManager != null && request.Role == AccountRole.Store_Manager.ToString())
             {
                 throw new Exception("Cửa hàng đã có quản lý");
             }
@@ -60,7 +56,12 @@ namespace QuickServe.Application.Features.Accounts.Commands
                     request.Role == AccountRole.Store_Manager.ToString()
                    )
                 {
-                    if(request.Role == AccountRole.Store_Manager.ToString())
+                    if (store == null)
+                    {
+                        throw new Exception(translator
+                            .GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.StoreId)));
+                    }
+                    if (request.Role == AccountRole.Store_Manager.ToString())
                     {
                         store.StoreManager = request.UserName;
                     }
