@@ -59,7 +59,8 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
 builder.Services.AddDistributedMemoryCache();
-
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddHostedService<SessionStatusUpdaterService>();
 #pragma warning disable CS0618 // Type or member is obsolete
 builder.Services.AddControllers().AddFluentValidation(options =>
 {

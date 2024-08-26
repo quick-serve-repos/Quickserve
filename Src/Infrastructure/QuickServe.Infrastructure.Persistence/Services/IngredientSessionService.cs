@@ -6,6 +6,7 @@ using QuickServe.Application.DTOs.Sessions.Response;
 using QuickServe.Application.Helpers;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Interfaces.IngredientSessions;
+using QuickServe.Application.Utils.Enums;
 using QuickServe.Application.Wrappers;
 using QuickServe.Domain.IngredientSessions.Entities;
 using QuickServe.Infrastructure.Persistence.Contexts;
@@ -184,6 +185,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     };
                     await _context.IngredientSessions.AddAsync(ingredientSession);
                 }
+                session.Status = (int)SessionStatus.Active;
+                _context.Sessions.Update(session);
                 await _unitOfWork.SaveChangesAsync();
                 return new BaseResult();
             }
