@@ -12,7 +12,8 @@ namespace QuickServe.Application.Features.Orders.Queries.GetBillByOrderId;
 
 public class PdfGeneratorService
 {
-    private readonly string _fontPath = @"./DejaVuSans.ttf";  // Path to the font file
+    //private readonly string _fontPath = @"./DejaVuSans.ttf";  // Path to the font file
+    private readonly string _fontPath = @"DejaVuSans.ttf";  // Path to the font file
 
     public byte[] GenerateBillPdf(BillDto bill)
     {

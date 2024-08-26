@@ -41,5 +41,10 @@
 		<ProjectReference Include="..\..\Infrastructure\QuickServe.Infrastructure.Persistence\QuickServe.Infrastructure.Persistence.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\QuickServe.Infrastructure.Resources\QuickServe.Infrastructure.Resources.csproj" />
 	</ItemGroup>
+	 <ItemGroup>
+        <None Update="DejaVuSans.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
 </Project>
