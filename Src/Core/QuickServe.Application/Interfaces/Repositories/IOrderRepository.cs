@@ -35,4 +35,6 @@ public interface IOrderRepository : IGenericRepository<Order>
         DateTime? createdDate, bool last7Days , int? specificMonth , int? specificYear);
     
     Task<PagenationResponseDto<OderStatusResponse>> GetOrdersForStaff(long storeId, int pageNumber, int pageSize, int status);
+    
+    Task<List<Order>> GetOrdersWithStatusNotUpdatedAsync(int status, TimeSpan timeNotUpdated);
 }

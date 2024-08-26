@@ -239,7 +239,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return result;
         }*/
-        public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request,
+        //26-08-2024
+        /*public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request,
             CancellationToken cancellationToken)
         {
             var orderId = long.Parse(request.OrderCode);
@@ -312,6 +313,101 @@ namespace QuickServe.Infrastructure.Persistence.Services
             else
             {
                 order.Status = (int)OrderStatus.Failed;
+            }
+
+            // Cập nhật lại order vào repository
+            _orderRepository.Update(order);
+
+            // Lưu Payment và đơn hàng
+            await _context.Payments.AddAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PaymentCallBackResult()
+            {
+                Id = payment.Id.ToString(),
+                Name = payment.Name,
+                RefOrderId = order.Id.ToString(),
+                Status = order.Status,
+                PaymentType = payment.PaymentType
+            };
+
+            return result;
+        }*/
+
+        public async Task<PaymentCallBackResult> PayOSCallBackResultAsync(GetPayOSResponse request,
+            CancellationToken cancellationToken)
+        {
+            var orderId = long.Parse(request.OrderCode);
+
+            // Tìm kiếm đơn hàng dựa trên RefOrderId (OrderId)
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                return null;
+
+            // Kiểm tra xem đã có Payment nào cho RefOrderId này chưa
+            var existingPayment = await _context.Payments.FirstOrDefaultAsync(p => p.RefOrderId == order.Id);
+            if (existingPayment != null)
+            {
+                // Nếu Payment đã tồn tại, trả về thông tin thanh toán hiện có
+                return new PaymentCallBackResult()
+                {
+                    Id = existingPayment.Id.ToString(),
+                    Name = existingPayment.Name,
+                    RefOrderId = existingPayment.RefOrderId.ToString(),
+                    Status = order.Status,
+                    PaymentType = existingPayment.PaymentType
+                };
+            }
+
+            // Nếu chưa có Payment nào, tạo mới
+            var payment = new Payment()
+            {
+                Id = EnumExtension.GenerateUniqueId(),
+                Name = request.OrderCode,
+                RefOrderId = order.Id,
+                PaymentType = 2
+            };
+
+            // Nếu thanh toán thành công, cập nhật trạng thái thành Paided mà không cần cập nhật soldQuantity
+            if (request.Status == "PAID")
+            {
+                order.Status = (int)OrderStatus.Paided;
+
+                // Không cần tăng soldQuantity nữa
+            }
+            else if (request.Status == "FAILED")
+            {
+                order.Status = (int)OrderStatus.Failed;
+
+                // Lấy giờ hiện tại theo UTC+7
+                var utcNow = DateTime.UtcNow.AddHours(7);
+                var currentTimeOfDay = utcNow.TimeOfDay;
+
+                // Lấy phiên hiện tại dựa trên thời gian UTC+7
+                var sessions = await _sessionRepository.GetAllAsync();
+                var currentSession = sessions.FirstOrDefault(x =>
+                    x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
+
+                if (currentSession != null)
+                {
+                    // Giảm soldQuantity trong IngredientSession về như cũ
+                    foreach (var orderProduct in order.OrderProducts)
+                    {
+                        foreach (var ingredientProduct in orderProduct.Product.IngredientProducts)
+                        {
+                            // Sử dụng ingredientId và sessionId để tìm ingredientSession
+                            var ingredientSession =
+                                await _ingredientSessionRepository.GetByIdAsync(ingredientProduct.IngredientId,
+                                    currentSession.Id);
+                            if (ingredientSession != null)
+                            {
+                                // Giảm soldQuantity bằng số lượng đã dự trữ trước đó
+                                ingredientSession.SoldQuantity -= ingredientProduct.Quantity;
+                                _ingredientSessionRepository.Update(ingredientSession);
+                            }
+                        }
+                    }
+                }
             }
 
             // Cập nhật lại order vào repository

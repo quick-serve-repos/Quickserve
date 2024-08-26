@@ -527,4 +527,12 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
            pageSize);
    }
 
+   public async Task<List<Order>> GetOrdersWithStatusNotUpdatedAsync(int status, TimeSpan timeNotUpdated)
+   {
+       var timeThreshold = DateTime.UtcNow.Add(-timeNotUpdated);
+
+       return await _context.Orders
+           .Where(o => o.Status == status && o.LastModified < timeThreshold)
+           .ToListAsync();
+   }
 }

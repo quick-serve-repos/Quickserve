@@ -36,6 +36,7 @@ using Microsoft.Extensions.Configuration;
 using QuickServe.Domain.Settings;
 using Net.payOS;
 using System;
+using QuickServe.Application.Features.Orders.Commands.UpdateHub;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,6 +81,7 @@ builder.Services.AddCors(x =>
     });
 });
 builder.Services.AddCustomLocalization(builder.Configuration);
+builder.Services.AddSignalR();
 
 #region Service
 // Register third-party service
@@ -136,6 +138,9 @@ app.UseSwaggerWithVersioning();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 //app.UseHealthChecks("/health");
 app.UseSerilogRequestLogging();
+
+app.MapHub<OrderUpdateHub>("/orderUpdateHub");
+
 
 app.MapControllers();
 

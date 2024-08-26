@@ -31,6 +31,7 @@ using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using QuickServe.Application.DTOs.Bill;
+using QuickServe.Application.Features.Orders.Queries.CancelOrder;
 using QuickServe.Application.Features.Orders.Queries.GetBillByOrderId;
 using QuickServe.Application.Features.Orders.Queries.GetCustomerOrderHistory;
 using QuickServe.Application.Features.Orders.Queries.GetOrders;
@@ -184,6 +185,11 @@ namespace QuickServe.WebApi.Controllers.v1
             return File(pdfBytes, "application/pdf", $"Bill-{orderId}.pdf");
         }
 
+        [HttpPut("CancelOrder")]
+        public async Task<BaseResult<OrderResponse>> CancelOrder(CancelOrderCommand command)
+        {
+            return await Mediator.Send(command);
+        }
 
         
         private Guid GetCurrentUserId()
