@@ -27,14 +27,14 @@ public class CreateSessionCommandHandler(IAccountRepository accountRepository, I
         TimeSpan minStartTime = TimeSpan.Parse("05:59:00");
         TimeSpan maxEndTime = TimeSpan.Parse("22:01:00");
 
-        if (startTime < minStartTime)
+       /* if (startTime < minStartTime)
         {
             return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString("Thời gian bắt đầu phải lớn hơn hoặc bằng 05:59")));
         }
         if (endTime > maxEndTime)
         {
             return new BaseResult(new Error(ErrorCode.FieldDataInvalid, translator.GetString("Thời gian kết thúc phải sớm hơn hoặc bằng 22:01")));
-        }
+        }*/
 
         if (startTime >= endTime)
         {

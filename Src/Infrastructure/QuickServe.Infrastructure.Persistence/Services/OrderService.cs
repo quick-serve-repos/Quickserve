@@ -1977,7 +1977,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             var result = await _unitOfWork.SaveChangesAsync();
 
-            if (result)
+            /*   if (result)
             {
                 var storeStaff = await _context.Staffs
                     .Include(s => s.Account)
@@ -1990,7 +1990,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     await _hubContext.Clients.User(staff.EmployeeId.ToString())
                         .SendAsync("ReceiveNotification", $"Có một đơn hàng mới: {order.Id}");
                 }
-            }
+            }*/
 
             OrderResponse response = new OrderResponse()
             {

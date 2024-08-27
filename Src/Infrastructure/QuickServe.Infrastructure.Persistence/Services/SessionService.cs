@@ -44,7 +44,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     session.Status = (int) SessionStatus.Inactive;
                     _context.Sessions.Update(session);
                 }
-                var storeManager = await _context.Staffs
+                /*var storeManager = await _context.Staffs
                     .Include(s=> s.Store)
                     .Include(s=> s.Account)
                     .Where(s => s.StoreId == session.StoreId && s.Account.UserName == s.Store.StoreManager)
@@ -54,7 +54,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     await _hubContext.Clients.User(storeManager.EmployeeId.ToString())
                         .SendAsync("ReceiveNotification", "Ca làm việc "+ session.Name +" chưa được cập nhật");
-                }
+                }*/
             }
             await _unitOfWork.SaveChangesAsync();
         }
