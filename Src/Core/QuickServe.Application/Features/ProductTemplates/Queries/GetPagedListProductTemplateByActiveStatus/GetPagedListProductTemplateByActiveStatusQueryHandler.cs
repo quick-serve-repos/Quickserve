@@ -17,7 +17,7 @@ namespace QuickServe.Application.Features.ProductTemplates.Queries.GetPagedListP
     {
         public async Task<PagedResponse<ProductTemplateDto>> Handle(GetPagedListProductTemplateByActiveStatusQuery request, CancellationToken cancellationToken)
         {
-            var result = await productTemplateRepository.GetPagedListByAcitveStatusAsync(request.PageNumber, request.PageSize, request.Name);
+            var result = await productTemplateRepository.GetPagedListByAcitveStatusAsync(request.PageNumber, request.PageSize, request.Name, request.StoreId);
             return new PagedResponse<ProductTemplateDto>(result, request);
         }
     }

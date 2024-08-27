@@ -20,7 +20,7 @@ public class GetIngredientTypeByIdQueryHandler(IIngredientTypeRepository ingredi
         if (ingredientType is null)
         {
             return new BaseResult<IngredientTypeDTO>(new Error(ErrorCode.NotFound,
-                translator.GetString(TranslatorMessages.IngredientTypeMessages.Loại_nguyên_liệu_không_tìm_thấy_với_id(request.Id)),
+                translator.GetString(TranslatorMessages.IngredientTypeMessages.Không_tìm_thấy_loại_nguyên_liệu(request.Id)),
                 nameof(request.Id)));
         }
 

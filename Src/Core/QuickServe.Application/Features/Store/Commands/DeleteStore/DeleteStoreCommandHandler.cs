@@ -12,11 +12,17 @@ public class DeleteStoreCommandHandler(IStoreRepository storeRepository, IUnitOf
 {
     public async Task<BaseResult> Handle(DeleteStoreCommand request, CancellationToken cancellationToken)
     {
-        var store = await storeRepository.GetByIdAsync(request.Id);
+        var store = await storeRepository.FindByIdAsync(request.Id);
         if (store is null)
         {
             return new BaseResult(new Error(ErrorCode.NotFound,
-                translator.GetString(TranslatorMessages.StoreMessages.Cửa_hàng_không_tìm_thấy_với_id(request.Id)),
+                translator.GetString(TranslatorMessages.StoreMessages.Không_tìm_thấy_cửa_hàng(request.Id)),
+                nameof(request.Id)));
+        }
+        if(store.Sessions.Count != 0)
+        {
+            return new BaseResult(new Error(ErrorCode.NotFound,
+                translator.GetString("Cửa hàng tồn tại các ca làm việc."),
                 nameof(request.Id)));
         }
         storeRepository.Delete(store);

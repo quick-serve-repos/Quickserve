@@ -10,6 +10,7 @@ namespace QuickServe.Application.DTOs.Account.Requests
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public string Name { get; set; }
         public string UserName { get; set; }
         public string Role { get; set; }
     }
@@ -33,7 +34,12 @@ namespace QuickServe.Application.DTOs.Account.Requests
                 .NotEmpty()
                 .NotNull()
                 .WithName(p => translator[nameof(p.UserName)]);
-
+            
+            RuleFor(x => x.Name)
+               .NotEmpty()
+               .NotNull()
+               .WithName(p => translator[nameof(p.Name)]);
+            
             RuleFor(x => x.Role)
                 .NotEmpty()
                 .NotNull()

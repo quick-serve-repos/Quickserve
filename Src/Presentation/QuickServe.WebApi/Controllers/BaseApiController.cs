@@ -7,7 +7,7 @@ namespace QuickServe.WebApi.Controllers
 {
     [ApiController]
     [ApiResultFilter]
-    [Route("api/v1/[controller]/[action]")]
+    [Route("api/v1/[controller]")]
     public abstract class BaseApiController : ControllerBase
     {
         private IMediator _mediator;

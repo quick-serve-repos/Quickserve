@@ -16,7 +16,7 @@ public class OrderProductConfiguration  :  IEntityTypeConfiguration<OrderProduct
         entity.Property(e => e.OrderId).HasColumnName("OrderID");
 
         entity.Property(e => e.ProductId).HasColumnName("ProductID");
-
+        entity.Property(e => e.Price).HasColumnType("decimal(8, 2)");
         entity.HasOne(d => d.Order)
             .WithMany(p => p.OrderProducts)
             .HasForeignKey(d => d.OrderId)

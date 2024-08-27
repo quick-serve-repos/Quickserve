@@ -12,6 +12,7 @@ using QuickServe.Domain.IngredientTypes.Dtos;
 using QuickServe.Infrastructure.Persistence.Contexts;
 using QuickServe.Infrastructure.Resources.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,7 +36,11 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
     public async Task<Ingredient> GetIngredientByIdAsync(long id)
     {
         return await ingredients.Include(i=> i.IngredientType)
+            .ThenInclude(i=> i.IngredientTypeTemplateSteps)
+            .ThenInclude(i=> i.TemplateStep)
+            .ThenInclude(i=> i.ProductTemplate)
             .Include(i=>i.IngredientSessions)
+            .ThenInclude(s=> s.Session)
             .Include(i=>i.IngredientNutritions)
             .Include(i=>i.IngredientProducts).ThenInclude(ip=> ip.Product)
             .FirstOrDefaultAsync(i=>i.Id == id);
@@ -44,7 +49,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
 
     public async Task<PagenationResponseDto<IngredientDTO>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = ingredients.OrderBy(c => c.Created).AsQueryable();
+        var query = ingredients.OrderByDescending(c => c.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(c => c.Name.Contains(name));
@@ -60,6 +65,8 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
                 Calo = c.Calo,
                 Description = c.Description,
                 ImageUrl = c.ImageUrl,
+                DefaultQuantity = c.DefaultQuantity,
+                QuantityMax = c.QuantityMax,
                 IngredientType = new SimpleIngredietTypeRespone(c.IngredientType),
                 IngredientTypeId = c.IngredientTypeId,
                 Status = c.Status,
@@ -91,6 +98,7 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
                 Price = c.Price,
                 Calo = c.Calo,
                 Description = c.Description,
+                QuantityMax = c.QuantityMax,
                 ImageUrl = c.ImageUrl,
                 IngredientType = new SimpleIngredietTypeRespone(c.IngredientType),
                 IngredientTypeId = c.IngredientTypeId,
@@ -105,4 +113,5 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
             pageNumber,
             pageSize);
     }
+    
 }

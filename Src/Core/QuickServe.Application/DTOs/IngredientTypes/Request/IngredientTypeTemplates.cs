@@ -18,13 +18,14 @@ namespace QuickServe.Application.DTOs.IngredientTypes.Request
         public IngredientTypeTemplateStepsValidator()
         {
             RuleFor(x => x.IngredientTypeId)
-                 .NotEmpty().WithMessage("Id loại nguyên liệu là bắt buộc.")
-                 .GreaterThan(0).WithMessage("Id loại nguyên liệu phải lớn hơn 0.");
+                 .NotEmpty().WithMessage("Loại nguyên liệu là bắt buộc.")
+                 .GreaterThan(0).WithMessage("Loại nguyên liệu phải lớn hơn 0.");
 
             RuleFor(x => x.QuantityMin)
                 .GreaterThanOrEqualTo(0).WithMessage("Số lượng tối thiểu phải lớn hơn hoặc bằng 0.");
 
             RuleFor(x => x.QuantityMax)
+                .GreaterThan(0).WithMessage("Số lượng tối đa phải lớn hơn 0.")
                 .GreaterThanOrEqualTo(x => x.QuantityMin).WithMessage("Số lượng tối đa phải lớn hơn hoặc bằng số lượng tối thiểu.");
         }
     }

@@ -17,7 +17,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -26,10 +26,20 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("Customer_id");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("date");
 
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("text");
@@ -37,17 +47,23 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Discriminator")
+                    b.Property<string>("CreatedBy")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -79,6 +95,9 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -91,9 +110,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.ToTable("Account");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Account");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("QuickServe.Domain.Categories.Entities.Category", b =>
@@ -239,6 +256,9 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<long>("SessionId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("SoldQuantity")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IngredientId");
@@ -299,7 +319,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -307,7 +327,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(40)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -338,12 +358,15 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<int>("DefaultQuantity")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -361,7 +384,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("IngredientType_id");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -374,6 +397,9 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(8, 2)");
+
+                    b.Property<int>("QuantityMax")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -394,7 +420,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -414,7 +440,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -461,6 +487,9 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("OrderID");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(8, 2)");
+
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint")
                         .HasColumnName("ProductID");
@@ -485,14 +514,22 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("BillCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid")
                         .HasColumnName("Customer_id");
 
@@ -502,15 +539,18 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Platform")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<long>("StoreId")
                         .HasColumnType("bigint")
                         .HasColumnName("Store_id");
-
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -577,7 +617,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("Category_Id");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -593,7 +633,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnName("Image_url");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(40)
@@ -635,15 +675,18 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<bool>("IsCustomer")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -702,10 +745,6 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(40)");
 
-                    b.Property<long>("OrderId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("Order_Id");
-
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("interval")
                         .HasColumnName("Start_Time");
@@ -713,14 +752,18 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<long>("StoreId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("Store_Id");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("StoreId");
 
                     b.ToTable("Session", (string)null);
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uuid");
@@ -732,7 +775,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Staff", (string)null);
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("QuickServe.Domain.Stores.Entities.Store", b =>
@@ -749,7 +792,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -757,7 +800,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -767,6 +810,9 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("StoreManager")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -782,7 +828,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -790,7 +836,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("LastModified")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastModifiedBy")
                         .HasMaxLength(255)
@@ -819,7 +865,10 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 {
                     b.HasBaseType("QuickServe.Domain.Accounts.Entities.Account");
 
-                    b.HasDiscriminator().HasValue("Customer");
+                    b.Property<long>("Point")
+                        .HasColumnType("bigint");
+
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("QuickServe.Domain.IngredientNutritions.Entities.IngredientNutrition", b =>
@@ -930,10 +979,10 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("QuickServe.Domain.Orders.Entities.Order", b =>
                 {
-                    b.HasOne("QuickServe.Domain.Accounts.Entities.Account", "Customer")
+                    b.HasOne("QuickServe.Domain.Customers.Entities.Customer", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("order_customer_id_foreign");
 
                     b.HasOne("QuickServe.Domain.Stores.Entities.Store", "Store")
@@ -982,20 +1031,20 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("QuickServe.Domain.Sessions.Entities.Session", b =>
                 {
-                    b.HasOne("QuickServe.Domain.Orders.Entities.Order", "Order")
+                    b.HasOne("QuickServe.Domain.Stores.Entities.Store", "Store")
                         .WithMany("Sessions")
-                        .HasForeignKey("OrderId")
-                        .IsRequired()
-                        .HasConstraintName("order_session_id_foreign");
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Order");
+                    b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.HasOne("QuickServe.Domain.Accounts.Entities.Account", "Account")
                         .WithOne("Staff")
-                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Staff", "EmployeeId")
+                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Employee", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Staff_Account");
@@ -1022,10 +1071,17 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Navigation("ProductTemplate");
                 });
 
+            modelBuilder.Entity("QuickServe.Domain.Customers.Entities.Customer", b =>
+                {
+                    b.HasOne("QuickServe.Domain.Accounts.Entities.Account", null)
+                        .WithOne()
+                        .HasForeignKey("QuickServe.Domain.Customers.Entities.Customer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("QuickServe.Domain.Accounts.Entities.Account", b =>
                 {
-                    b.Navigation("Orders");
-
                     b.Navigation("Staff")
                         .IsRequired();
                 });
@@ -1061,8 +1117,6 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Navigation("OrderProducts");
 
                     b.Navigation("PaymentMethods");
-
-                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("QuickServe.Domain.ProductTemplates.Entities.ProductTemplate", b =>
@@ -1088,12 +1142,19 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Orders");
 
+                    b.Navigation("Sessions");
+
                     b.Navigation("Staffs");
                 });
 
             modelBuilder.Entity("QuickServe.Domain.TemplateSteps.Entities.TemplateStep", b =>
                 {
                     b.Navigation("IngredientTypeTemplateSteps");
+                });
+
+            modelBuilder.Entity("QuickServe.Domain.Customers.Entities.Customer", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

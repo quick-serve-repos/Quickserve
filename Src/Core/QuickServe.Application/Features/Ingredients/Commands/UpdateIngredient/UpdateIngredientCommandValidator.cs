@@ -15,11 +15,6 @@ public class UpdateIngredientCommandValidator : AbstractValidator<UpdateIngredie
                 .Must(name => char.IsUpper(name[0])).WithMessage(translator["Chữ cái đầu tiên của Tên phải viết hoa"])
                 .WithName(p => translator[nameof(p.Name)]);
 
-        RuleFor(p => p.Id)
-            .NotNull().WithMessage(translator["ID là bắt buộc"])
-            .NotEmpty().WithMessage(translator["ID là bắt buộc"])
-            .WithName(p => translator[nameof(p.Id)]);
-
         RuleFor(p => p.Price)
             .GreaterThan(0).WithMessage(translator["Giá phải lớn hơn 0"])
             .WithName(p => translator[nameof(p.Price)]);

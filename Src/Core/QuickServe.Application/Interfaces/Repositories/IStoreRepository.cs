@@ -8,4 +8,5 @@ namespace QuickServe.Application.Interfaces.Repositories;
 public interface IStoreRepository : IGenericRepository<Store>
 {
     Task<PagenationResponseDto<StoreDto>> GetPagedListAsync(int pageNumber, int pageSize, string name);
+    Task<Store> FindByIdAsync(long id);
 }

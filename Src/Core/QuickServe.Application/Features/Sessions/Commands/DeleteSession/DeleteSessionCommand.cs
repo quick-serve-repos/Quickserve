@@ -1,6 +1,9 @@
-﻿namespace QuickServe.Application.Features.Sessions.Commands.DeleteSession;
+﻿using MediatR;
+using QuickServe.Application.Wrappers;
 
-public class DeleteSessionCommand
+namespace QuickServe.Application.Features.Sessions.Commands.DeleteSession;
+
+public class DeleteSessionCommand : IRequest<BaseResult>
 {
-    
+    public long Id { get; set; }
 }

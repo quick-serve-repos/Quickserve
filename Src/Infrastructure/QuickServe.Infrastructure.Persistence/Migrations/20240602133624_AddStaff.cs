@@ -810,7 +810,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 column: "Id");
 
             migrationBuilder.CreateTable(
-                name: "Staff",
+                name: "Employee",
                 columns: table => new
                 {
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -840,7 +840,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Staff_StoreId",
-                table: "Staff",
+                table: "Employee",
                 column: "StoreId");
 
             migrationBuilder.AddForeignKey(
@@ -1050,7 +1050,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 table: "TemplateStep");
 
             migrationBuilder.DropTable(
-                name: "Staff");
+                name: "Employee");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_TemplateStep",

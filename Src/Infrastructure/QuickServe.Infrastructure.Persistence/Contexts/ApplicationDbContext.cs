@@ -62,7 +62,7 @@ namespace QuickServe.Infrastructure.Persistence.Contexts
     public virtual DbSet<Session> Sessions { get; set; }
     public virtual DbSet<Store> Stores { get; set; } 
     public virtual DbSet<TemplateStep> TemplateSteps { get; set; }
-    public virtual DbSet<Staff> Staffs { get; set; }
+    public virtual DbSet<Employee> Staffs { get; set; }
     public virtual DbSet<Customer> Customers { get; set; }
 
 
@@ -74,11 +74,13 @@ namespace QuickServe.Infrastructure.Persistence.Contexts
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.Created = DateTime.Now.ToUniversalTime();
+                    //entry.Entity.Created = DateTime.Now.ToUniversalTime();
+                    entry.Entity.Created = DateTime.UtcNow.AddHours(7);
                     entry.Entity.CreatedBy = username;
                     break;
                 case EntityState.Modified:
-                    entry.Entity.LastModified = DateTime.Now.ToUniversalTime();
+                    //entry.Entity.LastModified = DateTime.Now.ToUniversalTime();
+                    entry.Entity.LastModified = DateTime.UtcNow.AddHours(7);
                     entry.Entity.LastModifiedBy = username;
                     break;
             }

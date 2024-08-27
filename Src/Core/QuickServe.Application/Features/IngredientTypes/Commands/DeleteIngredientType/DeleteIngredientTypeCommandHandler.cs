@@ -16,11 +16,11 @@ public class DeleteIngredientTypeCommandHandler(IIngredientTypeRepository ingred
 
         if (ingredientType is null)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientTypeMessages.Loại_nguyên_liệu_không_tìm_thấy_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientTypeMessages.Không_tìm_thấy_loại_nguyên_liệu(request.Id)), nameof(request.Id)));
         }
         if (ingredientType.Ingredients.Count != 0)
         {
-            return new BaseResult(new Error(ErrorCode.NotFound, translator.GetString(TranslatorMessages.IngredientTypeMessages.Loại_nguyên_liệu_tồn_tại_nguyên_liệu_với_id(request.Id)), nameof(request.Id)));
+            return new BaseResult(new Error(ErrorCode.ConstraintViolation, translator.GetString(TranslatorMessages.IngredientTypeMessages.Loại_nguyên_liệu_có_tồn_tại_nguyên_liệu(request.Id)), nameof(request.Id)));
         }
         ingredientTypeRepository.Delete(ingredientType);
         await unitOfWork.SaveChangesAsync();

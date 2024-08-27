@@ -17,7 +17,7 @@ namespace QuickServe.Domain.Stores.Dtos
             Address = store.Address;
             Created = store.Created;
             CreatedBy = store.CreatedBy;
-           
+            StoreManager = store.StoreManager;
 
         }
 
@@ -26,7 +26,7 @@ namespace QuickServe.Domain.Stores.Dtos
         public string Address { get; set; }
         public string CreatedBy { get; set; } = null!;
         public DateTime Created { get; set; }
-      
+        public string? StoreManager { get; set; }
 
     }
 }

@@ -16,7 +16,7 @@ namespace QuickServe.Application.DTOs.ProductTemplates.Request
         public DeleteTemplateRequestValidator()
         {
             RuleFor(x => x.TemplateStepId)
-                 .NotEmpty().WithMessage("Id bước mẫu là bắt buộc.")
+                 .NotEmpty().WithMessage("Bước mẫu là bắt buộc.")
                  .GreaterThan(0).WithMessage("Id bước mẫu phải lớn hơn 0.");
         }
     }

@@ -502,7 +502,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Property<long>("StoreId")
                         .HasColumnType("bigint");
 
-                    b.Property<double>("TotalPrice")
+                    b.Property<double>("Amount")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");

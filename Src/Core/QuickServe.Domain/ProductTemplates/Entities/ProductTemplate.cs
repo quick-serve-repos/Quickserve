@@ -27,10 +27,9 @@ namespace QuickServe.Domain.ProductTemplates.Entities
             Products = new HashSet<Product>();
             TemplateSteps = new HashSet<TemplateStep>();
         }
-        public void Update(string name, decimal price, string size, string description, long categoryId)
+        public void Update(string name, string size, string description, long categoryId)
         {
             Name = name;
-            Price = price;
             Size = size;
             Description = description;
             CategoryId = categoryId;

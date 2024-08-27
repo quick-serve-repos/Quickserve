@@ -12,7 +12,7 @@ namespace QuickServe.Application.Wrappers
         public int TotalItems { get; set; }
         public bool HasPreviousPage => PageNumber > 1;
         public bool HasNextPage => PageNumber < TotalPages;
-        public PagedResponse()
+        public PagedResponse(Domain.Orders.Dtos.OrderDto result)
         {
 
         }

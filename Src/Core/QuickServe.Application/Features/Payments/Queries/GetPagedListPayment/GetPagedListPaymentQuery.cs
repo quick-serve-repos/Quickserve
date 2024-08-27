@@ -1,6 +1,17 @@
-﻿namespace QuickServe.Application.Features.Payments.Queries.GetPagedListPayment;
+﻿using System;
+using MediatR;
+using QuickServe.Application.Parameters;
+using QuickServe.Application.Wrappers;
+using QuickServe.Domain.Payments.Dtos;
 
-public class GetPagedListPaymentQuery
+namespace QuickServe.Application.Features.Payments.Queries.GetPagedListPayment;
+
+public class GetPagedListPaymentQuery : PagenationRequestParameter, IRequest<PagedResponse<PaymentDto>>
 {
-    
+    public long? StoreId { get; set; }
+    public long? RefOrderId { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public bool Last7Days { get; set; }
+    public int? SpecificMonth { get; set; } // Tháng cụ thể
+    public int? SpecificYear { get; set; } // Năm cụ thể
 }

@@ -13,6 +13,8 @@ namespace QuickServe.Application.DTOs.Ingredients.Request
     {
         public string Name { get; set; } = null!;
         public decimal Price { get; set; }
+        public int DefaultQuantity { get; set; }
+        public int QuantityMax { get; set; }
         public int Calo { get; set; }
         public string Description { get; set; } = null!;
         public IFormFile Image { get; set; }
@@ -28,6 +30,11 @@ namespace QuickServe.Application.DTOs.Ingredients.Request
 
             RuleFor(x => x.Price)
                 .GreaterThan(0).WithMessage(translator["Giá phải lớn hơn 0."]);
+           
+            RuleFor(x => x.DefaultQuantity)
+               .GreaterThan(-1).WithMessage(translator["Giá phải lớn hơn -1."]);
+            RuleFor(x => x.QuantityMax)
+               .GreaterThan(-1).WithMessage(translator["Giá phải lớn hơn -1."]);
 
             RuleFor(x => x.Calo)
                 .GreaterThanOrEqualTo(0).WithMessage(translator["Calo phải lớn hơn hoặc bằng 0."]);
@@ -42,7 +49,7 @@ namespace QuickServe.Application.DTOs.Ingredients.Request
                 .Must(BeAValidSize).WithMessage(translator["Kích thước ảnh phải nhỏ hơn 2MB."]);
 
             RuleFor(x => x.IngredientTypeId)
-                .GreaterThan(0).WithMessage(translator["Id Loại nguyên liệu phải lớn hơn 0."]);
+                .GreaterThan(0).WithMessage(translator["Loại nguyên liệu phải lớn hơn 0."]);
         }
 
         private bool BeAValidImage(IFormFile file)

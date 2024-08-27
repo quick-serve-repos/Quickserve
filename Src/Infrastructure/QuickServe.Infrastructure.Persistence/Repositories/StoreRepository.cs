@@ -17,9 +17,14 @@ public class StoreRepository : GenericRepository<Store>, IStoreRepository
         stores = dbContext.Set<Store>();
     }
 
+    public async Task<Store> FindByIdAsync(long id)
+    {
+        return await stores.Include(c=> c.Sessions).FirstOrDefaultAsync(c=> c.Id == id);
+    }
+
     public async Task<PagenationResponseDto<StoreDto>> GetPagedListAsync(int pageNumber, int pageSize, string name)
     {
-        var query = stores.OrderBy(s => s.Created).AsQueryable();
+        var query = stores.OrderByDescending(s => s.Created).AsQueryable();
         if (!string.IsNullOrEmpty(name))
         {
             query = query.Where(s => s.Name.Contains(name));

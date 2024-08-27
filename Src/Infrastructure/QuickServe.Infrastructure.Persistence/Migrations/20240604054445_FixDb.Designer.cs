@@ -548,7 +548,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("Store_id");
 
-                    b.Property<double>("TotalPrice")
+                    b.Property<double>("Amount")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
@@ -755,7 +755,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.ToTable("Session", (string)null);
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uuid");
@@ -767,7 +767,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Staff", (string)null);
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("QuickServe.Domain.Stores.Entities.Store", b =>
@@ -1035,11 +1035,11 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Staff", b =>
+            modelBuilder.Entity("QuickServe.Domain.Staffs.Entities.Employee", b =>
                 {
                     b.HasOne("QuickServe.Domain.Accounts.Entities.Account", "Account")
-                        .WithOne("Staff")
-                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Staff", "EmployeeId")
+                        .WithOne("Employee")
+                        .HasForeignKey("QuickServe.Domain.Staffs.Entities.Employee", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Staff_Account");
@@ -1070,7 +1070,7 @@ namespace QuickServe.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Orders");
 
-                    b.Navigation("Staff")
+                    b.Navigation("Employee")
                         .IsRequired();
                 });
 
