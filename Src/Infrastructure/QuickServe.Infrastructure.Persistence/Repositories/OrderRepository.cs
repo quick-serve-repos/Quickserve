@@ -220,7 +220,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .Include(o => o.OrderProducts)
             .ThenInclude(op => op.Product)
             .ThenInclude(p => p.ProductTemplate)
-            .Where(o => o.Created >= startDate && o.Created <= endDate && o.Status == (int)OrderStatus.Success);
+            .Where(o => (o.Status == (int)OrderStatus.Success || o.Status == (int)OrderStatus.Got));
 
         if (storeId != null)
         {
