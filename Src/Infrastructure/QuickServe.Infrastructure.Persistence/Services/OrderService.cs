@@ -764,7 +764,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
         x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
 
     // Kiểm tra xem có phiên hiện tại không và session này phải có status = 2
-    if (currentSession == null || currentSession.Status != 2)
+    if (currentSession == null || currentSession.Status != 1)
     {
         return new BaseResult<OrderResponse>(new Error(ErrorCode.SessionNotFound,
             "Không có phiên làm việc nào đang hoạt động hoặc phiên này không hợp lệ, không thể đặt hàng"));
@@ -1457,7 +1457,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
 
             // Kiểm tra xem có phiên hiện tại không và session này phải có status = 2
-            if (currentSession == null || currentSession.Status != 2)
+            if (currentSession == null || currentSession.Status != 1)
             {
                 return new BaseResult<OrderResponse>(new Error(ErrorCode.SessionNotFound,
                     "Không có phiên làm việc nào đang hoạt động, không thể đặt hàng"));
