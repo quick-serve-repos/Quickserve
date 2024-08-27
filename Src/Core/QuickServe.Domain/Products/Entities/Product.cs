@@ -21,7 +21,7 @@ namespace QuickServe.Domain.Products.Entities
         public long ProductTemplateId { get; set; }
         public int? Quantity { get; set; }
         
-        public bool IsCustomer { get; set; }
+        //public bool IsCustomer { get; set; }
 
         public virtual ProductTemplate ProductTemplate { get; set; } = null!;
         public virtual ICollection<IngredientProduct> IngredientProducts { get; set; }

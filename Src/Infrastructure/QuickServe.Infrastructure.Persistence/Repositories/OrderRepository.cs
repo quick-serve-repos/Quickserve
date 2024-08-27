@@ -111,14 +111,14 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
             orderCount = await orders.AsNoTracking()
                 .Where(o => o.Created >= startDate && o.Created <= endDate
-                                                   && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                                                    && o.StoreId == storeId)
                 .CountAsync();
         }
         else
         {
             orderCount = await orders.AsNoTracking()
                 .Where(o => o.Created >= startDate && o.Created <= endDate
-                                                   && o.Status == (int)OrderStatus.Success)
+                                                   )
                 .CountAsync();
         }
 
@@ -138,14 +138,13 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
             totalOrderCount = await orders.AsNoTracking()
                 .Include(x => x.Store)
-                .Where(o => o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                .Where(o => o.StoreId == storeId)
                 .CountAsync();
         }
         else
         {
             totalOrderCount = await orders.AsNoTracking()
                 .Include(x => x.Store)
-                .Where(o => o.Status == (int)OrderStatus.Success)
                 .CountAsync();
         }
 
@@ -165,7 +164,8 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             totalRevenue = await orders.AsNoTracking()
                 .Include(x => x.Store)
                 .Where(o => o.Created >= startDate && o.Created <= endDate
-                                                   && o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                                                   && (o.Status == (int)OrderStatus.Success || o.Status == (int)OrderStatus.Got)
+                                                   && o.StoreId == storeId)
                 .SumAsync(o => o.Amount);
         }
         else
@@ -173,7 +173,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             totalRevenue = await orders.AsNoTracking()
                 .Include(x => x.Store)
                 .Where(o => o.Created >= startDate && o.Created <= endDate
-                                                   && o.Status == (int)OrderStatus.Success)
+                                                   && (o.Status == (int)OrderStatus.Success || o.Status == (int)OrderStatus.Got))
                 .SumAsync(o => o.Amount);
         }
 
@@ -192,14 +192,14 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
             totalRevenue = await orders.AsNoTracking()
                 .Include(x => x.Store)
-                .Where(o => o.Status == (int)OrderStatus.Success && o.StoreId == storeId)
+                .Where(o => (o.Status == (int)OrderStatus.Success || o.Status == (int)OrderStatus.Got) && o.StoreId == storeId)
                 .SumAsync(o => o.Amount);
         }
         else
         {
             totalRevenue = await orders.AsNoTracking()
                 .Include(x => x.Store)
-                .Where(o => o.Status == (int)OrderStatus.Success)
+                .Where(o => o.Status == (int)OrderStatus.Success ||o.Status ==  (int)OrderStatus.Got)
                 .SumAsync(o => o.Amount);
         }
 
