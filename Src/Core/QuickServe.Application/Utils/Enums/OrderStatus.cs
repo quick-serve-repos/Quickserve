@@ -12,9 +12,10 @@ namespace QuickServe.Application.Utils.Enums
         Paided = 2,
         Preparing = 3,
         Success = 4,
-        Failed = 5,
+        Got =5,
         Canceled = 6,
-        Refunded = 7
+        Refund = 7,
+        Failed = 8
     }
     public class PayOSEnum
     {
