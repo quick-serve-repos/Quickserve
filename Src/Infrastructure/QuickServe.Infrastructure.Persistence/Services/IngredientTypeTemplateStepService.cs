@@ -83,7 +83,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
                     Name = request.Name.Trim(),
                     ProductTemplateId = request.ProductTemplateId,
                 };
-               
+                await _context.TemplateSteps.AddAsync(result);
+                await _unitOfWork.SaveChangesAsync();
                 foreach (var newIngredientType in request.IngredientTypes)
                 {
                     var count = 0;
@@ -114,8 +115,6 @@ namespace QuickServe.Infrastructure.Persistence.Services
                         return new BaseResult(new Error(ErrorCode.FieldDataInvalid, 
                             _translator.GetString(ingredientType.Name + " chứa "+count+" nguyên liệu mặc định. Chọn lại số lượng lớn nhất.")));
                     }
-                    await _context.TemplateSteps.AddAsync(result);
-                    await _unitOfWork.SaveChangesAsync();
                     var ingredientStep = new IngredientTypeTemplateStep
                     {
                         TemplateStepId = result.Id,

@@ -28,9 +28,9 @@ public class IngredientRepository : GenericRepository<Ingredient>, IIngredientRe
     }
 
 
-    public async Task<bool> ExistByNameAsync(string name)
+    public async Task<bool> ExistByNameAsync(string name, long id)
     {
-        return await ingredients.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+        return await ingredients.AnyAsync(c => c.Name.ToLower() == name.ToLower() && c.IngredientTypeId == id);
     }
 
     public async Task<Ingredient> GetIngredientByIdAsync(long id)

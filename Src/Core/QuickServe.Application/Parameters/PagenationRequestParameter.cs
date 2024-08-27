@@ -7,7 +7,7 @@
         public PagenationRequestParameter()
         {
             this.PageNumber = 1;
-            this.PageSize = 50;
+            this.PageSize = 40;
         }
         public PagenationRequestParameter(int pageNumber, int pageSize)
         {

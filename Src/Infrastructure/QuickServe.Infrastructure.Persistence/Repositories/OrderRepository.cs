@@ -463,7 +463,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         .Include(o => o.OrderProducts)
         .ThenInclude(op => op.Product)
         .ThenInclude(p => p.ProductTemplate)
-        .Where(o => o.CustomerId == customerId && o.Status == (int)OrderStatus.Success)
+        .Where(o => o.CustomerId == customerId && new[] { 2, 3, 4, 5, 6, 7 }.Contains(o.Status))
         .AsQueryable();
 
     if (!string.IsNullOrEmpty(storeName))
