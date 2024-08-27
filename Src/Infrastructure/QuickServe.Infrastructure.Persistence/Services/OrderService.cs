@@ -18,6 +18,10 @@ using QuickServe.Application.DTOs.Orders.Response;
 using QuickServe.Domain.Customers.Entities;
 using QuickServe.Infrastructure.Persistence.Repositories;
 using QuickServe.Infrastructure.Resources.Services;
+using Microsoft.AspNetCore.SignalR;
+using QuickServe.Infrastructure.Persistence.Services.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace QuickServe.Infrastructure.Persistence.Services
 {
@@ -33,6 +37,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
         private readonly IIngredientTypeRepository _ingredientTypeRepository;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IAccountRepository _accountRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
 
         public OrderService(
@@ -45,7 +50,8 @@ namespace QuickServe.Infrastructure.Persistence.Services
             ITemplateStepRepository templateStepRepository,
             IIngredientTypeRepository ingredientTypeRepository,
             IAuthenticatedUserService authenticatedUserService,
-            IAccountRepository accountRepository
+            IAccountRepository accountRepository,
+            IHubContext<NotificationHub> hubContext
         )
         {
             _context = context;
@@ -1260,7 +1266,7 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return new BaseResult<OrderResponse>(response);
         }*/
-        
+
         // Ngay 26/08/2024
         /*public async Task<BaseResult<OrderResponse>> CreateOrderForCustomerAsync(CreateOrderCommand command)
         {
@@ -1435,89 +1441,132 @@ namespace QuickServe.Infrastructure.Persistence.Services
 
             return new BaseResult<OrderResponse>(response);
         }*/
-        
+
         public async Task<BaseResult<OrderResponse>> CreateOrderForCustomerAsync(CreateOrderCommand command)
-{
-    if (command.Products == null || !command.Products.Any())
-        return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
-
-    // Lấy giờ hiện tại theo UTC+7
-    var utcNow = DateTime.UtcNow.AddHours(7);
-    var currentTimeOfDay = utcNow.TimeOfDay;
-
-    // Lấy phiên hiện tại dựa trên thời gian UTC+7
-    var sessions = await _sessionRepository.GetAllAsync();
-    var currentSession = sessions.FirstOrDefault(x =>
-        x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
-
-    // Kiểm tra xem có phiên hiện tại không và session này phải có status = 2
-    if (currentSession == null || currentSession.Status != 2)
-    {
-        return new BaseResult<OrderResponse>(new Error(ErrorCode.SessionNotFound,
-            "Không có phiên làm việc nào đang hoạt động, không thể đặt hàng"));
-    }
-
-    List<Product> products = new List<Product>();
-    List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
-    List<OrderProduct> orderProducts = new List<OrderProduct>();
-
-    var userId = _authenticatedUserService.UserId;
-
-    var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
-    Guid? customerId = null;
-    if (currentUser is Customer customer)
-    {
-        customerId = customer.Id;
-    }
-
-    if (customerId == null)
-    {
-        throw new Exception("User is not a customer");
-    }
-
-    // Create new order
-    var order = new Order()
-    {
-        Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
-        StoreId = command.StoreId,
-        BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
-        CustomerId = customerId,
-        Platform = 1,
-        Status = (int)OrderStatus.Pending
-    };
-
-    foreach (var obj in command.Products)
-    {
-        if (obj == null || obj.ProductTemplateId <= 0) continue;
-        var productTemplate =
-            await _productTemplateRepository.GetProductTemplateByIdAsync(obj.ProductTemplateId);
-        var orderProduct = new OrderProduct();
-
-        var product = new Product()
         {
-            Id = EnumExtension.GenerateUniqueId(),
-            Name = productTemplate.Name,
-            Quantity = obj.Quantity,
-            ProductTemplateId = productTemplate.Id,
-        };
+            if (command.Products == null || !command.Products.Any())
+                return new BaseResult<OrderResponse>(new Error(ErrorCode.NotFound));
 
-        if (!obj.Ingredients.Any())
-        {
-            foreach (var step in productTemplate.TemplateSteps)
+            // Lấy giờ hiện tại theo UTC+7
+            var utcNow = DateTime.UtcNow.AddHours(7);
+            var currentTimeOfDay = utcNow.TimeOfDay;
+
+            // Lấy phiên hiện tại dựa trên thời gian UTC+7
+            var sessions = await _sessionRepository.GetAllAsync();
+            var currentSession = sessions.FirstOrDefault(x =>
+                x.StartTime <= currentTimeOfDay && x.EndTime >= currentTimeOfDay);
+
+            // Kiểm tra xem có phiên hiện tại không và session này phải có status = 2
+            if (currentSession == null || currentSession.Status != 2)
             {
-                var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
-                foreach (var ingreStep in temStep.IngredientTypeTemplateSteps)
-                {
-                    var ingreType = await _ingredientTypeRepository.GetIngredientTypeByIdAsync(ingreStep.IngredientTypeId);
-                    foreach (var igre in ingreType.Ingredients)
-                    {
-                        if (igre.DefaultQuantity == 0) continue;
+                return new BaseResult<OrderResponse>(new Error(ErrorCode.SessionNotFound,
+                    "Không có phiên làm việc nào đang hoạt động, không thể đặt hàng"));
+            }
 
-                        var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+            List<Product> products = new List<Product>();
+            List<IngredientProduct> ingredientProducts = new List<IngredientProduct>();
+            List<OrderProduct> orderProducts = new List<OrderProduct>();
+
+            var userId = _authenticatedUserService.UserId;
+
+            var currentUser = await _accountRepository.FindByIdAsync(Guid.Parse(userId));
+            Guid? customerId = null;
+            if (currentUser is Customer customer)
+            {
+                customerId = customer.Id;
+            }
+
+            if (customerId == null)
+            {
+                throw new Exception("User is not a customer");
+            }
+
+            // Create new order
+            var order = new Order()
+            {
+                Id = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
+                StoreId = command.StoreId,
+                BillCode = "Bill-" + EnumExtension.GenerateUniqueId(),
+                CustomerId = customerId,
+                Platform = 1,
+                Status = (int)OrderStatus.Pending
+            };
+
+            foreach (var obj in command.Products)
+            {
+                if (obj == null || obj.ProductTemplateId <= 0) continue;
+                var productTemplate =
+                    await _productTemplateRepository.GetProductTemplateByIdAsync(obj.ProductTemplateId);
+                var orderProduct = new OrderProduct();
+
+                var product = new Product()
+                {
+                    Id = EnumExtension.GenerateUniqueId(),
+                    Name = productTemplate.Name,
+                    Quantity = obj.Quantity,
+                    ProductTemplateId = productTemplate.Id,
+                };
+
+                if (!obj.Ingredients.Any())
+                {
+                    foreach (var step in productTemplate.TemplateSteps)
+                    {
+                        var temStep = await _templateStepRepository.FindByIdAsync(step.Id);
+                        foreach (var ingreStep in temStep.IngredientTypeTemplateSteps)
+                        {
+                            var ingreType = await _ingredientTypeRepository.GetIngredientTypeByIdAsync(ingreStep.IngredientTypeId);
+                            foreach (var igre in ingreType.Ingredients)
+                            {
+                                if (igre.DefaultQuantity == 0) continue;
+
+                                var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(igre.Id, currentSession.Id);
+                                if (ingredientSession != null)
+                                {
+                                    // Kiểm tra số lượng tồn kho dựa trên `ingredientSession.Quantity`
+                                    if (ingredientSession.Quantity - ingredientSession.SoldQuantity < igre.DefaultQuantity)
+                                    {
+                                        return new BaseResult<OrderResponse>(new Error(
+                                            ErrorCode.NotEnoughQuantityIngredient,
+                                            "Nguyên liệu không đủ số lượng tồn."));
+                                    }
+
+                                    // Dự trữ trước (Pre-allocate)
+                                    ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                                    _ingredientSessionRepository.Update(ingredientSession);
+                                }
+
+                                var ingredientProduct = new IngredientProduct()
+                                {
+                                    ProductId = product.Id,
+                                    IngredientId = igre.Id,
+                                    Quantity = igre.DefaultQuantity
+                                };
+                                ingredientProducts.Add(ingredientProduct);
+                                product.Price += igre.Price;
+                            }
+                        }
+                    }
+
+                    products.Add(product);
+                    orderProduct = new OrderProduct()
+                    {
+                        OrderId = order.Id,
+                        ProductId = product.Id,
+                        Quantity = obj.Quantity,
+                        Price = product.Price
+                    };
+                    orderProducts.Add(orderProduct);
+                    order.Amount += (double)product.Price * obj.Quantity;
+                }
+                else
+                {
+                    foreach (var ingre in obj.Ingredients)
+                    {
+                        var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
                         if (ingredientSession != null)
                         {
                             // Kiểm tra số lượng tồn kho dựa trên `ingredientSession.Quantity`
-                            if (ingredientSession.Quantity - ingredientSession.SoldQuantity < igre.DefaultQuantity)
+                            if (ingredientSession.Quantity - ingredientSession.SoldQuantity < ingre.Quantity)
                             {
                                 return new BaseResult<OrderResponse>(new Error(
                                     ErrorCode.NotEnoughQuantityIngredient,
@@ -1525,94 +1574,66 @@ namespace QuickServe.Infrastructure.Persistence.Services
                             }
 
                             // Dự trữ trước (Pre-allocate)
-                            ingredientSession.SoldQuantity += igre.DefaultQuantity;
+                            ingredientSession.SoldQuantity += ingre.Quantity;
                             _ingredientSessionRepository.Update(ingredientSession);
                         }
 
                         var ingredientProduct = new IngredientProduct()
                         {
                             ProductId = product.Id,
-                            IngredientId = igre.Id,
-                            Quantity = igre.DefaultQuantity
+                            IngredientId = ingre.Id,
+                            Quantity = ingre.Quantity
                         };
                         ingredientProducts.Add(ingredientProduct);
-                        product.Price += igre.Price;
+                        product.Price += ingre.Price * ingre.Quantity;
                     }
-                }
-            }
 
-            products.Add(product);
-            orderProduct = new OrderProduct()
-            {
-                OrderId = order.Id,
-                ProductId = product.Id,
-                Quantity = obj.Quantity,
-                Price = product.Price
-            };
-            orderProducts.Add(orderProduct);
-            order.Amount += (double)product.Price * obj.Quantity;
-        }
-        else
-        {
-            foreach (var ingre in obj.Ingredients)
-            {
-                var ingredientSession = await _ingredientSessionRepository.GetByIdAsync(ingre.Id, currentSession.Id);
-                if (ingredientSession != null)
-                {
-                    // Kiểm tra số lượng tồn kho dựa trên `ingredientSession.Quantity`
-                    if (ingredientSession.Quantity - ingredientSession.SoldQuantity < ingre.Quantity)
+                    products.Add(product);
+                    orderProduct = new OrderProduct()
                     {
-                        return new BaseResult<OrderResponse>(new Error(
-                            ErrorCode.NotEnoughQuantityIngredient,
-                            "Nguyên liệu không đủ số lượng tồn."));
-                    }
-
-                    // Dự trữ trước (Pre-allocate)
-                    ingredientSession.SoldQuantity += ingre.Quantity;
-                     _ingredientSessionRepository.Update(ingredientSession);
+                        OrderId = order.Id,
+                        ProductId = product.Id,
+                        Quantity = obj.Quantity,
+                        Price = product.Price
+                    };
+                    orderProducts.Add(orderProduct);
+                    order.Amount += (double)product.Price * obj.Quantity;
                 }
-
-                var ingredientProduct = new IngredientProduct()
-                {
-                    ProductId = product.Id,
-                    IngredientId = ingre.Id,
-                    Quantity = ingre.Quantity
-                };
-                ingredientProducts.Add(ingredientProduct);
-                product.Price += ingre.Price * ingre.Quantity;
             }
 
-            products.Add(product);
-            orderProduct = new OrderProduct()
+            await _context.ProDucts.AddRangeAsync(products);
+            if (ingredientProducts.Any())
+                await _context.IngredientProducts.AddRangeAsync(ingredientProducts);
+
+            await _context.Orders.AddRangeAsync(order);
+            await _context.OrderProducts.AddRangeAsync(orderProducts);
+
+            var result = await _unitOfWork.SaveChangesAsync();
+
+            if (result)
             {
-                OrderId = order.Id,
-                ProductId = product.Id,
-                Quantity = obj.Quantity,
-                Price = product.Price
+                var storeStaff = await _context.Staffs
+                    .Include(s=> s.Account)
+                    .Include(s=> s.Store)
+                    .Where(s => s.StoreId == command.StoreId && s.Account.UserName != s.Store.StoreManager)
+                    .ToListAsync();
+
+                foreach (var staff in storeStaff)
+                {
+                    await _hubContext.Clients.User(staff.EmployeeId.ToString())
+                        .SendAsync("ReceiveNotification", $"Có một đơn hàng mới: {order.Id}");
+                }
+            }
+
+            OrderResponse response = new OrderResponse()
+            {
+                OrderId = result ? order.Id.ToString() : null,
+                Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
+                BillCode = order.BillCode
             };
-            orderProducts.Add(orderProduct);
-            order.Amount += (double)product.Price * obj.Quantity;
+
+            return new BaseResult<OrderResponse>(response);
         }
-    }
-
-    await _context.ProDucts.AddRangeAsync(products);
-    if (ingredientProducts.Any())
-        await _context.IngredientProducts.AddRangeAsync(ingredientProducts);
-
-    await _context.Orders.AddRangeAsync(order);
-    await _context.OrderProducts.AddRangeAsync(orderProducts);
-
-    var result = await _unitOfWork.SaveChangesAsync();
-
-    OrderResponse response = new OrderResponse()
-    {
-        OrderId = result ? order.Id.ToString() : null,
-        Status = result ? (int)OrderStatus.Pending : (int)OrderStatus.Failed,
-        BillCode = order.BillCode
-    };
-
-    return new BaseResult<OrderResponse>(response);
-}
 
     }
 }

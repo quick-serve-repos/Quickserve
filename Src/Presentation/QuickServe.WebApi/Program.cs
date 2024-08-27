@@ -37,6 +37,7 @@ using QuickServe.Domain.Settings;
 using Net.payOS;
 using System;
 using QuickServe.Application.Features.Orders.Commands.UpdateHub;
+using QuickServe.Infrastructure.Persistence.Services.SignalR;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -140,7 +141,8 @@ app.UseMiddleware<ErrorHandlerMiddleware>();
 //app.UseHealthChecks("/health");
 app.UseSerilogRequestLogging();
 
-app.MapHub<OrderUpdateHub>("/orderUpdateHub");
+app.MapHub<NotificationHub>("/notificationHub");
+
 
 
 app.MapControllers();

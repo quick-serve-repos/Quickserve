@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using QuickServe.Application.Interfaces;
 using QuickServe.Application.Utils.Enums;
 using QuickServe.Infrastructure.Persistence.Contexts;
+using QuickServe.Infrastructure.Persistence.Services.SignalR;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +17,12 @@ namespace QuickServe.Infrastructure.Persistence.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
-
-        public SessionService(ApplicationDbContext context, IUnitOfWork unitOfWork)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public SessionService(ApplicationDbContext context, IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
         public async Task UpdateSessionStatus()
@@ -39,6 +43,17 @@ namespace QuickServe.Infrastructure.Persistence.Services
                 {
                     session.Status = (int) SessionStatus.Inactive;
                     _context.Sessions.Update(session);
+                }
+                var storeManager = await _context.Staffs
+                    .Include(s=> s.Store)
+                    .Include(s=> s.Account)
+                    .Where(s => s.StoreId == session.StoreId && s.Account.UserName == s.Store.StoreManager)
+                    .FirstOrDefaultAsync();
+
+                if (storeManager != null)
+                {
+                    await _hubContext.Clients.User(storeManager.EmployeeId.ToString())
+                        .SendAsync("ReceiveNotification", "Ca làm việc "+ session.Name +" chưa được cập nhật");
                 }
             }
             await _unitOfWork.SaveChangesAsync();
